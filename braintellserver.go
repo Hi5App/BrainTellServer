@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	err := utils.Loadconfig()
+	err := utils.LoadConfig()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Load Config",
@@ -21,11 +21,11 @@ func main() {
 	//user service
 	http.HandleFunc("/user/register", services.Register)
 	http.HandleFunc("/user/login", services.Login)
-	http.HandleFunc("/user/setuserscore", services.SetUserScore)
-	http.HandleFunc("/user/updatepasswd", services.UpdatePasswd)
-	http.HandleFunc("/user/forgetpasswd", services.ForgetPasswd)
-	http.HandleFunc("/user/resetpasswd", services.ResetPasswd)
-	http.HandleFunc("/user/registernetease", services.RegisterNetease)
+	http.HandleFunc("/user/setuserscore", services.SetUserScore)       //todo
+	http.HandleFunc("/user/updatepasswd", services.UpdatePasswd)       //todo
+	http.HandleFunc("/user/forgetpasswd", services.ForgetPasswd)       //todo
+	http.HandleFunc("/user/resetpasswd", services.ResetPasswd)         //todo
+	http.HandleFunc("/user/registernetease", services.RegisterNetease) //todo
 	//add soma service
 	http.HandleFunc("/soma/getpotentiallocation", services.GetPotentialSomaLocation)
 	http.HandleFunc("/soma/getsomalist", services.GetSomaList)
@@ -35,5 +35,5 @@ func main() {
 	http.HandleFunc("/image/cropimage", services.CropImage)
 	log.WithFields(log.Fields{
 		"event": "start server",
-	}).Fatal(http.ListenAndServe("localhost:8000", nil))
+	}).Fatal(http.ListenAndServe(":8000", nil))
 }

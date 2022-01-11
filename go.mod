@@ -15,7 +15,6 @@ require (
 	github.com/goccy/go-json v0.7.4 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
@@ -39,4 +38,8 @@ require (
 	xorm.io/builder v0.3.9 // indirect
 )
 
-require github.com/sirupsen/logrus v1.4.2
+require (
+	github.com/json-iterator/go v1.1.12
+	github.com/sirupsen/logrus v1.4.2
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+)

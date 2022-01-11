@@ -11,5 +11,5 @@
     "port": "6379"
   },
   "aeskey": "1111111111111111",
-  "mainpath": "./"
+  "mainpath": "/Users/huanglei/Desktop/dataserver"
 }

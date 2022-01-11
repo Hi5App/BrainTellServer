@@ -3,53 +3,25 @@ package do
 import (
 	"BrainTellServer/models"
 	"BrainTellServer/utils"
-	"encoding/json"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
 )
 
-type UserInfo struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	NickName string `json:"nickname"`
-	Score    int    `json:"score"`
-	AppKey   string `json:"appkey"`
-	Passwd   string `json:"passwd"`
-	NPasswd  string `json:"npasswd"`
-}
-
-func (user *UserInfo) String() string {
-	jsonres, err := json.Marshal(user)
-	if err != nil {
-		return ""
-	}
-	return string(jsonres)
-}
-
-func (user *UserInfo) FromJsonString(jsonstr string) (utils.RequestParam, error) {
-	if err := json.Unmarshal([]byte(jsonstr), user); err != nil {
-		log.WithFields(log.Fields{
-			"event": "Query userinfo",
-			"pa":    jsonstr,
-		}).Warnf("%s\n%v\n", string([]byte(jsonstr)), err)
-		return nil, err
-	}
-	return user, nil
-}
-
-func (user *UserInfo) Error() string {
-	return "Error"
-}
-
-func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, error) {
+func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*utils.UserInfo, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 
-	users := make([]models.TUserinfo, 0)
-	session := utils.DB.Where("Isdeleted = ?", 0)
+	users := make([]*models.TUserinfo, 0)
+	session := utils.DB.NewSession()
+	defer session.Close()
+	session.Where("Isdeleted = ?", 0)
 	if pd != nil {
-		session = session.Limit(pd.Limit, pd.Length)
+		session = session.Limit(pd.Limit, pd.Off)
 	}
-	err := session.Find(users, pa)
+	err := session.Find(&users, &models.TUserinfo{
+		Name:   pa.Name,
+		Email:  pa.Email,
+		Passwd: pa.Passwd,
+	})
 
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -59,9 +31,9 @@ func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, err
 		return nil, err
 	}
 
-	res := make([]*UserInfo, 0)
+	res := make([]*utils.UserInfo, 0)
 	for _, user := range users {
-		res = append(res, &UserInfo{
+		res = append(res, &utils.UserInfo{
 			Name:     user.Name,
 			Email:    user.Email,
 			Score:    user.Score,
@@ -82,8 +54,9 @@ func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, err
 
 func InsertUser(pa *models.TUserinfo) (int64, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
-
-	affect, err := utils.DB.Insert(pa)
+	session := utils.DB.NewSession()
+	defer session.Close()
+	affect, err := session.Insert(pa)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Insert userinfo",
@@ -103,7 +76,7 @@ func InsertUser(pa *models.TUserinfo) (int64, error) {
 func UpdateUser(pa *models.TUserinfo, pc *models.TUserinfo) (int64, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 
-	affect, err := utils.DB.Update(pa, pc)
+	affect, err := utils.DB.NewSession().Update(pa, pc)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Update userinfo",
@@ -126,7 +99,7 @@ func DeltelUser(pa *models.TUserinfo) (int64, error) {
 	var pc *models.TUserinfo
 	*pc = *pa
 	pa.Isdeleted = 1
-	affect, err := utils.DB.Update(pa, pc)
+	affect, err := utils.DB.NewSession().Update(pa, pc)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Delete userinfo",

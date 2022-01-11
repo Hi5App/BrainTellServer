@@ -1,54 +1,63 @@
 package services
 
 import (
-	"BrainTellServer/do"
+	"BrainTellServer/ao"
 	"BrainTellServer/utils"
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
-	//todo
-	var p do.UserInfo
+	var p utils.UserInfo
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
 
-	user, ok := param.(*do.UserInfo)
+	user, ok := param.(*utils.UserInfo)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "Register",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
+
 	if len(user.Name) == 0 || len(user.Passwd) == 0 || len(user.NickName) == 0 || len(user.Email) == 0 {
 		log.WithFields(log.Fields{
 			"event": "Register",
 			"desc":  "Bad Param",
 		}).Warnf("%s\n", user)
-		w.WriteHeader(400)
+		utils.EncodeToHttp(w, 400, "Register Failed")
+		return
 	}
-	w.WriteHeader(200)
-	fmt.Fprintln(w, "Need Implement")
+
+	err = ao.Register(user)
+	if err != nil {
+		w.WriteHeader(501)
+		utils.EncodeToHttp(w, 501, "Register Failed")
+		return
+	}
+	utils.EncodeToHttp(w, 200, "Register Success")
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	//todo
-	var p do.UserInfo
+	var p utils.UserInfo
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
-	user, ok := param.(*do.UserInfo)
+	user, ok := param.(*utils.UserInfo)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "Login",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
 
 	if len(user.Passwd) == 0 || (len(user.Name) == 0 && len(user.Email) == 0) {
@@ -56,28 +65,37 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			"event": "Login",
 			"desc":  "Bad Param",
 		}).Warnf("%s\n", user)
-		w.WriteHeader(400)
+		utils.EncodeToHttp(w, 400, "")
+		return
 	}
-	w.WriteHeader(200)
-	//http.SetCookie(w, &http.Cookie{Name: user.Name, Value: user.Passwd, Expires: time.Now().AddDate(0, 0, 1),
-	//	HttpOnly: true, Secure: true, MaxAge: 24 * 3600})
-	fmt.Fprintln(w, "Need Implement")
+
+	user, err = ao.Login(user)
+	if err != nil {
+		w.WriteHeader(501)
+		utils.EncodeToHttp(w, 501, "Login Failed")
+		return
+	}
+	utils.EncodeToHttp(w, 200, user.String())
+	return
+
 }
 
 func SetUserScore(w http.ResponseWriter, r *http.Request) {
 	//todo
-	var p do.UserInfo
+	var p utils.UserInfo
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
-	user, ok := param.(*do.UserInfo)
+	user, ok := param.(*utils.UserInfo)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "SetUserScore",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
 
 	if (len(user.Name) == 0 && len(user.Email) == 0) || len(user.Passwd) == 0 || user.Score <= 0 {
@@ -85,26 +103,28 @@ func SetUserScore(w http.ResponseWriter, r *http.Request) {
 			"event": "SetUserScore",
 			"desc":  "Bad Param",
 		}).Warnf("%s\n", user)
-		w.WriteHeader(400)
+		utils.EncodeToHttp(w, 400, "")
+		return
 	}
-	w.WriteHeader(200)
-	fmt.Fprintln(w, "Need Implement")
+	utils.EncodeToHttp(w, 200, "Need Implement")
 }
 
 func UpdatePasswd(w http.ResponseWriter, r *http.Request) {
 	//todo
-	var p do.UserInfo
+	var p utils.UserInfo
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
-	user, ok := param.(*do.UserInfo)
+	user, ok := param.(*utils.UserInfo)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "UpdatePasswd",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
 
 	if len(user.Passwd) == 0 || (len(user.Name) == 0 && len(user.Email) == 0) || len(user.NPasswd) == 0 {
@@ -112,27 +132,29 @@ func UpdatePasswd(w http.ResponseWriter, r *http.Request) {
 			"event": "SetUserScore",
 			"desc":  "Bad Param",
 		}).Warnf("%s\n", user)
-		w.WriteHeader(400)
+		utils.EncodeToHttp(w, 400, "")
+		return
 	}
 
-	w.WriteHeader(200)
-	fmt.Fprintln(w, "Need Implement")
+	utils.EncodeToHttp(w, 200, "Need Implement")
 }
 
 func ForgetPasswd(w http.ResponseWriter, r *http.Request) {
 	//todo
-	var p do.UserInfo
+	var p utils.UserInfo
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
-	user, ok := param.(*do.UserInfo)
+	user, ok := param.(*utils.UserInfo)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "ForgetPasswd",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
 
 	if len(user.Email) == 0 {
@@ -140,27 +162,29 @@ func ForgetPasswd(w http.ResponseWriter, r *http.Request) {
 			"event": "ForgetPasswd",
 			"desc":  "Bad Param",
 		}).Warnf("%s\n", user)
-		w.WriteHeader(400)
+		utils.EncodeToHttp(w, 400, "")
+		return
 	}
 
-	w.WriteHeader(200)
-	fmt.Fprintln(w, "Need Implement")
+	utils.EncodeToHttp(w, 200, "Need Implement")
 }
 
 func ResetPasswd(w http.ResponseWriter, r *http.Request) {
 	//todo
-	var p do.UserInfo
+	var p utils.UserInfo
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
-	user, ok := param.(*do.UserInfo)
+	user, ok := param.(*utils.UserInfo)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "ResetPasswd",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
 
 	if len(user.Email) == 0 || len(user.Passwd) == 0 || len(user.NPasswd) == 0 || user.Passwd != user.NPasswd {
@@ -168,27 +192,28 @@ func ResetPasswd(w http.ResponseWriter, r *http.Request) {
 			"event": "ResetPasswd",
 			"desc":  "Bad Param",
 		}).Warnf("%s\n", user)
-		w.WriteHeader(400)
+		utils.EncodeToHttp(w, 400, "")
+		return
 	}
-	w.WriteHeader(200)
-	fmt.Fprintln(w, "Need Implement")
-
+	utils.EncodeToHttp(w, 200, "Need Implement")
 }
 
 func RegisterNetease(w http.ResponseWriter, r *http.Request) {
 	//todo
-	var p do.UserInfo
+	var p utils.UserInfo
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
-	user, ok := param.(*do.UserInfo)
+	user, ok := param.(*utils.UserInfo)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "ResetPasswd",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
 
 	if (len(user.Email) == 0 && len(user.Name) == 0) || len(user.Passwd) == 0 || len(user.AppKey) == 0 {
@@ -196,9 +221,9 @@ func RegisterNetease(w http.ResponseWriter, r *http.Request) {
 			"event": "ResetPasswd",
 			"desc":  "Bad Param",
 		}).Warnf("%s\n", user)
-		w.WriteHeader(400)
+		utils.EncodeToHttp(w, 400, "")
+		return
 	}
-	w.WriteHeader(200)
-	fmt.Fprintln(w, "Need Implement")
+	utils.EncodeToHttp(w, 200, "Need Implement")
 
 }

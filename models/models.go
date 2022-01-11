@@ -10,8 +10,8 @@ type TAnotation struct {
 	Soma      string    `xorm:"not null index VARCHAR(100)"`
 	Owner     string    `xorm:"not null index VARCHAR(100)"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 }
 
 type TImage struct {
@@ -19,8 +19,8 @@ type TImage struct {
 	Name      string    `xorm:"not null unique VARCHAR(100)"`
 	Detail    string    `xorm:"not null JSON"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 }
 
 type TPotentialsomalocation struct {
@@ -31,8 +31,8 @@ type TPotentialsomalocation struct {
 	Z         int       `xorm:"not null unique(t_potentialsomalocation_loc) INT"`
 	Owner     string    `xorm:"not null default '' index VARCHAR(100)"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 }
 
 type TSomainfo struct {
@@ -45,20 +45,19 @@ type TSomainfo struct {
 	Owner     string    `xorm:"not null index VARCHAR(100)"`
 	Color     string    `xorm:"not null default '0000ff' VARCHAR(100)"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 }
 
 type TUserinfo struct {
-	Id       int    `xorm:"not null pk autoincr INT"`
-	Name     string `xorm:"not null unique VARCHAR(100)"`
-	Email    string `xorm:"not null unique VARCHAR(100)"`
-	Nickname string `xorm:"not null unique VARCHAR(100)"`
-	Passwd   string `xorm:"not null VARCHAR(100)"`
-	Score    int    `xorm:"not null default 0 index INT"`
-	Appkey   string `xorm:"not null default '' comment('网易云信appkey
-') VARCHAR(100)"`
+	Id        int       `xorm:"not null pk autoincr INT"`
+	Name      string    `xorm:"not null unique VARCHAR(100)"`
+	Email     string    `xorm:"not null unique VARCHAR(100)"`
+	Nickname  string    `xorm:"not null unique VARCHAR(100)"`
+	Passwd    string    `xorm:"not null VARCHAR(100)"`
+	Score     int       `xorm:"not null default 0 index INT"`
+	Appkey    string    `xorm:"not null default '' comment('网易云信appkey') VARCHAR(100)"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 }

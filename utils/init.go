@@ -34,10 +34,13 @@ type Config struct {
 var DB *xorm.Engine
 var Pool *redis.Pool
 var MainPath string
+var Vaa3dBin string
+var DataPath string
+var Tmpdir string
+var ImageDir string
 var AesKey string
 
-func Loadconfig() error {
-
+func LoadConfig() error {
 	log.SetFormatter(&log.TextFormatter{})
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.TraceLevel)
@@ -70,6 +73,10 @@ func Loadconfig() error {
 
 	AesKey = config.GetString("aeskey")
 	MainPath = config.GetString("mainpath")
+	Vaa3dBin = MainPath + "/vaa3d/cropimage"
+	DataPath = MainPath + "/data"
+	Tmpdir = MainPath + "/tmp"
+	ImageDir = MainPath + "/image"
 	return nil
 }
 
@@ -80,15 +87,18 @@ func NewDb(user, passwd, ip, port, db string) error {
 		}).Infoln("Config is Error")
 		return errors.New("Config is Error")
 	}
-	DB, err := xorm.NewEngine("mysql", user+":"+passwd+"@tcp("+ip+":"+port+")/"+db)
+	var err error
+	DB, err = xorm.NewEngine("mysql", user+":"+passwd+"@tcp("+ip+":"+port+")/"+db)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Allocate DB",
 		}).Infof("%v\n", err)
 		return err
 	}
-	DB.SetMaxOpenConns(1000)
-	DB.SetMaxIdleConns(200)
+	DB.ShowSQL(true)
+
+	//DB.SetMaxOpenConns(1000)
+	//DB.SetMaxIdleConns(200)
 	return nil
 }
 

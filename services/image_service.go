@@ -1,94 +1,92 @@
 package services
 
 import (
-	"BrainTellServer/do"
+	"BrainTellServer/ao"
 	"BrainTellServer/utils"
-	"encoding/json"
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
-type CropBB struct {
-	Loc    utils.XYZ `json:"loc"`
-	Image  string    `json:"image"`
-	RES    string    `json:"res"`
-	RESIdx int       `json:"residx"`
-}
-
-func (pa *CropBB) String() string {
-	jsonres, err := json.Marshal(pa)
-	if err != nil {
-		return ""
-	}
-	return string(jsonres)
-}
-
-func (pa *CropBB) FromJsonString(jsonstr string) (utils.RequestParam, error) {
-	if err := json.Unmarshal([]byte(jsonstr), pa); err != nil {
-		return nil, err
-	}
-	return pa, nil
-}
-
 func GetImageList(w http.ResponseWriter, r *http.Request) {
-	//todo
-	var p do.Image
+	var p utils.Image
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
-	_, ok := param.(*do.Image)
+	qp, ok := param.(*utils.Image)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "GetPotentialSomaLocations",
 			"desc":  "param.(*do.PotentialSomaLocation) failed",
 		}).Warnf("%v\n", err)
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
-
-	w.WriteHeader(200)
-	fmt.Fprintln(w, "Need Implement")
+	if _, err := ao.Login(&qp.User); err != nil {
+		utils.EncodeToHttp(w, 401, "")
+		return
+	}
+	str, err := ao.GetImageList()
+	if err != nil {
+		utils.EncodeToHttp(w, 501, "")
+		return
+	}
+	utils.EncodeToHttp(w, 200, str)
 }
 
 func CropImage(w http.ResponseWriter, r *http.Request) {
 	//todo
-	var p CropBB
+	var p utils.CropBB
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
-
-	_, ok := param.(*CropBB)
+	pa, ok := param.(*utils.CropBB)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "CropImage",
 			"desc":  "param.(*CropImage) failed",
 		}).Warnf("%v\n", err)
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
+	}
+	if _, err := ao.Login(&pa.User); err != nil {
+		utils.EncodeToHttp(w, 401, "")
+		return
+	}
+	out, err := utils.GetBB(pa)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "CropImage",
+			"desc":  "param.(*CropImage) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 501, "")
+		return
 	}
 
-	w.WriteHeader(200)
-	fmt.Fprintln(w, "Need Implement")
+	utils.SendFile(w, 200, out)
+
 }
 
 func CropSWC(w http.ResponseWriter, r *http.Request) {
 	//todo
-	var p CropBB
+	var p utils.CropBB
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
 
-	_, ok := param.(*CropBB)
+	_, ok := param.(*utils.CropBB)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "CropImage",
 			"desc":  "param.(*CropImage) failed",
 		}).Warnf("%v\n", err)
-		w.WriteHeader(500)
+		utils.EncodeToHttp(w, 500, "")
+		return
 	}
-
-	w.WriteHeader(200)
-	fmt.Fprintln(w, "Need Implement")
+	utils.EncodeToHttp(w, 200, "Need Implement")
 }

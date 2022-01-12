@@ -42,8 +42,10 @@ type TSomainfo struct {
 	X         int       `xorm:"not null unique(t_somainfo_loc) INT"`
 	Y         int       `xorm:"not null unique(t_somainfo_loc) INT"`
 	Z         int       `xorm:"not null unique(t_somainfo_loc) INT"`
+	Location  int       `xorm:"not null index INT"`
 	Owner     string    `xorm:"not null index VARCHAR(100)"`
 	Color     string    `xorm:"not null default '0000ff' VARCHAR(100)"`
+	Status    int       `xorm:"not null default 0 comment('o:新插入') index INT"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
 	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
 	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`

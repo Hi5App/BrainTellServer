@@ -74,11 +74,13 @@ func (location *PotentialSomaLocation) FromJsonString(jsonstr string) (RequestPa
 }
 
 type SomaInfo struct {
-	Name  string `json:"name"`
-	Image string `json:"image"`
-	Loc   XYZ    `json:"loc"`
-	Owner string `json:"owner"`
-	Color string `json:"color"`
+	Name     string `json:"name"`
+	Image    string `json:"image"`
+	Loc      XYZ    `json:"loc"`
+	Owner    string `json:"owner"`
+	Color    string `json:"color"`
+	Location int    `json:"location"`
+	Status   int    `json:"status"`
 }
 
 func (soma *SomaInfo) String() string {
@@ -120,10 +122,11 @@ func (param *QuerySomaListParam) FromJsonString(jsonstr string) (RequestParam, e
 }
 
 type InsertSomaListParam struct {
-	Somalist []*models.TSomainfo `json:"somalist"`
-	Owner    string              `json:"owner"`
-	Image    string              `json:"image"`
-	User     UserInfo            `json:"user"`
+	LocationId int                 `json:"locationId"`
+	Somalist   []*models.TSomainfo `json:"somalist"`
+	Owner      string              `json:"owner"`
+	Image      string              `json:"image"`
+	User       UserInfo            `json:"user"`
 }
 
 func (param *InsertSomaListParam) String() string {
@@ -228,7 +231,7 @@ func SendFile(w http.ResponseWriter, status int, pa string) {
 		w.WriteHeader(502)
 		return
 	}
-	
+
 	w.WriteHeader(200)
 	io.Copy(w, f)
 	os.Remove(pa)

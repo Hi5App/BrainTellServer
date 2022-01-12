@@ -36,10 +36,20 @@ func InsertSomaList(pa *utils.InsertSomaListParam) error {
 		somalist[i].Owner = pa.Owner
 		somalist[i].Image = pa.Image
 		somalist[i].Name = pa.Image + "_" + fmt.Sprintf("%05d", idx+i+1)
+		somalist[i].Location = pa.LocationId
 	}
 	_, err = do.InsertSoma(somalist)
 	if err != nil {
 		return err
 	}
+
+	_, err = do.UpdatePotentialSomaLocation(&models.TPotentialsomalocation{
+		Id:    pa.LocationId,
+		Owner: pa.Owner,
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

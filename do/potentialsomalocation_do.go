@@ -46,3 +46,25 @@ func QueryPotentialSomaLocation(pa *models.TPotentialsomalocation, pd *utils.Que
 	}).Infof("Success")
 	return res, nil
 }
+
+func UpdatePotentialSomaLocation(pa *models.TPotentialsomalocation) (int64, error) {
+	jsonpa, _ := jsoniter.MarshalToString(pa)
+
+	var pc models.TPotentialsomalocation
+	pc = *pa
+	pa.Owner = ""
+	affect, err := utils.DB.NewSession().Update(pa, pc)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Delete userinfo",
+			"pa":    jsonpa,
+		}).Warnf("%v\n", err)
+		return 0, err
+	}
+	log.WithFields(log.Fields{
+		"event":  "Delete userinfo",
+		"pa":     jsonpa,
+		"affect": affect,
+	}).Infof("Success")
+	return affect, nil
+}

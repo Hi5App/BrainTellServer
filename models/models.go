@@ -39,9 +39,9 @@ type TSomainfo struct {
 	Id        int       `xorm:"not null pk autoincr INT"`
 	Name      string    `xorm:"not null comment('e.18454_00001') unique VARCHAR(100)"`
 	Image     string    `xorm:"not null index VARCHAR(100)"`
-	X         int       `xorm:"not null unique(t_somainfo_loc) INT"`
-	Y         int       `xorm:"not null unique(t_somainfo_loc) INT"`
-	Z         int       `xorm:"not null unique(t_somainfo_loc) INT"`
+	X         float64   `xorm:"not null unique(t_somainfo_loc) INT"`
+	Y         float64   `xorm:"not null unique(t_somainfo_loc) INT"`
+	Z         float64   `xorm:"not null unique(t_somainfo_loc) INT"`
 	Location  int       `xorm:"not null index INT"`
 	Owner     string    `xorm:"not null index VARCHAR(100)"`
 	Color     string    `xorm:"not null default '0000ff' VARCHAR(100)"`

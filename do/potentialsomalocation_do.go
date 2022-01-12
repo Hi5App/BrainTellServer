@@ -31,9 +31,9 @@ func QueryPotentialSomaLocation(pa *models.TPotentialsomalocation, pd *utils.Que
 			Id:    int64(location.Id),
 			Image: location.Image,
 			Loc: utils.XYZ{
-				X: location.X,
-				Y: location.Y,
-				Z: location.Y,
+				X: float64(location.X),
+				Y: float64(location.Y),
+				Z: float64(location.X),
 			},
 			Owner: location.Owner,
 		})

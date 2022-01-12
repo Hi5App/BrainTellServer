@@ -1,0 +1,109 @@
+t_anotation: table
+    --  重建结果
+    + columns
+        Id: int NN identity null
+        Name: varchar(100) NN
+        Soma: varchar(100) NN
+        Owner: varchar(100) NN
+        Isdeleted: int NN default 0
+        ctime: timestamp NN default CURRENT_TIMESTAMP
+        mtime: timestamp NN default CURRENT_TIMESTAMP
+    + indices
+        t_anotation_Name_uindex: unique (Name) type btree
+        t_anotation_t_somainfo_Name_fk: index (Soma) type btree
+        t_anotation_t_userinfo_Name_fk: index (Owner) type btree
+    + keys
+        #1: PK (Id)
+        t_anotation_Name_uindex: AK (Name)
+    + foreign-keys
+        t_anotation_t_somainfo_Name_fk: foreign key (Soma) -> t_somainfo[.t_somainfo_Name_uindex] (Name)
+        t_anotation_t_userinfo_Name_fk: foreign key (Owner) -> t_userinfo[.table_name_Name_uindex] (Name)
+t_image: table
+    + columns
+        Id: int NN identity null
+        Name: varchar(100) NN
+        Detail: json NN
+        Isdeleted: int NN default 0
+        ctime: timestamp NN default CURRENT_TIMESTAMP
+        mtime: timestamp NN default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP
+    + indices
+        t_image_Name_uindex: unique (Name) type btree
+    + keys
+        #1: PK (Id)
+        t_image_Name_uindex: AK (Name)
+t_potentialsomalocation: table
+    --  可能的soma位置
+    + columns
+        Id: int NN identity null
+        Image: varchar(100) NN
+        X: int NN
+        Y: int NN
+        Z: int NN
+        Owner: varchar(100) NN default ''
+        Isdeleted: int NN default 0
+        ctime: timestamp NN default CURRENT_TIMESTAMP
+        mtime: timestamp NN default CURRENT_TIMESTAMP
+    + indices
+        t_potentialsomalocation_loc: unique (X, Y, Z) type btree
+        t_potentialsomalocation_Image_index: index (Image) type btree
+        t_potentialsomalocation_t_userinfo_Name_fk: index (Owner) type btree
+    + keys
+        #1: PK (Id)
+        t_potentialsomalocation_loc: AK (X, Y, Z)
+    + foreign-keys
+        t_potentialsomalocation_t_image_Name_fk: foreign key (Image) -> t_image[.t_image_Name_uindex] (Name)
+t_somainfo: table
+    + columns
+        Id: int NN identity null
+        Name: varchar(100) NN
+            --  e.18454_00001
+        Image: varchar(100) NN
+        X: double NN
+        Y: double NN
+        Z: double NN
+        Location: int NN
+        Owner: varchar(100) NN
+        Color: varchar(100) NN default '0000ff'
+        Status: int NN default 0
+            --  o:新插入
+        Isdeleted: int NN default 0
+        ctime: timestamp NN default CURRENT_TIMESTAMP
+        mtime: timestamp NN default CURRENT_TIMESTAMP
+    + indices
+        t_somainfo_Name_uindex: unique (Name) type btree
+        t_somainfo_loc: unique (X, Y, Z) type btree
+        t_somainfo_Image_index: index (Image) type btree
+        t_somainfo_t_potentialsomalocation_Id_fk: index (Location) type btree
+        t_somainfo__Owner_index: index (Owner) type btree
+        t_somainfo_Status_index: index (Status) type btree
+    + keys
+        #1: PK (Id)
+        t_somainfo_Name_uindex: AK (Name)
+        t_somainfo_loc: AK (X, Y, Z)
+    + foreign-keys
+        t_somainfo_t_image_Name_fk: foreign key (Image) -> t_image[.t_image_Name_uindex] (Name)
+        t_somainfo_t_potentialsomalocation_Id_fk: foreign key (Location) -> t_potentialsomalocation (Id)
+        t_somainfo_t_userinfo_Name_fk: foreign key (Owner) -> t_userinfo[.table_name_Name_uindex] (Name)
+t_userinfo: table
+    + columns
+        Id: int NN identity null
+        Name: varchar(100) NN
+        Email: varchar(100) NN
+        NickName: varchar(100) NN
+        Passwd: varchar(100) NN
+        Score: int NN default 0
+        Appkey: varchar(100) NN default ''
+            --  网易云信appkey\n
+        Isdeleted: int NN default 0
+        ctime: timestamp NN default CURRENT_TIMESTAMP
+        mtime: timestamp NN default CURRENT_TIMESTAMP
+    + indices
+        table_name_Name_uindex: unique (Name) type btree
+        table_name_Email_uindex: unique (Email) type btree
+        t_userinfo_NickName_uindex: unique (NickName) type btree
+        t_userinfo_Score_index: index (Score desc) type btree
+    + keys
+        #1: PK (Id)
+        table_name_Name_uindex: AK (Name)
+        table_name_Email_uindex: AK (Email)
+        t_userinfo_NickName_uindex: AK (NickName)

@@ -1,0 +1,103 @@
+1.注册 URL:/user/register
+入参数
+type UserInfo struct {
+	Name     string `json:"name"` //用户名
+	Email    string `json:"email"` //邮箱
+	NickName string `json:"nickname"` //昵称
+	Passwd   string `json:"passwd"` //密码
+};
+输出 
+Status Code200表示成功
+2.登录 URL:/user/login
+入参数：邮箱和用户名有一个就可
+type UserInfo struct {
+	Name     string `json:"name"` //用户名
+	Email    string `json:"email"` //邮箱
+	Passwd   string `json:"passwd"` //密码
+};
+输出 
+Status Code 200表示成功
+type UserInfo struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	NickName string `json:"nickname"`
+	Score    int    `json:"score"`
+	AppKey   string `json:"appkey"`
+}
+3.获取图像列表 URL:/image/getimagelist
+入参数
+type Image struct {
+	Name      string         `json:"name"` //图像名称，可为空
+	User      UserInfo       `json:"user"` //用户身份验证
+	Condition QueryCondition `json:"condition"` //查询条件
+}
+输出
+Status Code200
+repeat type Image struct {
+	Name      string         `json:"name"`
+	Detail    string         `json:"detail"`
+}
+4.image/cropimage
+入参数
+type CropBB struct {
+	Loc    XYZ      `json:"loc"` //中心坐标整数
+	Image  string   `json:"image"` //图像名称
+	RES    string   `json:"res"` //分辨率字符串
+	RESIdx int      `json:"residx"` //分辨率索引
+	User   UserInfo `json:"user"` //用户验证
+	Len    int      `json:"len"` //大小
+}
+输出
+Status Code 200
+v3draw
+5./soma/getpotentiallocation/soma/getsomalist
+入参数
+type PotentialSomaLocation struct {
+	Id        int64          `json:"id"`
+	Image     string         `json:"image"` 
+	Loc       XYZ            `json:"loc"`
+	Owner     string         `json:"owner"`
+	User      UserInfo       `json:"user"`
+	Condition QueryCondition `json:"condition"`
+}
+输出
+Status Code 200
+type PotentialSomaLocation struct {
+	Id        int64          `json:"id"`
+	Image     string         `json:"image"` 
+	Loc       XYZ            `json:"loc"`
+	Owner     string         `json:"owner"`
+	User      UserInfo       `json:"user"`
+	Condition QueryCondition `json:"condition"`
+}
+6. /soma/getsomalist
+输入
+type QuerySomaListParam struct {
+	Pa1       XYZ            `json:"pa1"`
+	Pa2       XYZ            `json:"pa2"`
+	Image     string         `json:"image"`
+	User      UserInfo       `json:"user"`
+	Condition QueryCondition `json:"condition"`
+}
+输出
+status code 200
+repeat type SomaInfo struct {
+	Name     string `json:"name"`
+	Image    string `json:"image"`
+	Loc      XYZ    `json:"loc"`
+	Owner    string `json:"owner"`
+	Color    string `json:"color"`
+	Location int    `json:"location"`
+	Status   int    `json:"status"`
+}
+7. /soma/insertsomalist
+入参数
+type InsertSomaListParam struct {
+	LocationId int                 `json:"locationId"`
+	Somalist   []*models.TSomainfo `json:"somalist"`
+	Owner      string              `json:"owner"`
+	Image      string              `json:"image"`
+	User       UserInfo            `json:"user"`
+}
+输出
+status code 200

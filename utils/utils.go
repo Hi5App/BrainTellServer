@@ -121,15 +121,16 @@ func (param *QuerySomaListParam) FromJsonString(jsonstr string) (RequestParam, e
 	return param, nil
 }
 
-type InsertSomaListParam struct {
-	LocationId int                 `json:"locationId"`
-	Somalist   []*models.TSomainfo `json:"somalist"`
-	Owner      string              `json:"owner"`
-	Image      string              `json:"image"`
-	User       UserInfo            `json:"user"`
+type UpdateSomaListParam struct {
+	LocationId     int                 `json:"locationId"`
+	InsertSomalist []*models.TSomainfo `json:"insertsomalist"`
+	DeleteSomalist []string            `json:"deletesomalist"`
+	Owner          string              `json:"owner"`
+	Image          string              `json:"image"`
+	User           UserInfo            `json:"user"`
 }
 
-func (param *InsertSomaListParam) String() string {
+func (param *UpdateSomaListParam) String() string {
 	jsonres, err := json.Marshal(param)
 	if err != nil {
 		return ""
@@ -137,7 +138,7 @@ func (param *InsertSomaListParam) String() string {
 	return string(jsonres)
 }
 
-func (param *InsertSomaListParam) FromJsonString(jsonstr string) (RequestParam, error) {
+func (param *UpdateSomaListParam) FromJsonString(jsonstr string) (RequestParam, error) {
 	if err := json.Unmarshal([]byte(jsonstr), param); err != nil {
 		return nil, err
 	}
@@ -199,7 +200,7 @@ func (pa *CropBB) FromJsonString(jsonstr string) (RequestParam, error) {
 
 func DecodeFromHttp(r *http.Request, pa RequestParam) (RequestParam, error) {
 	s, err := ioutil.ReadAll(r.Body)
-
+	log.Infoln(string(s))
 	//todo decode
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -210,7 +211,7 @@ func DecodeFromHttp(r *http.Request, pa RequestParam) (RequestParam, error) {
 	}
 
 	log.WithFields(log.Fields{
-		"event": "Register",
+		"event": "DecodeFromHttp",
 	}).Infof("%v\n", string(s))
 
 	return pa.FromJsonString(string(s))

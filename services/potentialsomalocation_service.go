@@ -12,11 +12,10 @@ var mutex sync.Mutex
 var queue []*utils.PotentialSomaLocation
 
 func GetPotentialSomaLocation(w http.ResponseWriter, r *http.Request) {
-	//todo
 	var p utils.PotentialSomaLocation
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 	locataion, ok := param.(*utils.PotentialSomaLocation)
@@ -25,11 +24,11 @@ func GetPotentialSomaLocation(w http.ResponseWriter, r *http.Request) {
 			"event": "GetPotentialSomaLocations",
 			"desc":  "param.(*do.PotentialSomaLocation) failed",
 		}).Warnf("%v\n", err)
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 	if _, err := ao.Login(&locataion.User); err != nil {
-		utils.EncodeToHttp(w, 401, "")
+		utils.EncodeToHttp(w, 401, err.Error())
 		return
 	}
 	//构建一个队列
@@ -43,7 +42,7 @@ func GetPotentialSomaLocation(w http.ResponseWriter, r *http.Request) {
 				"event": "GetPotentialSomaLocations",
 				"desc":  "Query MySQL failed",
 			}).Warnf("%v\n", err)
-			utils.EncodeToHttp(w, 501, "")
+			utils.EncodeToHttp(w, 501, err.Error())
 			return
 		}
 		queue = locations
@@ -58,6 +57,6 @@ func GetPotentialSomaLocation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	queue = nil
-	utils.EncodeToHttp(w, 502, "")
+	utils.EncodeToHttp(w, 502, "Empty")
 	return
 }

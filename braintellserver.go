@@ -15,24 +15,33 @@ func main() {
 			"event": "Load Config",
 		}).Fatal(http.ListenAndServe("localhost:8000", nil))
 	}
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Test")
 	})
 	//user service
-	http.HandleFunc("/user/register", services.Register)
-	http.HandleFunc("/user/login", services.Login)
-	http.HandleFunc("/user/setuserscore", services.SetUserScore)       //todo
-	http.HandleFunc("/user/updatepasswd", services.UpdatePasswd)       //todo
-	http.HandleFunc("/user/forgetpasswd", services.ForgetPasswd)       //todo
-	http.HandleFunc("/user/resetpasswd", services.ResetPasswd)         //todo
-	http.HandleFunc("/user/registernetease", services.RegisterNetease) //todo
+	http.HandleFunc("/dynamic/user/register", services.Register)
+	http.HandleFunc("/dynamic/user/login", services.Login)
+	http.HandleFunc("/dynamic/user/setuserscore", services.SetUserScore)       //todo
+	http.HandleFunc("/dynamic/user/updatepasswd", services.UpdatePasswd)       //todo
+	http.HandleFunc("/dynamic/user/forgetpasswd", services.ForgetPasswd)       //todo
+	http.HandleFunc("/dynamic/user/resetpasswd", services.ResetPasswd)         //todo
+	http.HandleFunc("/dynamic/user/registernetease", services.RegisterNetease) //todo
 	//add soma service
-	http.HandleFunc("/soma/getpotentiallocation", services.GetPotentialSomaLocation)
-	http.HandleFunc("/soma/getsomalist", services.GetSomaList)
-	http.HandleFunc("/soma/insertsomalist", services.InsertSomaList)
+	http.HandleFunc("/dynamic/soma/getpotentiallocation", services.GetPotentialSomaLocation)
+	http.HandleFunc("/dynamic/soma/getsomalist", services.GetSomaList)
+	http.HandleFunc("/dynamic/soma/updatesomalist", services.UpdateSomaList)
 	//image service
-	http.HandleFunc("/image/getimagelist", services.GetImageList)
-	http.HandleFunc("/image/cropimage", services.CropImage)
+	http.HandleFunc("/dynamic/image/getimagelist", services.GetImageList)
+	http.HandleFunc("/dynamic/image/cropimage", services.CropImage)
+	//
+	http.HandleFunc("/dynamic/musics", func(w http.ResponseWriter, r *http.Request) {
+		res, err := utils.GetMusicListFromRDB()
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+		utils.EncodeToHttp(w, 200, res)
+	})
 	log.WithFields(log.Fields{
 		"event": "start server",
 	}).Fatal(http.ListenAndServe(":8000", nil))

@@ -11,7 +11,7 @@ func GetImageList(w http.ResponseWriter, r *http.Request) {
 	var p utils.Image
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 	qp, ok := param.(*utils.Image)
@@ -20,16 +20,16 @@ func GetImageList(w http.ResponseWriter, r *http.Request) {
 			"event": "GetPotentialSomaLocations",
 			"desc":  "param.(*do.PotentialSomaLocation) failed",
 		}).Warnf("%v\n", err)
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 	if _, err := ao.Login(&qp.User); err != nil {
-		utils.EncodeToHttp(w, 401, "")
+		utils.EncodeToHttp(w, 401, err.Error())
 		return
 	}
 	str, err := ao.GetImageList()
 	if err != nil {
-		utils.EncodeToHttp(w, 501, "")
+		utils.EncodeToHttp(w, 501, err.Error())
 		return
 	}
 	utils.EncodeToHttp(w, 200, str)
@@ -40,7 +40,7 @@ func CropImage(w http.ResponseWriter, r *http.Request) {
 	var p utils.CropBB
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 	pa, ok := param.(*utils.CropBB)
@@ -53,7 +53,7 @@ func CropImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if _, err := ao.Login(&pa.User); err != nil {
-		utils.EncodeToHttp(w, 401, "")
+		utils.EncodeToHttp(w, 401, err.Error())
 		return
 	}
 	out, err := utils.GetBB(pa)
@@ -62,12 +62,10 @@ func CropImage(w http.ResponseWriter, r *http.Request) {
 			"event": "CropImage",
 			"desc":  "param.(*CropImage) failed",
 		}).Warnf("%v\n", err)
-		utils.EncodeToHttp(w, 501, "")
+		utils.EncodeToHttp(w, 501, err.Error())
 		return
 	}
-
 	utils.SendFile(w, 200, out)
-
 }
 
 func CropSWC(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +73,7 @@ func CropSWC(w http.ResponseWriter, r *http.Request) {
 	var p utils.CropBB
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 
@@ -85,7 +83,7 @@ func CropSWC(w http.ResponseWriter, r *http.Request) {
 			"event": "CropImage",
 			"desc":  "param.(*CropImage) failed",
 		}).Warnf("%v\n", err)
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 	utils.EncodeToHttp(w, 200, "Need Implement")

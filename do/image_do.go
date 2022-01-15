@@ -39,5 +39,4 @@ func QueryImage(pa *models.TImage, pd *utils.QueryCondition) ([]*utils.Image, er
 		"RES":   jsonres,
 	}).Infof("Success")
 	return res, nil
-	return nil, nil
 }

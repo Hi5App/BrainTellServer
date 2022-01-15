@@ -11,7 +11,7 @@ func QueryPotentialSomaLocation(pa *models.TPotentialsomalocation, pd *utils.Que
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 
 	locations := make([]*models.TPotentialsomalocation, 0)
-	session := utils.DB.Where("Isdeleted = ?", 0)
+	session := utils.DB.Where("Isdeleted = ?", 0).And("Owner = ?", "")
 	if pd != nil {
 		session = session.Limit(pd.Limit, pd.Off)
 	}
@@ -33,7 +33,7 @@ func QueryPotentialSomaLocation(pa *models.TPotentialsomalocation, pd *utils.Que
 			Loc: utils.XYZ{
 				X: float64(location.X),
 				Y: float64(location.Y),
-				Z: float64(location.X),
+				Z: float64(location.Z),
 			},
 			Owner: location.Owner,
 		})
@@ -53,7 +53,7 @@ func UpdatePotentialSomaLocation(pa *models.TPotentialsomalocation) (int64, erro
 	var pc models.TPotentialsomalocation
 	pc = *pa
 	pa.Owner = ""
-	affect, err := utils.DB.NewSession().Update(pa, pc)
+	affect, err := utils.DB.NewSession().Update(pc, pa)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Delete userinfo",

@@ -113,7 +113,7 @@ func InsertUser2RDB(pa *UserInfo) error {
 		return err
 	}
 
-	if len(pa.Name) != 0 && len(pa.Email) != 0 {
+	if len(pa.Name) == 0 && len(pa.Email) == 0 {
 		return errors.New("pa is empty")
 	}
 	conn.Do("SETEX", "USERNAME_"+pa.Name, 60, pa.String())
@@ -162,4 +162,29 @@ func GetImageFromRDB() (string, error) {
 		return "", err
 	}
 	return res, nil
+}
+
+func GetMusicListFromRDB() (string, error) {
+	conn := Pool.Get()
+	defer conn.Close()
+	if _, err := conn.Do("SELECT", 0); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Get conn failed",
+		}).Warnf("%v\n", err)
+		return "", err
+	}
+	res, err := redis.Strings(conn.Do("LRANGE", "MUSICLIST", 0, -1))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Get ImageList failed",
+		}).Warnf("%v\n", err)
+		return "", err
+	}
+	str, err := json.Marshal(res)
+	if err != nil {
+		return "", err
+	}
+	return string(str), nil
 }

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
 	log "github.com/sirupsen/logrus"
@@ -41,9 +42,19 @@ var ImageDir string
 var AesKey string
 
 func LoadConfig() error {
-	log.SetFormatter(&log.TextFormatter{})
-	log.SetOutput(os.Stdout)
+	src, err := os.OpenFile("systemlog.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0777)
+	if err != nil {
+		fmt.Println("err", err)
+		os.Exit(0)
+	}
+
+	customFormatter := new(log.TextFormatter)
+	customFormatter.TimestampFormat = "2006-01-02 15:04:05"
+	customFormatter.FullTimestamp = true
+	log.SetFormatter(customFormatter)
+	log.SetOutput(src)
 	log.SetLevel(log.TraceLevel)
+	log.Infoln("Log Set Up")
 
 	config := viper.New()
 	config.AddConfigPath("./")

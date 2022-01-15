@@ -4,6 +4,7 @@ import (
 	"BrainTellServer/do"
 	"BrainTellServer/models"
 	"BrainTellServer/utils"
+	"errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,6 +26,15 @@ func Register(pa *utils.UserInfo) error {
 }
 
 func Login(pa *utils.UserInfo) (*utils.UserInfo, error) {
+
+	if len(pa.Passwd) == 0 || (len(pa.Name) == 0 && len(pa.Email) == 0) {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "Bad Param",
+		}).Warnf("%s\n", pa)
+		return nil, errors.New("Bad Request")
+	}
+
 	user, err := utils.QueryUserFromRDB(pa)
 	if err == nil {
 		utils.InsertUser2RDB(user)
@@ -45,8 +55,8 @@ func Login(pa *utils.UserInfo) (*utils.UserInfo, error) {
 		return nil, err
 	}
 	if len(users) != 0 {
+		utils.InsertUser2RDB(users[0])
 		return users[0], nil
 	}
-	utils.InsertUser2RDB(users[0])
-	return nil, nil
+	return nil, errors.New("No Such User")
 }

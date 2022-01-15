@@ -5,6 +5,7 @@ import (
 	"BrainTellServer/models"
 	"BrainTellServer/utils"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
 )
@@ -17,13 +18,37 @@ func GetSomaList(pa1, pa2 *utils.XYZ, image string) ([]*utils.SomaInfo, error) {
 	return res, nil
 }
 
-func InsertSomaList(pa *utils.InsertSomaListParam) error {
+func UpdateSomaList(pa *utils.UpdateSomaListParam) error {
+	//delete
+	if len(pa.DeleteSomalist) != 0 {
+		_, err := do.DeleteSoma(pa.DeleteSomalist)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event":  "UpdateSomaList",
+				"action": "delete",
+			}).Warn(err)
+			return err
+		}
+	}
+
+	if len(pa.InsertSomalist) == 0 {
+		return nil
+	}
+	//insert
 	lastsoma, err := do.QueryLastSoma(&models.TSomainfo{
 		Image: pa.Image,
 	})
 	if err != nil {
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event":  "UpdateSomaList",
+				"action": "QueryLastSoma",
+			}).Warn(err)
+			return err
+		}
 		return err
 	}
+
 	idx := 0
 	if len(lastsoma.Name) != 0 {
 		idx, err = strconv.Atoi(strings.Split(lastsoma.Name, "_")[1])
@@ -31,7 +56,8 @@ func InsertSomaList(pa *utils.InsertSomaListParam) error {
 			idx = 0
 		}
 	}
-	somalist := pa.Somalist
+
+	somalist := pa.InsertSomalist
 	for i := range somalist {
 		somalist[i].Owner = pa.Owner
 		somalist[i].Image = pa.Image
@@ -40,6 +66,10 @@ func InsertSomaList(pa *utils.InsertSomaListParam) error {
 	}
 	_, err = do.InsertSoma(somalist)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"event":  "UpdateSomaList",
+			"action": "InsertSomas",
+		}).Warn(err)
 		return err
 	}
 
@@ -50,6 +80,5 @@ func InsertSomaList(pa *utils.InsertSomaListParam) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }

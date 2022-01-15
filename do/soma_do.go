@@ -3,8 +3,10 @@ package do
 import (
 	"BrainTellServer/models"
 	"BrainTellServer/utils"
+	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
+	"strings"
 )
 
 func QuerySoma(pa1, pa2 *utils.XYZ, image string, pd *utils.QueryCondition) ([]*utils.SomaInfo, error) {
@@ -55,7 +57,16 @@ func QuerySoma(pa1, pa2 *utils.XYZ, image string, pd *utils.QueryCondition) ([]*
 
 func InsertSoma(pa []*models.TSomainfo) (int64, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
-	affect, err := utils.DB.Insert(pa)
+	sql := "INSERT IGNORE INTO t_somainfo (Name,Image,X,Y,Z,Location,Owner) values "
+	paras := make([]string, 0)
+	for _, v := range pa {
+
+		paras = append(paras, fmt.Sprintf("(\"%s\",\"%s\",%f,%f,%f,%d,\"%s\")",
+			v.Name, v.Image, v.X, v.Y, v.Z, v.Location, v.Owner))
+	}
+	sql += strings.Join(paras, ",")
+
+	affect, err := utils.DB.Exec(sql)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Insert Soma",
@@ -69,16 +80,35 @@ func InsertSoma(pa []*models.TSomainfo) (int64, error) {
 		"pa":     jsonpa,
 		"affect": affect,
 	}).Infof("Success")
-	return affect, nil
+
+	return affect.RowsAffected()
+}
+
+func DeleteSoma(pa []string) (int64, error) {
+	//jsonpa, _ := jsoniter.MarshalToString(pa)
+
+	names := make([]string, 0)
+	for _, v := range pa {
+		names = append(names, "\""+v+"\"")
+	}
+
+	log.Info(names)
+	sql := "UPDATE t_somainfo SET Isdeleted = 1 WHERE Name IN (" + strings.Join(names, ",") + ")"
+	sqlres, err := utils.DB.Exec(sql)
+	if err != nil {
+		return 0, err
+	}
+	return sqlres.RowsAffected()
 }
 
 func QueryLastSoma(pa *models.TSomainfo) (*utils.SomaInfo, error) {
-	var res models.TSomainfo
-	_, err := utils.DB.Where("Image = ?", pa.Image).Desc("ctime").Get(&res)
+	var tmp models.TSomainfo
+	ok, err := utils.DB.Where("Image = ?", pa.Image).Desc("ctime").Desc("Id").Get(&tmp)
 	if err != nil {
 		return nil, err
 	}
-	return &utils.SomaInfo{
-		Name: res.Name,
-	}, nil
+	if !ok {
+		return &utils.SomaInfo{}, nil
+	}
+	return &utils.SomaInfo{Name: tmp.Name}, nil
 }

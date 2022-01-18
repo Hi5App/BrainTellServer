@@ -19,6 +19,19 @@ func GetSomaList(pa1, pa2 *utils.XYZ, image string) ([]*utils.SomaInfo, error) {
 }
 
 func UpdateSomaList(pa *utils.UpdateSomaListParam) error {
+	//set potential
+	_, err := do.UpdatePotentialSomaLocation(&models.TPotentialsomalocation{
+		Id:    pa.LocationId,
+		Owner: pa.Owner,
+	})
+	
+	if err != nil {
+		return err
+	}
+
+	if len(pa.DeleteSomalist) == 0 && len(pa.InsertSomalist) == 0 {
+		return nil
+	}
 	//delete
 	if len(pa.DeleteSomalist) != 0 {
 		_, err := do.DeleteSoma(pa.DeleteSomalist)
@@ -73,12 +86,5 @@ func UpdateSomaList(pa *utils.UpdateSomaListParam) error {
 		return err
 	}
 
-	_, err = do.UpdatePotentialSomaLocation(&models.TPotentialsomalocation{
-		Id:    pa.LocationId,
-		Owner: pa.Owner,
-	})
-	if err != nil {
-		return err
-	}
 	return nil
 }

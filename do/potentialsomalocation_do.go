@@ -56,13 +56,13 @@ func UpdatePotentialSomaLocation(pa *models.TPotentialsomalocation) (int64, erro
 	affect, err := utils.DB.NewSession().Update(pc, pa)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"event": "Delete userinfo",
+			"event": "Delete PotentialSomaLocation",
 			"pa":    jsonpa,
 		}).Warnf("%v\n", err)
 		return 0, err
 	}
 	log.WithFields(log.Fields{
-		"event":  "Delete userinfo",
+		"event":  "Delete PotentialSomaLocation",
 		"pa":     jsonpa,
 		"affect": affect,
 	}).Infof("Success")

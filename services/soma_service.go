@@ -75,14 +75,7 @@ func UpdateSomaList(w http.ResponseWriter, r *http.Request) {
 		utils.EncodeToHttp(w, 401, err.Error())
 		return
 	}
-	if len(qp.InsertSomalist) == 0 && len(qp.DeleteSomalist) == 0 {
-		log.WithFields(log.Fields{
-			"event": "Login",
-			"desc":  "Bad Request",
-		}).Warnf("%v\n", err)
-		utils.EncodeToHttp(w, 400, "")
-		return
-	}
+
 	err = ao.UpdateSomaList(qp)
 	if err != nil {
 		utils.EncodeToHttp(w, 501, err.Error())

@@ -237,3 +237,26 @@ func SendFile(w http.ResponseWriter, status int, pa string) {
 	io.Copy(w, f)
 	os.Remove(pa)
 }
+
+type GetLatestApkParam struct {
+	Version string `json:"version"`
+}
+
+func (pa *GetLatestApkParam) String() string {
+	jsonres, err := json.Marshal(pa)
+	if err != nil {
+		return ""
+	}
+	return string(jsonres)
+}
+
+func (pa *GetLatestApkParam) FromJsonString(jsonstr string) (RequestParam, error) {
+	if err := json.Unmarshal([]byte(jsonstr), pa); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Query userinfo",
+			"pa":    jsonstr,
+		}).Warnf("%s\n%v\n", string([]byte(jsonstr)), err)
+		return nil, err
+	}
+	return pa, nil
+}

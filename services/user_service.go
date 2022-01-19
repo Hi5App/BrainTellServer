@@ -227,3 +227,37 @@ func RegisterNetease(w http.ResponseWriter, r *http.Request) {
 	utils.EncodeToHttp(w, 200, "Need Implement")
 
 }
+
+func GetUserPerformance(w http.ResponseWriter, r *http.Request) {
+	var p utils.UserInfo
+	param, err := utils.DecodeFromHttp(r, &p)
+	if err != nil {
+		utils.EncodeToHttp(w, 500, "")
+		return
+	}
+	user, ok := param.(*utils.UserInfo)
+	if !ok {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "param.(*do.UserInfo) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 500, "")
+		return
+	}
+
+	if len(user.Passwd) == 0 || len(user.Name) == 0 {
+		log.WithFields(log.Fields{
+			"event": "GetUserPerformance",
+			"desc":  "Bad Param",
+		}).Warnf("%s\n", user)
+		utils.EncodeToHttp(w, 400, "")
+		return
+	}
+	user, err = ao.Login(user)
+	if err != nil {
+		w.WriteHeader(501)
+		utils.EncodeToHttp(w, 501, "Verify User failed")
+		return
+	}
+
+}

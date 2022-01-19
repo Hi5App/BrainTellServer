@@ -34,14 +34,9 @@ func main() {
 	http.HandleFunc("/dynamic/image/getimagelist", services.GetImageList)
 	http.HandleFunc("/dynamic/image/cropimage", services.CropImage)
 	//
-	http.HandleFunc("/dynamic/musics", func(w http.ResponseWriter, r *http.Request) {
-		res, err := utils.GetMusicListFromRDB()
-		if err != nil {
-			w.WriteHeader(500)
-			return
-		}
-		utils.EncodeToHttp(w, 200, res)
-	})
+	http.HandleFunc("/dynamic/musics", services.GetMusicList)
+	http.HandleFunc("/dynamic/updateapk", services.GetLatestApk)
+
 	log.WithFields(log.Fields{
 		"event": "start server",
 	}).Fatal(http.ListenAndServe(":8000", nil))

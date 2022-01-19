@@ -6,6 +6,7 @@ import (
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
+	"strconv"
 	"strings"
 )
 
@@ -53,6 +54,21 @@ func QuerySoma(pa1, pa2 *utils.XYZ, image string, pd *utils.QueryCondition) ([]*
 	}).Infof("Success")
 
 	return res, nil
+}
+
+func QuerySomaGroupByUser(isToday bool) (map[string]int64, error) {
+
+	sql := "select Owner as Name, count(*) as SomaNum from t_somainfo where Isdeleted = 0 and ctime group by Owner order by SomaNum DESC"
+	resultsSlice, err := utils.DB.Query(sql)
+	if err != nil {
+		return nil, err
+	}
+	res := make(map[string]int64)
+	for _, v := range resultsSlice {
+		num, _ := strconv.Atoi(string(v["SomaNum"]))
+		res[string(v["Name"])] = int64(num)
+	}
+	return res, err
 }
 
 func InsertSoma(pa []*models.TSomainfo) (int64, error) {

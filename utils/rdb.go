@@ -188,3 +188,24 @@ func GetMusicListFromRDB() (string, error) {
 	}
 	return string(str), nil
 }
+
+func GetLastestApkRes() ([]string, error) {
+	conn := Pool.Get()
+	defer conn.Close()
+	if _, err := conn.Do("SELECT", 0); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Get conn failed",
+		}).Warnf("%v\n", err)
+		return nil, err
+	}
+	res, err := redis.Strings(conn.Do("LRANGE", "ApkVersion", 0, -1))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Get ApkVersion failed",
+		}).Warnf("%v\n", err)
+		return nil, err
+	}
+	return res, nil
+}

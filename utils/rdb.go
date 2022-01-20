@@ -212,7 +212,7 @@ func GetLastestApkRes() ([]string, error) {
 }
 
 func InsertPerformance2RDB(key string, values map[string]int64) error {
-	value := make([]string, 0)
+	var value []interface{}
 	value = append(value, key)
 	for k, v := range values {
 		value = append(value, k)
@@ -229,7 +229,7 @@ func InsertPerformance2RDB(key string, values map[string]int64) error {
 		return err
 	}
 
-	_, err := redis.Int64(conn.Do("RPUSH", value))
+	_, err := redis.Int64(conn.Do("RPUSH", value...))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Redis",
@@ -237,7 +237,7 @@ func InsertPerformance2RDB(key string, values map[string]int64) error {
 		}).Warnf("%v\n", err)
 		return err
 	}
-	conn.Do("EXPIRE", "ImageList", 60*60)
+	conn.Do("EXPIRE", key, 60*60)
 	return nil
 }
 

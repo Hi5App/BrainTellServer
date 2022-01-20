@@ -9,7 +9,7 @@ import (
 func GetUserPerformance() (map[string]int64, map[string]int64, error) {
 	performance, err := utils.QueryPerformance2RDB("performance")
 	if err != nil {
-		log.Errorln(err)
+		log.Warningln(err)
 		performance, err = do.QuerySomaGroupByUser(false)
 		if err != nil {
 			log.Errorln(err)
@@ -20,7 +20,7 @@ func GetUserPerformance() (map[string]int64, map[string]int64, error) {
 
 	dailyperformance, err := utils.QueryPerformance2RDB("dailyperformance")
 	if err != nil {
-		log.Errorln(err)
+		log.Warningln(err)
 		dailyperformance, err = do.QuerySomaGroupByUser(true)
 		if err != nil {
 			log.Errorln(err)

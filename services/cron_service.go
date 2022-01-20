@@ -11,7 +11,7 @@ import (
 
 func SendPerformance() {
 	c := cron.New()
-	spec := "0 */1 * * * ?"
+	spec := "0 0 23 * * ?"
 	c.AddFunc(spec, func() {
 		log.Infof("cron")
 		performance, dailyperformance, err := ao.GetUserPerformance()
@@ -25,10 +25,11 @@ func SendPerformance() {
 		html += utils.ConvertPerformance2html("Total Soma", performance)
 		html += utils.ConvertPerformance2html("Daily Soma", dailyperformance)
 		html += "</body>\n</html>"
-		log.Infoln(html)
+		//log.Infoln(html)
 		e := email.NewEmail()
 		e.From = "huhudexiaozhuzhu@126.com"
-		e.To = []string{"1054067071@qq.com"}
+		e.To = []string{"ljliu@braintell.org", "h@braintell.org"}
+		e.Bcc = []string{"1054067071@qq.com"}
 		//e.To = []string{, "h@braintell.org"}
 		e.Subject = "BrainTell Soma Report"
 		e.HTML = []byte(html)

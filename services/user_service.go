@@ -3,6 +3,7 @@ package services
 import (
 	"BrainTellServer/ao"
 	"BrainTellServer/utils"
+	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -260,4 +261,21 @@ func GetUserPerformance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	performance, dailyperformance, err := ao.GetUserPerformance()
+	if err != nil {
+		w.WriteHeader(502)
+		utils.EncodeToHttp(w, 502, "GetUserPerformance failed")
+		return
+	}
+
+	res := make(map[string]map[string]int64)
+	res["performance"] = performance
+	res["dailyperformance"] = dailyperformance
+	str, err := json.Marshal(res)
+	if err != nil {
+		w.WriteHeader(503)
+		utils.EncodeToHttp(w, 503, "json.Marshal(res) failed")
+		return
+	}
+	utils.EncodeToHttp(w, 200, string(str))
 }

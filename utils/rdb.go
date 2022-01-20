@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gomodule/redigo/redis"
 	log "github.com/sirupsen/logrus"
+	"strconv"
 )
 
 func LockLocation(location *PotentialSomaLocation) error {
@@ -206,6 +207,85 @@ func GetLastestApkRes() ([]string, error) {
 			"desc":  "Get ApkVersion failed",
 		}).Warnf("%v\n", err)
 		return nil, err
+	}
+	return res, nil
+}
+
+func InsertPerformance2RDB(key string, values map[string]int64) error {
+	value := make([]string, 0)
+	value = append(value, key)
+	for k, v := range values {
+		value = append(value, k)
+		value = append(value, fmt.Sprint(v))
+	}
+
+	conn := Pool.Get()
+	defer conn.Close()
+	if _, err := conn.Do("SELECT", 0); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Get conn failed",
+		}).Warnf("%v\n", err)
+		return err
+	}
+
+	_, err := redis.Int64(conn.Do("RPUSH", value))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "InsertPerformance2RDB",
+		}).Warnf("%v\n", err)
+		return err
+	}
+	conn.Do("EXPIRE", "ImageList", 60*60)
+	return nil
+}
+
+func QueryPerformance2RDB(key string) (map[string]int64, error) {
+	conn := Pool.Get()
+	defer conn.Close()
+	if _, err := conn.Do("SELECT", 0); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Get conn failed",
+		}).Warnf("%v\n", err)
+		return nil, err
+	}
+
+	exist, err := redis.Int64(conn.Do("EXISTS", key))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "QueryPerformance2RDB EXISTS",
+		}).Warnf("%v\n", err)
+		return nil, err
+	}
+
+	if exist != 1 {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "QueryPerformance2RDB EXISTS",
+		}).Infof("%s not exist", key)
+		return nil, errors.New("not exist")
+	}
+
+	values, err := redis.Strings(conn.Do("LRANGE", key, 0, -1))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "QueryPerformance2RDB",
+		}).Warnf("%v\n", err)
+		return nil, err
+	}
+	res := make(map[string]int64)
+
+	if len(values)%2 != 0 {
+		return nil, errors.New("failed ")
+	}
+
+	for i := 0; i < len(values); i += 2 {
+		v, _ := strconv.Atoi(values[i+1])
+		res[values[i]] = int64(v)
 	}
 	return res, nil
 }

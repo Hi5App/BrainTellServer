@@ -57,8 +57,13 @@ func QuerySoma(pa1, pa2 *utils.XYZ, image string, pd *utils.QueryCondition) ([]*
 }
 
 func QuerySomaGroupByUser(isToday bool) (map[string]int64, error) {
+	var sql string
+	if !isToday {
+		sql = "select Owner as Name, count(*) as SomaNum from t_somainfo where Isdeleted = 0 and ctime group by Owner order by SomaNum DESC"
+	} else {
+		sql = "select Owner as Name, count(*) as SomaNum from t_somainfo where Isdeleted = 0 and date_format(ctime,'%Y%m%d')=date_format(now(),'%Y%m%d') group by Owner order by SomaNum DESC"
+	}
 
-	sql := "select Owner as Name, count(*) as SomaNum from t_somainfo where Isdeleted = 0 and ctime group by Owner order by SomaNum DESC"
 	resultsSlice, err := utils.DB.Query(sql)
 	if err != nil {
 		return nil, err

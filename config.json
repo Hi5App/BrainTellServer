@@ -7,8 +7,8 @@
     "db":"Brain"
   },
   "redis": {
-    "ip": "127.0.0.1",
-    "port": "6379"
+    "ip": "139.155.28.154",
+    "port": "26001"
   },
   "aeskey": "1111111111111111",
   "mainpath": "/Users/huanglei/Desktop/dataserver"

@@ -15,6 +15,8 @@ func main() {
 			"event": "Load Config",
 		}).Fatal(http.ListenAndServe("localhost:8000", nil))
 	}
+
+	services.SendPerformance()
 	http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Test")
 	})
@@ -26,6 +28,7 @@ func main() {
 	http.HandleFunc("/dynamic/user/forgetpasswd", services.ForgetPasswd)       //todo
 	http.HandleFunc("/dynamic/user/resetpasswd", services.ResetPasswd)         //todo
 	http.HandleFunc("/dynamic/user/registernetease", services.RegisterNetease) //todo
+	http.HandleFunc("/dynamic/user/getuserperformance", services.GetUserPerformance)
 	//add soma service
 	http.HandleFunc("/dynamic/soma/getpotentiallocation", services.GetPotentialSomaLocation)
 	http.HandleFunc("/dynamic/soma/getsomalist", services.GetSomaList)

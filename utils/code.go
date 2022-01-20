@@ -3,6 +3,7 @@ package utils
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -37,4 +38,18 @@ func Decode(coded []byte) ([]byte, error) {
 	plaintextCopy := make([]byte, 0)
 	cfbdec.XORKeyStream(plaintextCopy, coded)
 	return plaintextCopy, nil
+}
+
+func ConvertPerformance2html(tablename string, performance map[string]int64) string {
+	var sum int64 = 0
+	var performaccehtml string
+	performaccehtml = fmt.Sprintf("<h4>%s</h4>\n", tablename)
+	performaccehtml += fmt.Sprintf("<table>\n")
+	for key, value := range performance {
+		performaccehtml += fmt.Sprintf("<tr>\n<td>%s</td>\n<td>%d</td></tr>\n", key, value)
+		sum += value
+	}
+	performaccehtml += fmt.Sprintf("<tr>\n<td>%s</td>\n<td>%d</td></tr>\n", "total", sum)
+	performaccehtml += fmt.Sprintf("</table>\n")
+	return performaccehtml
 }

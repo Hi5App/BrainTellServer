@@ -44,3 +44,7 @@ time="2022-01-15 21:40:21" level=info msg="Log Set Up"
 time="2022-01-15 21:40:25" level=info msg="{\"user\":{\"name\":\"zx\",\"passwd\":\"123456\"},\"locationId\":9,\"insertsomalist\":[],\"deletesomalist\":[\"191813_00040\"],\"owner\":\"zx\",\"image\":\"191813\"}"
 time="2022-01-15 21:40:25" level=info msg="{\"user\":{\"name\":\"zx\",\"passwd\":\"123456\"},\"locationId\":9,\"insertsomalist\":[],\"deletesomalist\":[\"191813_00040\"],\"owner\":\"zx\",\"image\":\"191813\"}\n" event=DecodeFromHttp
 time="2022-01-15 21:40:26" level=info msg="[\"191813_00040\"]"
+time="2022-01-20 13:53:19" level=info msg="Log Set Up"
+time="2022-01-20 13:55:25" level=info msg="{\"user\":{\"name\":\"testuser\",\"passwd\":\"123456\"}}"
+time="2022-01-20 13:55:25" level=info msg="{\"user\":{\"name\":\"testuser\",\"passwd\":\"123456\"}}\n" event=DecodeFromHttp
+time="2022-01-20 13:55:45" level=info msg="Log Set Up"

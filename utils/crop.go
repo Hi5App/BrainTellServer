@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var availableCropProcess = semaphore.NewWeighted(20)
+var availableCropProcess = semaphore.NewWeighted(50)
 
 func GetBB(pa *CropBB) (string, error) {
 	ctx := context.TODO()

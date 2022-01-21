@@ -12,7 +12,7 @@ func GetImageList() (string, error) {
 	if err == nil {
 		return str, nil
 	}
-	res, err := do.QueryImage(&models.TImage{}, &utils.QueryCondition{Limit: 1})
+	res, err := do.QueryImage(&models.TImage{}, nil)
 	if err != nil {
 		return "", err
 	}

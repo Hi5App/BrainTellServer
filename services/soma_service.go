@@ -12,7 +12,7 @@ func GetSomaList(w http.ResponseWriter, r *http.Request) {
 	var p utils.QuerySomaListParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 	qp, ok := param.(*utils.QuerySomaListParam)
@@ -21,11 +21,11 @@ func GetSomaList(w http.ResponseWriter, r *http.Request) {
 			"event": "GetSomaList",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 400, "Bad Request")
 		return
 	}
 	if _, err := ao.Login(&qp.User); err != nil {
-		utils.EncodeToHttp(w, 401, "")
+		utils.EncodeToHttp(w, 401, err.Error())
 		return
 	}
 	if len(qp.Image) == 0 {
@@ -33,19 +33,19 @@ func GetSomaList(w http.ResponseWriter, r *http.Request) {
 			"event": "GetSomaList",
 			"desc":  "Bad Request",
 		}).Warnf("%v\n", err)
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, "not available image")
 		return
 	}
 
 	res, err := ao.GetSomaList(&qp.Pa1, &qp.Pa2, qp.Image)
 	if err != nil {
-		utils.EncodeToHttp(w, 501, "")
+		utils.EncodeToHttp(w, 501, err.Error())
 		return
 	}
 
 	str, err := json.Marshal(res)
 	if err != nil {
-		utils.EncodeToHttp(w, 502, "")
+		utils.EncodeToHttp(w, 502, err.Error())
 		return
 	}
 	utils.EncodeToHttp(w, 200, string(str))

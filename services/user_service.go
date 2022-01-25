@@ -3,7 +3,7 @@ package services
 import (
 	"BrainTellServer/ao"
 	"BrainTellServer/utils"
-	"encoding/json"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -12,7 +12,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	var p utils.UserInfo
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 
@@ -22,7 +22,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			"event": "Register",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 400, "Bad Request")
 		return
 	}
 
@@ -37,8 +37,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	err = ao.Register(user)
 	if err != nil {
-		w.WriteHeader(501)
-		utils.EncodeToHttp(w, 501, "Register Failed")
+		utils.EncodeToHttp(w, 501, "Register Failed."+err.Error())
 		return
 	}
 	utils.EncodeToHttp(w, 200, "Register Success")
@@ -48,7 +47,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	var p utils.UserInfo
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 	user, ok := param.(*utils.UserInfo)
@@ -57,7 +56,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			"event": "Login",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 400, "Bad Request")
 		return
 	}
 
@@ -66,14 +65,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			"event": "Login",
 			"desc":  "Bad Param",
 		}).Warnf("%s\n", user)
-		utils.EncodeToHttp(w, 400, "")
+		utils.EncodeToHttp(w, 400, "Bad Request")
 		return
 	}
 
 	user, err = ao.Login(user)
 	if err != nil {
 		w.WriteHeader(501)
-		utils.EncodeToHttp(w, 501, "Login Failed")
+		utils.EncodeToHttp(w, 501, "Login Failed."+err.Error())
 		return
 	}
 	utils.EncodeToHttp(w, 200, user.String())
@@ -86,7 +85,7 @@ func SetUserScore(w http.ResponseWriter, r *http.Request) {
 	var p utils.UserInfo
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 	user, ok := param.(*utils.UserInfo)
@@ -95,7 +94,7 @@ func SetUserScore(w http.ResponseWriter, r *http.Request) {
 			"event": "SetUserScore",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
-		utils.EncodeToHttp(w, 500, "")
+		utils.EncodeToHttp(w, 400, "Bad Request")
 		return
 	}
 
@@ -104,7 +103,7 @@ func SetUserScore(w http.ResponseWriter, r *http.Request) {
 			"event": "SetUserScore",
 			"desc":  "Bad Param",
 		}).Warnf("%s\n", user)
-		utils.EncodeToHttp(w, 400, "")
+		utils.EncodeToHttp(w, 400, "Bad Request")
 		return
 	}
 	utils.EncodeToHttp(w, 200, "Need Implement")
@@ -268,14 +267,5 @@ func GetUserPerformance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := make(map[string]map[string]int64)
-	res["performance"] = performance
-	res["dailyperformance"] = dailyperformance
-	str, err := json.Marshal(res)
-	if err != nil {
-		w.WriteHeader(503)
-		utils.EncodeToHttp(w, 503, "json.Marshal(res) failed")
-		return
-	}
-	utils.EncodeToHttp(w, 200, string(str))
+	utils.EncodeToHttp(w, 200, fmt.Sprintf("%d\n%d", performance[user.Name], dailyperformance[user.Name]))
 }

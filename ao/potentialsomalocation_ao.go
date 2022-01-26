@@ -9,7 +9,7 @@ import (
 
 func GetPotentialSomaLocation(pa *utils.PotentialSomaLocation) ([]*utils.PotentialSomaLocation, error) {
 	locations, err := do.QueryPotentialSomaLocation(&models.TPotentialsomalocation{}, &utils.QueryCondition{
-		Limit: 100, Off: 0,
+		Limit: 500, Off: 0,
 	})
 	if err != nil {
 		log.WithFields(log.Fields{

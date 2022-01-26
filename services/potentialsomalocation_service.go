@@ -49,7 +49,7 @@ func GetPotentialSomaLocation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i, v := range queue {
-		if err := utils.LockLocation(v); err != nil {
+		if err := utils.LockLocation(v, p.User.Name); err != nil {
 			continue
 		}
 		queue = queue[i+1:]

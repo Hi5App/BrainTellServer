@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func LockLocation(location *PotentialSomaLocation) error {
+func LockLocation(location *PotentialSomaLocation, user string) error {
 	conn := Pool.Get()
 	defer conn.Close()
 	if _, err := conn.Do("SELECT", 0); err != nil {
@@ -39,7 +39,7 @@ func LockLocation(location *PotentialSomaLocation) error {
 		return errors.New("PotentialSomaLocation" + fmt.Sprint(location.Id) + "Lock exist")
 	}
 
-	_, err = redis.String(conn.Do("SETEX", "PotentialSomaLocation"+fmt.Sprint(location.Id), 2*60, 1))
+	_, err = redis.String(conn.Do("SETEX", "PotentialSomaLocation"+fmt.Sprint(location.Id), 10*60, user))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Redis",
@@ -48,6 +48,79 @@ func LockLocation(location *PotentialSomaLocation) error {
 		}).Warnf("%v\n", err)
 		return errors.New("PotentialSomaLocation" + fmt.Sprint(location.Id) + "lock Failed")
 	}
+	return nil
+}
+
+func GetLocationTTL(key string) (int64, error) {
+	conn := Pool.Get()
+	defer conn.Close()
+	if _, err := conn.Do("SELECT", 0); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Get conn failed",
+		}).Warnf("%v\n", err)
+		return 0, err
+	}
+	res, err := redis.Int64(conn.Do("TTL", key))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "GetLocationTTL failed",
+		}).Warnf("%v\n", err)
+		return 0, err
+	}
+	if res <= 30 {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "GetLocationTTL <=30",
+		}).Warnf("%v\n", err)
+		return 0, errors.New(fmt.Sprintf("GetLocationTTL %s <=30", key))
+	}
+	return res, nil
+}
+
+func GetLocationValue(key string) (string, error) {
+	conn := Pool.Get()
+	defer conn.Close()
+	if _, err := conn.Do("SELECT", 0); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Get conn failed",
+		}).Warnf("%v\n", err)
+		return "", err
+	}
+	res, err := redis.String(conn.Do("GET", key))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "GetLocationValue failed",
+		}).Warnf("%v\n", err)
+		return "", err
+	}
+	return res, nil
+}
+
+func SetKeyTTL(key string, ttl int) error {
+	conn := Pool.Get()
+	defer conn.Close()
+	if _, err := conn.Do("SELECT", 0); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Get conn failed",
+		}).Warnf("%v\n", err)
+		return err
+	}
+
+	res, err := redis.Int64(conn.Do("Expire", key, ttl))
+	if err != nil || res == 0 {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "SetKeyTTL",
+			"pa":    key,
+		}).Warnf("%v\n", err)
+		return errors.New(fmt.Sprintf("%s set ttl failed", key))
+	}
+
 	return nil
 }
 

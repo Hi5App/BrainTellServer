@@ -124,6 +124,7 @@ func SetKeyTTL(key string, ttl int) error {
 	return nil
 }
 
+// QueryUserFromRDB 查询用户信息
 func QueryUserFromRDB(pa *UserInfo) (*UserInfo, error) {
 	conn := Pool.Get()
 	defer conn.Close()
@@ -176,6 +177,7 @@ func QueryUserFromRDB(pa *UserInfo) (*UserInfo, error) {
 	return pa, nil
 }
 
+// InsertUser2RDB 插入用户信息到redis
 func InsertUser2RDB(pa *UserInfo) error {
 	conn := Pool.Get()
 	defer conn.Close()
@@ -196,6 +198,7 @@ func InsertUser2RDB(pa *UserInfo) error {
 	return nil
 }
 
+// InsertImage2RDB 插入图像信息到redis
 func InsertImage2RDB(pa []*Image) error {
 	conn := Pool.Get()
 	defer conn.Close()
@@ -217,6 +220,7 @@ func InsertImage2RDB(pa []*Image) error {
 	return nil
 }
 
+// GetImageFromRDB 从redis获取图像信息
 func GetImageFromRDB() (string, error) {
 	conn := Pool.Get()
 	defer conn.Close()
@@ -238,6 +242,7 @@ func GetImageFromRDB() (string, error) {
 	return res, nil
 }
 
+// GetMusicListFromRDB 从redis获取音乐名称
 func GetMusicListFromRDB() (string, error) {
 	conn := Pool.Get()
 	defer conn.Close()
@@ -263,6 +268,7 @@ func GetMusicListFromRDB() (string, error) {
 	return string(str), nil
 }
 
+// GetLastestApkRes 查询最新的apk版本
 func GetLastestApkRes() ([]string, error) {
 	conn := Pool.Get()
 	defer conn.Close()
@@ -284,6 +290,7 @@ func GetLastestApkRes() ([]string, error) {
 	return res, nil
 }
 
+// InsertPerformance2RDB 将用户点的soma个数插入到redis
 func InsertPerformance2RDB(key string, values map[string]int64) error {
 	var value []interface{}
 	value = append(value, key)
@@ -314,6 +321,7 @@ func InsertPerformance2RDB(key string, values map[string]int64) error {
 	return nil
 }
 
+// QueryPerformance2RDB 从redis查询用户点的soma
 func QueryPerformance2RDB(key string) (map[string]int64, error) {
 	conn := Pool.Get()
 	defer conn.Close()

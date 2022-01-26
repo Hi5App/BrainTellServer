@@ -32,6 +32,7 @@ func QuerySoma(pa1, pa2 *utils.XYZ, image string, pd *utils.QueryCondition) ([]*
 
 	res := make([]*utils.SomaInfo, 0)
 	for _, soma := range somas {
+
 		res = append(res, &utils.SomaInfo{
 			Name:  soma.Name,
 			Image: soma.Image,

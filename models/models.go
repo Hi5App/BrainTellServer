@@ -41,12 +41,13 @@ type TSomainfo struct {
 	Id        int       `xorm:"not null pk autoincr comment('序号') INT"`
 	Name      string    `xorm:"not null comment('soma在图像内的编号e.18454_00001') unique VARCHAR(100)"`
 	Image     string    `xorm:"not null comment('关联的图像编号') index unique(t_somainfo_loc) VARCHAR(100)"`
-	X         float64   `xorm:"not null unique(t_somainfo_loc) DECIMAL(10,3)"`
-	Y         float64   `xorm:"not null unique(t_somainfo_loc) DECIMAL(10,3)"`
-	Z         float64   `xorm:"not null unique(t_somainfo_loc) DECIMAL(10,3)"`
+	X         string    `xorm:"not null unique(t_somainfo_loc) DECIMAL(10,3)"`
+	Y         string    `xorm:"not null unique(t_somainfo_loc) DECIMAL(10,3)"`
+	Z         string    `xorm:"not null unique(t_somainfo_loc) DECIMAL(10,3)"`
 	Location  int       `xorm:"not null comment('关联的潜在位置编号') index INT"`
 	Client    int       `xorm:"default 0 comment('创建设备 0:Hi5') INT"`
 	Owner     string    `xorm:"not null comment('创建者用户名') index VARCHAR(100)"`
+	Updater   string    `xorm:"not null default '' comment('修改用户') VARCHAR(100)"`
 	Color     string    `xorm:"not null default '0000ff' comment('颜色，默认为蓝色') VARCHAR(100)"`
 	Status    int       `xorm:"not null default 0 comment('状态 0:未检查 1:检查，正确 2:检查，错误') index INT"`
 	Methods   string    `xorm:"comment('refine方法和参数') JSON"`

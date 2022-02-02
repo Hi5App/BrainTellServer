@@ -55,6 +55,7 @@ func SendFile(w http.ResponseWriter, status int, pa string) {
 		return
 	}
 	w.WriteHeader(200)
+	w.Header().Set("Content-Disposition", pa)
 	io.Copy(w, f)
 	os.Remove(pa)
 }

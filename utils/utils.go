@@ -10,8 +10,8 @@ import (
 )
 
 type QueryCondition struct {
-	Limit int
-	Off   int
+	Limit int `json:"limit"` //数量
+	Off   int `json:"off"`   //起始位置
 }
 
 type XYZ struct {
@@ -20,9 +20,22 @@ type XYZ struct {
 	Z float64 `json:"z"`
 }
 
+type UserInfo struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	NickName string `json:"nickname"`
+	Score    int    `json:"score"`
+	AppKey   string `json:"appkey"`
+	Passwd   string `json:"passwd"`
+}
+
+type Image struct {
+	Name   string `json:"name"`
+	Detail string `json:"detail"`
+}
+
 func DecodeFromHttp(r *http.Request, pa RequestParam) (RequestParam, error) {
 	s, err := ioutil.ReadAll(r.Body)
-	log.Infoln(string(s))
 	//todo decode
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -35,7 +48,6 @@ func DecodeFromHttp(r *http.Request, pa RequestParam) (RequestParam, error) {
 	log.WithFields(log.Fields{
 		"event": "DecodeFromHttp",
 	}).Infof("%v\n", string(s))
-
 	return pa.FromJsonString(string(s))
 }
 

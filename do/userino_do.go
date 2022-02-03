@@ -7,7 +7,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*utils.UserInfo, error) {
+type UserInfo = utils.UserInfo
+
+func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 
 	users := make([]*models.TUserinfo, 0)
@@ -31,9 +33,9 @@ func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*utils.UserInf
 		return nil, err
 	}
 
-	res := make([]*utils.UserInfo, 0)
+	res := make([]*UserInfo, 0)
 	for _, user := range users {
-		res = append(res, &utils.UserInfo{
+		res = append(res, &UserInfo{
 			Name:     user.Name,
 			Email:    user.Email,
 			Score:    user.Score,

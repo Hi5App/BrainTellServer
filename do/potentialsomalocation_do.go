@@ -7,7 +7,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func QueryPotentialSomaLocation(pa *models.TPotentialsomalocation, pd *utils.QueryCondition) ([]*utils.PotentialSomaLocation, error) {
+type PotentialSomaLocation struct {
+	Id    int64     `json:"id"`
+	Image string    `json:"image"`
+	Loc   utils.XYZ `json:"loc"`
+	Owner string    `json:"owner"`
+}
+
+func QueryPotentialSomaLocation(pa *models.TPotentialsomalocation, pd *utils.QueryCondition) ([]*PotentialSomaLocation, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 
 	locations := make([]*models.TPotentialsomalocation, 0)
@@ -25,9 +32,9 @@ func QueryPotentialSomaLocation(pa *models.TPotentialsomalocation, pd *utils.Que
 		return nil, err
 	}
 
-	res := make([]*utils.PotentialSomaLocation, 0)
+	res := make([]*PotentialSomaLocation, 0)
 	for _, location := range locations {
-		res = append(res, &utils.PotentialSomaLocation{
+		res = append(res, &PotentialSomaLocation{
 			Id:    int64(location.Id),
 			Image: location.Image,
 			Loc: utils.XYZ{

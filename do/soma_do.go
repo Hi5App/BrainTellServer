@@ -10,7 +10,17 @@ import (
 	"strings"
 )
 
-func QuerySoma(pa1, pa2 *utils.XYZ, image string, pd *utils.QueryCondition) ([]*utils.SomaInfo, error) {
+type SomaInfo struct {
+	Name     string    `json:"name"`
+	Image    string    `json:"image"`
+	Loc      utils.XYZ `json:"loc"`
+	Owner    string    `json:"owner"`
+	Color    string    `json:"color"`
+	Location int       `json:"location"`
+	Status   int       `json:"status"`
+}
+
+func QuerySoma(pa1, pa2 *utils.XYZ, image string, pd *utils.QueryCondition) ([]*SomaInfo, error) {
 	jsonpa1, _ := jsoniter.MarshalToString(pa1)
 	jsonpa2, _ := jsoniter.MarshalToString(pa2)
 	somas := make([]models.TSomainfo, 0)
@@ -30,10 +40,9 @@ func QuerySoma(pa1, pa2 *utils.XYZ, image string, pd *utils.QueryCondition) ([]*
 		return nil, err
 	}
 
-	res := make([]*utils.SomaInfo, 0)
+	res := make([]*SomaInfo, 0)
 	for _, soma := range somas {
-
-		res = append(res, &utils.SomaInfo{
+		res = append(res, &SomaInfo{
 			Name:  soma.Name,
 			Image: soma.Image,
 			Loc: utils.XYZ{
@@ -123,14 +132,14 @@ func DeleteSoma(pa []string) (int64, error) {
 	return sqlres.RowsAffected()
 }
 
-func QueryLastSoma(pa *models.TSomainfo) (*utils.SomaInfo, error) {
+func QueryLastSoma(pa *models.TSomainfo) (*SomaInfo, error) {
 	var tmp models.TSomainfo
 	ok, err := utils.DB.Where("Image = ?", pa.Image).Desc("ctime").Desc("Id").Get(&tmp)
 	if err != nil {
 		return nil, err
 	}
 	if !ok {
-		return &utils.SomaInfo{}, nil
+		return &SomaInfo{}, nil
 	}
-	return &utils.SomaInfo{Name: tmp.Name}, nil
+	return &SomaInfo{Name: tmp.Name}, nil
 }

@@ -9,28 +9,27 @@ import (
 	"net/smtp"
 )
 
+// SendPerformance 定期给老师发送邮件
 func SendPerformance() {
 	c := cron.New()
 	spec := "0 0 23 * * ?"
 	c.AddFunc(spec, func() {
 		log.Infof("cron")
-		performance, dailyperformance, err := ao.GetUserPerformance()
+		performance, dailyperformance, err := ao.GetSomaCnt()
 		if err != nil {
 			log.WithFields(log.Fields{
 				"event": "SendPerformance",
-			}).Error("GetUserPerformance failed")
+			}).Error("failed")
 		}
 
 		html := "<html>\n<body>"
 		html += utils.ConvertPerformance2html("Total Soma", performance)
 		html += utils.ConvertPerformance2html("Daily Soma", dailyperformance)
 		html += "</body>\n</html>"
-		//log.Infoln(html)
 		e := email.NewEmail()
 		e.From = "huhudexiaozhuzhu@126.com"
 		e.To = []string{"ljliu@braintell.org", "h@braintell.org"}
 		e.Bcc = []string{"1054067071@qq.com"}
-		//e.To = []string{, "h@braintell.org"}
 		e.Subject = "BrainTell Soma Report"
 		e.HTML = []byte(html)
 		err = e.Send("smtp.126.com:25",

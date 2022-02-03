@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func GetSomaList(pa1, pa2 *utils.XYZ, image string) ([]*utils.SomaInfo, error) {
+func GetSomaList(pa1, pa2 *utils.XYZ, image string) ([]*do.SomaInfo, error) {
 	res, err := do.QuerySoma(pa1, pa2, image, nil)
 	if err != nil {
 		return nil, err
@@ -19,7 +19,15 @@ func GetSomaList(pa1, pa2 *utils.XYZ, image string) ([]*utils.SomaInfo, error) {
 	return res, nil
 }
 
-func UpdateSomaList(pa *utils.UpdateSomaListParam) error {
+type UpdateSomaAo struct {
+	LocationId     int                 `json:"locationId"`
+	InsertSomalist []*models.TSomainfo `json:"insertsomalist"`
+	DeleteSomalist []string            `json:"deletesomalist"`
+	Owner          string              `json:"owner"`
+	Image          string              `json:"image"`
+}
+
+func UpdateSomaList(pa *UpdateSomaAo) error {
 	//set potential
 
 	//先判断互斥锁过期时间
@@ -35,8 +43,8 @@ func UpdateSomaList(pa *utils.UpdateSomaListParam) error {
 	if err != nil {
 		return err
 	}
-	if user != pa.User.Name {
-		return errors.New(fmt.Sprintf("Not right user,%s %s\n", user, pa.User.Name))
+	if user != pa.Owner {
+		return errors.New(fmt.Sprintf("Not right user,%s %s\n", user, pa.Owner))
 	}
 
 	if utils.SetKeyTTL("PotentialSomaLocation"+fmt.Sprint(pa.LocationId), 10*60) != nil {

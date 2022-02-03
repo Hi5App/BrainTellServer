@@ -7,12 +7,12 @@ import (
 	"encoding/json"
 )
 
-func GetImageList() (string, error) {
+func GetImageList(image *do.Image) (string, error) {
 	str, err := utils.GetImageFromRDB()
 	if err == nil {
 		return str, nil
 	}
-	res, err := do.QueryImage(&models.TImage{}, nil)
+	res, err := do.QueryImage(&models.TImage{Name: image.Name}, nil)
 	if err != nil {
 		return "", err
 	}

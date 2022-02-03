@@ -25,10 +25,11 @@ type RedisConfig struct {
 }
 
 type Config struct {
-	MySQL    MySQLConfig
-	Redis    RedisConfig
-	AesKey   string
-	MainPath string
+	MySQL       MySQLConfig
+	Redis       RedisConfig
+	AesKey      string
+	MainPath    string
+	CropProcess int64
 }
 
 var DB *xorm.Engine
@@ -39,13 +40,10 @@ var DataPath string
 var Tmpdir string
 var ImageDir string
 var AesKey string
+var CropProcess int64
 
 func LoadConfig() error {
-	//src, err := os.OpenFile("systemlog.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0777)
-	//if err != nil {
-	//	fmt.Println("err", err)
-	//	os.Exit(0)
-	//}
+	//配置系统日志
 	path := "systemlog"
 	writer, _ := rotatelogs.New(
 		path+".%Y%m%d%H%M",
@@ -54,15 +52,14 @@ func LoadConfig() error {
 		rotatelogs.WithRotationTime(24*time.Hour),
 	)
 	log.SetOutput(writer)
-
 	customFormatter := new(log.TextFormatter)
 	customFormatter.TimestampFormat = "2006-01-02 15:04:05"
 	customFormatter.FullTimestamp = true
 	log.SetFormatter(customFormatter)
-	//log.SetOutput(src)
 	log.SetLevel(log.TraceLevel)
 	log.Infoln("Log Set Up")
 
+	//读取系统配置文件
 	config := viper.New()
 	config.AddConfigPath("./")
 	config.SetConfigName("config")
@@ -83,7 +80,7 @@ func LoadConfig() error {
 	); err != nil {
 		return err
 	}
-
+	//初始化Redis
 	if err := NewRedisPool(config.GetString("redis.ip"),
 		config.GetString("redis.port")); err != nil {
 		return err
@@ -95,6 +92,8 @@ func LoadConfig() error {
 	DataPath = MainPath + "/data"
 	Tmpdir = MainPath + "/tmp"
 	ImageDir = MainPath + "/image"
+
+	CropProcess = config.GetInt64("cropprocess")
 	return nil
 }
 
@@ -103,20 +102,19 @@ func NewDb(user, passwd, ip, port, db string) error {
 		log.WithFields(log.Fields{
 			"event": "Allocate DB",
 		}).Infoln("Config is Error")
-		return errors.New("Config is Error")
+		return errors.New("config is Error")
 	}
-	var err error
-	DB, err = xorm.NewEngine("mysql", user+":"+passwd+"@tcp("+ip+":"+port+")/"+db)
+	DB, err := xorm.NewEngine("mysql", user+":"+passwd+"@tcp("+ip+":"+port+")/"+db)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Allocate DB",
 		}).Infof("%v\n", err)
 		return err
 	}
-	DB.ShowSQL(true)
 
-	//DB.SetMaxOpenConns(1000)
-	//DB.SetMaxIdleConns(200)
+	DB.SetMaxOpenConns(1000)
+	DB.SetMaxIdleConns(200)
+	DB.ShowSQL(true)
 	return nil
 }
 
@@ -125,7 +123,7 @@ func NewRedisPool(ip, port string) error {
 		log.WithFields(log.Fields{
 			"event": "Allocate Redis Pool",
 		}).Infoln("Config is Error")
-		return errors.New("Config is Error")
+		return errors.New("config is Error")
 	}
 
 	Pool = &redis.Pool{

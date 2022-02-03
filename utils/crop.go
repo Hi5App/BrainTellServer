@@ -11,17 +11,30 @@ import (
 	"time"
 )
 
-var availableCropProcess = semaphore.NewWeighted(50)
+type BBox struct {
+	Pa1 XYZ    `json:"pa1"`
+	Pa2 XYZ    `json:"pa2"`
+	Res string `json:"res"`
+	Obj string `json:"obj"`
+}
 
-func GetBB(pa *CropBB) (string, error) {
+var availableCropProcess = semaphore.NewWeighted(CropProcess)
+
+func GetBB(pa *BBox) (string, error) {
 	ctx := context.TODO()
 	if err := availableCropProcess.Acquire(ctx, 1); err != nil {
 		log.Infof("Failed to acquire semaphore: %v\n", err)
 		return "", errors.New(fmt.Sprintf("Failed to acquire semaphore: %v", err))
 	}
 	defer availableCropProcess.Release(1)
-	savefile := Tmpdir + "/" + pa.User.Name + "_X" + fmt.Sprint(pa.Loc.X) + "_Y" + fmt.Sprint(pa.Loc.Y) + "_Z" + fmt.Sprint(pa.Loc.Z) + "_L" + fmt.Sprint(pa.Len) + fmt.Sprint(time.Now().UnixNano()) + ".v3dpbd"
-	cmd := exec.Command(Vaa3dBin, ImageDir+"/"+pa.Image+"/"+pa.RES, savefile, fmt.Sprint(pa.Loc.X), fmt.Sprint(pa.Loc.Y), fmt.Sprint(pa.Loc.Z), fmt.Sprint(pa.Len))
+	savefile := Tmpdir + "/" + fmt.Sprintf("%s_%d_%d_%d_%d_%d_%d_%d.v3dpbd", pa.Obj,
+		int(pa.Pa1.X), int(pa.Pa1.Y), int(pa.Pa1.Z),
+		int(pa.Pa2.X), int(pa.Pa2.Y), int(pa.Pa2.Z),
+		time.Now().UnixNano())
+	cmd := exec.Command(Vaa3dBin, savefile, ImageDir+"/"+pa.Obj+"/"+pa.Res,
+		fmt.Sprint(int(pa.Pa1.X)), fmt.Sprint(int(pa.Pa1.X)), fmt.Sprint(int(pa.Pa1.X)),
+		fmt.Sprint(int(pa.Pa2.X)), fmt.Sprint(int(pa.Pa2.X)), fmt.Sprint(int(pa.Pa2.X)),
+	)
 	log.WithFields(log.Fields{
 		"event": "crop image",
 	}).Infoln(cmd.Args)

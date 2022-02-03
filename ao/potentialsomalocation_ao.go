@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func GetPotentialSomaLocation(pa *utils.PotentialSomaLocation) ([]*utils.PotentialSomaLocation, error) {
+func GetPotentialSomaLocation() ([]*do.PotentialSomaLocation, error) {
 	locations, err := do.QueryPotentialSomaLocation(&models.TPotentialsomalocation{}, &utils.QueryCondition{
 		Limit: 500, Off: 0,
 	})

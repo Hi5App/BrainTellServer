@@ -7,7 +7,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func QueryImage(pa *models.TImage, pd *utils.QueryCondition) ([]*utils.Image, error) {
+type Image = utils.Image
+
+func QueryImage(pa *models.TImage, pd *utils.QueryCondition) ([]*Image, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 
 	images := make([]*models.TImage, 0)
@@ -25,9 +27,9 @@ func QueryImage(pa *models.TImage, pd *utils.QueryCondition) ([]*utils.Image, er
 		return nil, err
 	}
 
-	res := make([]*utils.Image, 0)
+	res := make([]*Image, 0)
 	for _, image := range images {
-		res = append(res, &utils.Image{
+		res = append(res, &Image{
 			Name:   image.Name,
 			Detail: image.Detail,
 		})

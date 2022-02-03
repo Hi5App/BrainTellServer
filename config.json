@@ -11,5 +11,6 @@
     "port": "26001"
   },
   "aeskey": "1111111111111111",
-  "mainpath": "/Users/huanglei/Desktop/dataserver"
+  "mainpath": "/Users/huanglei/Desktop/dataserver",
+  "cropprocess": 50
 }

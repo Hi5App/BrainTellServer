@@ -2,6 +2,7 @@ package services
 
 import (
 	"BrainTellServer/utils"
+	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -15,14 +16,37 @@ func GetMusicList(w http.ResponseWriter, r *http.Request) {
 	utils.EncodeToHttp(w, 200, res)
 }
 
+type GetLatestApkParam struct {
+	Version string `json:"version"`
+}
+
+func (pa *GetLatestApkParam) String() string {
+	jsonres, err := json.Marshal(pa)
+	if err != nil {
+		return ""
+	}
+	return string(jsonres)
+}
+
+func (pa *GetLatestApkParam) FromJsonString(jsonstr string) (utils.RequestParam, error) {
+	if err := json.Unmarshal([]byte(jsonstr), pa); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Query userinfo",
+			"pa":    jsonstr,
+		}).Warnf("%s\n%v\n", string([]byte(jsonstr)), err)
+		return nil, err
+	}
+	return pa, nil
+}
+
 func GetLatestApk(w http.ResponseWriter, r *http.Request) {
-	var p utils.GetLatestApkParam
+	var p GetLatestApkParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
 		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
-	qp, ok := param.(*utils.GetLatestApkParam)
+	qp, ok := param.(*GetLatestApkParam)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "Login",

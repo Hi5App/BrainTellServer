@@ -6,7 +6,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func GetUserPerformance() (map[string]int64, map[string]int64, error) {
+// GetSomaCnt 获取soma变动信息
+func GetSomaCnt() (map[string]int64, map[string]int64, error) {
 	performance, err := utils.QueryPerformance2RDB("performance")
 	if err != nil {
 		log.Warningln(err)

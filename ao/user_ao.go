@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Register(pa *utils.UserInfo) error {
+func Register(pa *do.UserInfo) error {
 	_, err := do.InsertUser(&models.TUserinfo{
 		Name:     pa.Name,
 		Email:    pa.Email,
@@ -25,21 +25,13 @@ func Register(pa *utils.UserInfo) error {
 	return nil
 }
 
-func Login(pa *utils.UserInfo) (*utils.UserInfo, error) {
-
-	if len(pa.Passwd) == 0 || (len(pa.Name) == 0 && len(pa.Email) == 0) {
-		log.WithFields(log.Fields{
-			"event": "Login",
-			"desc":  "Bad Param",
-		}).Warnf("%s\n", pa)
-		return nil, errors.New("Bad Request")
-	}
-
+func Login(pa *do.UserInfo) (*do.UserInfo, error) {
 	user, err := utils.QueryUserFromRDB(pa)
 	if err == nil {
 		utils.InsertUser2RDB(user)
 		return user, nil
 	}
+
 	users, err := do.QueryUser(&models.TUserinfo{
 		Name:   pa.Name,
 		Email:  pa.Email,
@@ -47,6 +39,7 @@ func Login(pa *utils.UserInfo) (*utils.UserInfo, error) {
 	}, &utils.QueryCondition{
 		Limit: 1, Off: 0,
 	})
+
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Login",
@@ -58,5 +51,5 @@ func Login(pa *utils.UserInfo) (*utils.UserInfo, error) {
 		utils.InsertUser2RDB(users[0])
 		return users[0], nil
 	}
-	return nil, errors.New("No Such User")
+	return nil, errors.New("no such user")
 }

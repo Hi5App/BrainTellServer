@@ -25,7 +25,6 @@ func main() {
 	http.HandleFunc("/dynamic/user/login", services.Login)
 	http.HandleFunc("/dynamic/user/setuserscore", services.SetUserScore)       //todo
 	http.HandleFunc("/dynamic/user/updatepasswd", services.UpdatePasswd)       //todo
-	http.HandleFunc("/dynamic/user/forgetpasswd", services.ForgetPasswd)       //todo
 	http.HandleFunc("/dynamic/user/resetpasswd", services.ResetPasswd)         //todo
 	http.HandleFunc("/dynamic/user/registernetease", services.RegisterNetease) //todo
 	http.HandleFunc("/dynamic/user/getuserperformance", services.GetUserPerformance)

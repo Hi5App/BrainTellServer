@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func LockLocation(location *PotentialSomaLocation, user string) error {
+func LockLocation(locationId int64, user string) error {
 	conn := Pool.Get()
 	defer conn.Close()
 	if _, err := conn.Do("SELECT", 0); err != nil {
@@ -20,12 +20,12 @@ func LockLocation(location *PotentialSomaLocation, user string) error {
 		return err
 	}
 
-	res, err := redis.Int64(conn.Do("EXISTS", "PotentialSomaLocation"+fmt.Sprint(location.Id)))
+	res, err := redis.Int64(conn.Do("EXISTS", "PotentialSomaLocation"+fmt.Sprint(locationId)))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Redis",
 			"desc":  "Set Lock",
-			"pa":    location,
+			"pa":    locationId,
 		}).Warnf("%v\n", err)
 		return err
 	}
@@ -34,19 +34,19 @@ func LockLocation(location *PotentialSomaLocation, user string) error {
 		log.WithFields(log.Fields{
 			"event": "Redis",
 			"desc":  "Set Lock exist",
-			"pa":    location,
+			"pa":    locationId,
 		}).Warnf("%v\n", err)
-		return errors.New("PotentialSomaLocation" + fmt.Sprint(location.Id) + "Lock exist")
+		return errors.New("PotentialSomaLocation" + fmt.Sprint(locationId) + "Lock exist")
 	}
 
-	_, err = redis.String(conn.Do("SETEX", "PotentialSomaLocation"+fmt.Sprint(location.Id), 10*60, user))
+	_, err = redis.String(conn.Do("SETEX", "PotentialSomaLocation"+fmt.Sprint(locationId), 10*60, user))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Redis",
 			"desc":  "Set Lock exist",
-			"pa":    location,
+			"pa":    locationId,
 		}).Warnf("%v\n", err)
-		return errors.New("PotentialSomaLocation" + fmt.Sprint(location.Id) + "lock Failed")
+		return errors.New("PotentialSomaLocation" + fmt.Sprint(locationId) + "lock Failed")
 	}
 	return nil
 }
@@ -157,20 +157,12 @@ func QueryUserFromRDB(pa *UserInfo) (*UserInfo, error) {
 			return nil, err
 		}
 	}
-	param, err := pa.FromJsonString(res)
+
+	err = json.Unmarshal([]byte(res), pa)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Redis",
 			"desc":  " FromJsonString Failed",
-		}).Warnf("%v\n", err)
-		return nil, err
-	}
-
-	pa, ok := param.(*UserInfo)
-	if !ok {
-		log.WithFields(log.Fields{
-			"event": "Redis",
-			"desc":  " param.(*do.UserInfo) Failed",
 		}).Warnf("%v\n", err)
 		return nil, err
 	}
@@ -192,9 +184,12 @@ func InsertUser2RDB(pa *UserInfo) error {
 	if len(pa.Name) == 0 && len(pa.Email) == 0 {
 		return errors.New("pa is empty")
 	}
-	conn.Do("SETEX", "USERNAME_"+pa.Name, 60, pa.String())
-	conn.Do("SETEX", "USEREMAIL_"+pa.Email, 60, pa.String())
-
+	jsonbody, err := json.Marshal(pa)
+	if err != nil {
+		return err
+	}
+	conn.Do("SETEX", "USERNAME_"+pa.Name, 60, string(jsonbody))
+	conn.Do("SETEX", "USEREMAIL_"+pa.Email, 60, string(jsonbody))
 	return nil
 }
 

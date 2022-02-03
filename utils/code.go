@@ -11,6 +11,7 @@ var commonIV = []byte{0x00, 0x01, 0x02, 0x03,
 	0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
 	0x0b, 0x0c, 0x0d, 0x0e, 0x0f}
 
+// Encode 加密
 func Encode(raw []byte) ([]byte, error) {
 	c, err := aes.NewCipher([]byte(AesKey))
 	if err != nil {
@@ -26,6 +27,7 @@ func Encode(raw []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
+// Decode 解密
 func Decode(coded []byte) ([]byte, error) {
 	c, err := aes.NewCipher([]byte(AesKey))
 	if err != nil {
@@ -40,6 +42,7 @@ func Decode(coded []byte) ([]byte, error) {
 	return plaintextCopy, nil
 }
 
+// ConvertPerformance2html 将点soma的信息编码为html
 func ConvertPerformance2html(tablename string, performance map[string]int64) string {
 	var sum int64 = 0
 	var performaccehtml string

@@ -22,6 +22,7 @@ func CreateFromOther(w http.ResponseWriter, r *http.Request) {
 
 type InheritOtherParam struct {
 	Ano    string          `json:"ano"`
+	Image  string          `json:"image"`
 	Neuron string          `json:"neuron"`
 	User   UserVerifyParam `json:"user"`
 }
@@ -96,7 +97,7 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	cmd := exec.Command("/bin/sh", "-c", utils.CollaborateBinPath, fmt.Sprint(port), utils.DataPath, p.Neuron, p.Ano)
+	cmd := exec.Command("/bin/sh", "-c", utils.CollaborateBinPath, fmt.Sprint(port), utils.MainPath, p.Image, p.Neuron, p.Ano)
 
 	if err := cmd.Start(); err != nil {
 		log.Error(err.Error())

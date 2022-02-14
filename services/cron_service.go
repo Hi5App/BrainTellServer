@@ -28,7 +28,7 @@ func SendPerformance() {
 		html += "</body>\n</html>"
 		e := email.NewEmail()
 		e.From = "huhudexiaozhuzhu@126.com"
-		e.To = []string{"ljliu@braintell.org", "h@braintell.org"}
+		e.To = utils.Emails
 		e.Bcc = []string{"1054067071@qq.com"}
 		e.Subject = "BrainTell Soma Report"
 		e.HTML = []byte(html)

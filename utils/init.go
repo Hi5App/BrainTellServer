@@ -30,6 +30,7 @@ type Config struct {
 	AesKey      string
 	MainPath    string
 	CropProcess int64
+	Emails      []string
 }
 
 var DB *xorm.Engine
@@ -41,6 +42,7 @@ var Tmpdir string
 var ImageDir string
 var AesKey string
 var CropProcess int64
+var Emails []string
 
 func LoadConfig() error {
 	//配置系统日志
@@ -94,6 +96,7 @@ func LoadConfig() error {
 	ImageDir = MainPath + "/image"
 
 	CropProcess = config.GetInt64("cropprocess")
+	Emails = config.GetStringSlice("emails")
 	return nil
 }
 

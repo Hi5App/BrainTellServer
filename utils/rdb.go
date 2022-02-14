@@ -366,7 +366,7 @@ func QueryPerformance2RDB(key string) (map[string]int64, error) {
 	return res, nil
 }
 
-func AllocatePort(ano string) (int, error) {
+func AllocatePort(ano string) (string, error) {
 	conn := Pool.Get()
 	defer conn.Close()
 	if _, err := conn.Do("SELECT", 0); err != nil {
@@ -374,37 +374,37 @@ func AllocatePort(ano string) (int, error) {
 			"event": "Redis",
 			"desc":  "Get conn failed",
 		}).Warnf("%v\n", err)
-		return 0, err
+		return "", err
 	}
 
-	port, err := redis.Int(conn.Do("LPOP", "PORTQUEUE", 1))
+	port, err := redis.String(conn.Do("LPOP", "PORTQUEUE"))
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
-	res, err := redis.Int(conn.Do("EXISTS", fmt.Sprintf("Ano_Port:%s_%d", "*", port)))
+	res, err := redis.Int(conn.Do("EXISTS", fmt.Sprintf("Ano_Port:%s_%s", "*", port)))
 	if err != nil {
 		conn.Do("RPUSH", "PORTQUEUE", port)
-		return 0, err
+		return "", err
 	}
 
 	if res == 1 {
 		conn.Do("RPUSH", "PORTQUEUE", port)
 		log.Error("Port %d Has in Use", port)
-		return -1, errors.New("port Has in Use，please try again")
+		return "-1", errors.New("port Has in Use，please try again")
 	}
 
-	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Ano_Port:%s_%d", ano, port), 10*60, ano))
+	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Ano_Port:%s_%s", ano, port), 10*60, ano))
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	if ret != "OK" {
-		return 0, errors.New("can not allocate port")
+		return "", errors.New("can not allocate port")
 	}
 	return port, nil
 }
 
-func QueryAnoPort(ano string) (int, error) {
+func QueryAnoPort(ano string) (string, error) {
 	conn := Pool.Get()
 	defer conn.Close()
 	if _, err := conn.Do("SELECT", 0); err != nil {
@@ -412,28 +412,28 @@ func QueryAnoPort(ano string) (int, error) {
 			"event": "Redis",
 			"desc":  "Get conn failed",
 		}).Warnf("%v\n", err)
-		return 0, err
+		return "", err
 	}
 
-	keys, err := redis.Strings(conn.Do("Keys", fmt.Sprintf("Ano_Port:%s_%s", ano, "*")))
+	keys, err := redis.Strings(conn.Do("Keys", fmt.Sprintf("Ano_Port:%s__%s", ano, "*")))
 	if err != nil {
 		//error
-		return 0, err
+		return "", err
 	}
 	if len(keys) == 0 {
 		//not exist
-		return 0, nil
+		return "", nil
 	}
 
 	if len(keys) != 1 {
 		//存在多个，错误
-		return 0, errors.New("multiply port exist")
+		return "", errors.New("multiply port exist")
 	} else {
 		//存在，取出端口号，key->(ano,port)
-		var port = 0
-		_, err := fmt.Sscanf(keys[0], "Ano_Port:%s_%s", &ano, &port)
+		var port = ""
+		_, err := fmt.Sscanf(keys[0], "Ano_Port:%s__%s", &ano, &port)
 		if err != nil {
-			return 0, err
+			return "", err
 		}
 		return port, nil
 	}

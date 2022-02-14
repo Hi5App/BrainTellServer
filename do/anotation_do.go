@@ -13,7 +13,7 @@ type TAnotation struct {
 
 func GetAno(pa *models.TAnotation) ([]*TAnotation, error) {
 	anos := make([]*models.TAnotation, 0)
-	err := utils.DB.Where("Isdeleted = ?", 0).Find(anos, pa)
+	err := utils.DB.Where("Isdeleted = ?", 0).Find(&anos, pa)
 	if err != nil {
 		return nil, err
 	}

@@ -44,7 +44,7 @@ func (image *InheritOtherParam) FromJsonString(jsonstr string) (utils.RequestPar
 
 type AllocateAnoPort struct {
 	Ano  string `json:"ano"`
-	Port int    `json:"port"`
+	Port string `json:"port"`
 }
 
 func InheritOther(w http.ResponseWriter, r *http.Request) {
@@ -84,10 +84,10 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if port == 0 {
+	if port == "" {
 		port, err = utils.AllocatePort(p.Ano)
 		if err != nil {
-			if port == 0 {
+			if port == "" {
 				utils.EncodeToHttp(w, 503, "can not allocate Port,"+err.Error())
 				return
 			} else {
@@ -96,17 +96,21 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	ch := make(chan int)
+	go func(ch chan<- int) {
+		cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("%s %s %s %s %s %s", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
+		//cmd := exec.Command("/bin/sh", "-c", "ping 127.0.0.1")
+		if err := cmd.Start(); err != nil {
+			log.Error(err.Error())
+		}
+		log.Infoln("start process")
+		ch <- 1
+		if err := cmd.Wait(); err != nil {
+			log.Error(err.Error())
+		}
 
-	cmd := exec.Command("/bin/sh", "-c", utils.CollaborateBinPath, fmt.Sprint(port), utils.MainPath, p.Image, p.Neuron, p.Ano)
-
-	if err := cmd.Start(); err != nil {
-		log.Error(err.Error())
-	}
-
-	if err := cmd.Wait(); err != nil {
-		log.Error(err.Error())
-	}
-
+	}(ch)
+	<-ch
 	jsonbody, err := json.Marshal(&AllocateAnoPort{
 		Ano:  p.Ano,
 		Port: port,

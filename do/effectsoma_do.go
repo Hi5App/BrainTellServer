@@ -16,7 +16,7 @@ type TEffectSoma struct {
 
 func QueryEffectSomaImage() ([]string, error) {
 	var images []string
-	err := utils.DB.Where("Isdeleted = ?", 0).Cols("ImageId").Find(&images)
+	err := utils.DB.Table("t_effect_soma").Where("Isdeleted = ?", 0).Cols("ImageId").Find(&images)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func QueryEffectSomaImage() ([]string, error) {
 
 func QueryEffectSoma(pa *models.TEffectSoma) ([]*TEffectSoma, error) {
 	somas := make([]*models.TEffectSoma, 0)
-	err := utils.DB.Where("Isdeleted = ?", 0).Find(somas, pa)
+	err := utils.DB.Where("Isdeleted = ?", 0).Find(&somas, pa)
 	if err != nil {
 		return nil, err
 	}

@@ -16,7 +16,7 @@ func main() {
 		}).Fatal(http.ListenAndServe("localhost:8000", nil))
 	}
 
-	services.SendPerformance()
+	//services.SendPerformance()
 
 	http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Test")
@@ -37,6 +37,7 @@ func main() {
 	http.HandleFunc("/dynamic/collaborate/getanoimage", services.GetAnoImage)
 	http.HandleFunc("/dynamic/collaborate/getanoneuron", services.GetAnoNeuron)
 	http.HandleFunc("/dynamic/collaborate/getano", services.GetAno)
+
 	http.HandleFunc("/dynamic/collaborate/createnewanofromzero", services.CreateFromZero)
 	http.HandleFunc("/dynamic/collaborate/createnewanofromother", services.CreateFromOther)
 	http.HandleFunc("/dynamic/collaborate/inheritother", services.InheritOther)

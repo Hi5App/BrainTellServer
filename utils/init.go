@@ -44,12 +44,12 @@ var CropProcess int64
 
 func LoadConfig() error {
 	//配置系统日志
-	path := "systemlog"
+	path := "./logs/systemlog"
 	writer, _ := rotatelogs.New(
 		path+".%Y%m%d%H%M",
 		rotatelogs.WithLinkName(path),
-		rotatelogs.WithMaxAge(7*24*time.Hour),
-		rotatelogs.WithRotationTime(24*time.Hour),
+		rotatelogs.WithMaxAge(30*24*time.Hour),
+		rotatelogs.WithRotationTime(1*time.Hour),
 	)
 	log.SetOutput(writer)
 	customFormatter := new(log.TextFormatter)
@@ -104,7 +104,8 @@ func NewDb(user, passwd, ip, port, db string) error {
 		}).Infoln("Config is Error")
 		return errors.New("config is Error")
 	}
-	DB, err := xorm.NewEngine("mysql", user+":"+passwd+"@tcp("+ip+":"+port+")/"+db)
+	var err error
+	DB, err = xorm.NewEngine("mysql", user+":"+passwd+"@tcp("+ip+":"+port+")/"+db)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Allocate DB",

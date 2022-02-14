@@ -17,6 +17,7 @@ func main() {
 	}
 
 	services.SendPerformance()
+
 	http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Test")
 	})
@@ -32,10 +33,14 @@ func main() {
 	http.HandleFunc("/dynamic/soma/getpotentiallocation", services.GetPotentialSomaLocation)
 	http.HandleFunc("/dynamic/soma/getsomalist", services.GetSomaList)
 	http.HandleFunc("/dynamic/soma/updatesomalist", services.UpdateSomaList)
+	//collaborate service
+	http.HandleFunc("/dynamic/collaborate/createnewanofromzero", services.CreateFromZero)
+	http.HandleFunc("/dynamic/collaborate/createnewanofromother", services.CreateFromOther)
+	http.HandleFunc("/dynamic/collaborate/inheritother", services.InheritOther)
 	//image service
 	http.HandleFunc("/dynamic/image/getimagelist", services.GetImageList)
 	http.HandleFunc("/dynamic/image/cropimage", services.CropImage)
-	//
+	//resource service
 	http.HandleFunc("/dynamic/musics", services.GetMusicList)
 	http.HandleFunc("/dynamic/updateapk", services.GetLatestApk)
 

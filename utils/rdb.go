@@ -365,3 +365,35 @@ func QueryPerformance2RDB(key string) (map[string]int64, error) {
 	}
 	return res, nil
 }
+
+func AllocatePort(ano string) (int, error) {
+	conn := Pool.Get()
+	defer conn.Close()
+	if _, err := conn.Do("SELECT", 0); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Get conn failed",
+		}).Warnf("%v\n", err)
+		return 0, err
+	}
+	port, err := redis.Int(conn.Do("LPOP", "PORTQUEUE", 1))
+	if err != nil {
+		return 0, err
+	}
+	res, err := redis.Int(conn.Do("EXISTS", fmt.Sprintf("PORT_%d", port)))
+	if err != nil {
+		conn.Do("RPUSH", "PORTQUEUE", port)
+		return 0, err
+	}
+	if res == 1 {
+		conn.Do("RPUSH", "PORTQUEUE", port)
+		return 0, errors.New("Port Has in")
+	}
+	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("PORT_%d", port), 10*60, ano))
+	if err != nil || ret != "OK" {
+		conn.Do("RPUSH", "PORTQUEUE", port)
+		return 0, err
+	}
+	return port, nil
+
+}

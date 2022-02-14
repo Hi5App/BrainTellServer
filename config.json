@@ -1,14 +1,14 @@
 {
   "mysql":{
     "user": "root",
-    "passwd": "seubrain335",
-    "ip": "139.155.28.154",
-    "port": "26002",
+    "passwd": "1234",
+    "ip": "127.0.0.1",
+    "port": "3306",
     "db":"Brain"
   },
   "redis": {
-    "ip": "139.155.28.154",
-    "port": "26001"
+    "ip": "127.0.0.1",
+    "port": "6379"
   },
   "aeskey": "1111111111111111",
   "mainpath": "/Users/huanglei/Desktop/dataserver",

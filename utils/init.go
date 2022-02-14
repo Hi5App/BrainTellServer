@@ -38,6 +38,7 @@ var Pool *redis.Pool
 var MainPath string
 var Vaa3dBin string
 var DataPath string
+var CollaborateBinPath string
 var Tmpdir string
 var ImageDir string
 var AesKey string
@@ -94,7 +95,7 @@ func LoadConfig() error {
 	DataPath = MainPath + "/data"
 	Tmpdir = MainPath + "/tmp"
 	ImageDir = MainPath + "/image"
-
+	CollaborateBinPath = MainPath + "/"
 	CropProcess = config.GetInt64("cropprocess")
 	Emails = config.GetStringSlice("emails")
 	return nil

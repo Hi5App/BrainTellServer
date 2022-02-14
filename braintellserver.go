@@ -34,6 +34,9 @@ func main() {
 	http.HandleFunc("/dynamic/soma/getsomalist", services.GetSomaList)
 	http.HandleFunc("/dynamic/soma/updatesomalist", services.UpdateSomaList)
 	//collaborate service
+	http.HandleFunc("/dynamic/collaborate/getanoimage", services.GetAnoImage)
+	http.HandleFunc("/dynamic/collaborate/getanoneuron", services.GetAnoNeuron)
+	http.HandleFunc("/dynamic/collaborate/getano", services.GetAno)
 	http.HandleFunc("/dynamic/collaborate/createnewanofromzero", services.CreateFromZero)
 	http.HandleFunc("/dynamic/collaborate/createnewanofromother", services.CreateFromOther)
 	http.HandleFunc("/dynamic/collaborate/inheritother", services.InheritOther)

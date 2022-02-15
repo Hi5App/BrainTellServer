@@ -95,22 +95,24 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-	}
-	ch := make(chan int)
-	go func(ch chan<- int) {
-		cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("%s %s %s %s %s %s", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
-		//cmd := exec.Command("/bin/sh", "-c", "ping 127.0.0.1")
-		if err := cmd.Start(); err != nil {
-			log.Error(err.Error())
-		}
-		log.Infoln("start process")
-		ch <- 1
-		if err := cmd.Wait(); err != nil {
-			log.Error(err.Error())
-		}
 
-	}(ch)
-	<-ch
+		ch := make(chan int)
+		go func(ch chan<- int) {
+			//cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("%s %s %s %s %s %s", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
+			cmd := exec.Command("/bin/sh", "-c", "ping 127.0.0.1")
+			if err := cmd.Start(); err != nil {
+				log.Error(err.Error())
+			}
+			log.Infoln("start process")
+			ch <- 1
+			if err := cmd.Wait(); err != nil {
+				log.Error(err.Error())
+			}
+
+		}(ch)
+		<-ch
+	}
+
 	jsonbody, err := json.Marshal(&AllocateAnoPort{
 		Ano:  p.Ano,
 		Port: port,
@@ -276,7 +278,7 @@ func GetAno(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := ao.Login(&do.UserInfo{
+	if user, err := ao.Login(&do.UserInfo{
 		Name:   p.User.Name,
 		Passwd: p.User.Passwd,
 	}); err != nil {
@@ -286,6 +288,8 @@ func GetAno(w http.ResponseWriter, r *http.Request) {
 		}).Warnf("%v\n", err)
 		utils.EncodeToHttp(w, 401, err.Error())
 		return
+	} else {
+		w.Header().Set("Set-Cookie", fmt.Sprint(user.Id))
 	}
 
 	anos, err := ao.GetAno(p.Neuron)

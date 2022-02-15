@@ -21,6 +21,7 @@ type XYZ struct {
 }
 
 type UserInfo struct {
+	Id       int    `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	NickName string `json:"nickname"`

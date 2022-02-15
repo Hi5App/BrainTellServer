@@ -382,7 +382,7 @@ func AllocatePort(ano string) (string, error) {
 		return "", err
 	}
 
-	res, err := redis.Int(conn.Do("EXISTS", fmt.Sprintf("Ano_Port:%s_%s", "*", port)))
+	res, err := redis.Int(conn.Do("EXISTS", fmt.Sprintf("Ano+Port:%s %s", "*", port)))
 	if err != nil {
 		conn.Do("RPUSH", "PORTQUEUE", port)
 		return "", err
@@ -394,7 +394,7 @@ func AllocatePort(ano string) (string, error) {
 		return "-1", errors.New("port Has in Use，please try again")
 	}
 
-	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Ano_Port:%s_%s", ano, port), 10*60, ano))
+	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Ano+Port:%s %s", ano, port), 10*60, ano))
 	if err != nil {
 		return "", err
 	}
@@ -415,7 +415,7 @@ func QueryAnoPort(ano string) (string, error) {
 		return "", err
 	}
 
-	keys, err := redis.Strings(conn.Do("Keys", fmt.Sprintf("Ano_Port:%s__%s", ano, "*")))
+	keys, err := redis.Strings(conn.Do("Keys", fmt.Sprintf("Ano+Port:%s %s", ano, "*")))
 	if err != nil {
 		//error
 		return "", err
@@ -431,7 +431,7 @@ func QueryAnoPort(ano string) (string, error) {
 	} else {
 		//存在，取出端口号，key->(ano,port)
 		var port = ""
-		_, err := fmt.Sscanf(keys[0], "Ano_Port:%s__%s", &ano, &port)
+		_, err := fmt.Sscanf(keys[0], "Ano+Port:%s %s", &ano, &port)
 		if err != nil {
 			return "", err
 		}

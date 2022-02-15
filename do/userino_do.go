@@ -20,6 +20,7 @@ func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, err
 		session = session.Limit(pd.Limit, pd.Off)
 	}
 	err := session.Find(&users, &models.TUserinfo{
+
 		Name:   pa.Name,
 		Email:  pa.Email,
 		Passwd: pa.Passwd,
@@ -36,6 +37,7 @@ func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, err
 	res := make([]*UserInfo, 0)
 	for _, user := range users {
 		res = append(res, &UserInfo{
+			Id:       user.Id,
 			Name:     user.Name,
 			Email:    user.Email,
 			Score:    user.Score,

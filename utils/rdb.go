@@ -7,6 +7,7 @@ import (
 	"github.com/gomodule/redigo/redis"
 	log "github.com/sirupsen/logrus"
 	"strconv"
+	"strings"
 )
 
 func LockLocation(locationId int64, user string) error {
@@ -382,7 +383,7 @@ func AllocatePort(ano string) (string, error) {
 		return "", err
 	}
 
-	res, err := redis.Int(conn.Do("EXISTS", fmt.Sprintf("Ano+Port:%s %s", "*", port)))
+	res, err := redis.Int(conn.Do("EXISTS", fmt.Sprintf("Ano+Port:%s;%s", "*", port)))
 	if err != nil {
 		conn.Do("RPUSH", "PORTQUEUE", port)
 		return "", err
@@ -394,7 +395,7 @@ func AllocatePort(ano string) (string, error) {
 		return "-1", errors.New("port Has in Use，please try again")
 	}
 
-	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Ano+Port:%s %s", ano, port), 10*60, ano))
+	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Ano+Port:%s;%s", ano, port), 3*10*60, ano))
 	if err != nil {
 		return "", err
 	}
@@ -415,7 +416,7 @@ func QueryAnoPort(ano string) (string, error) {
 		return "", err
 	}
 
-	keys, err := redis.Strings(conn.Do("Keys", fmt.Sprintf("Ano+Port:%s %s", ano, "*")))
+	keys, err := redis.Strings(conn.Do("Keys", fmt.Sprintf("Ano+Port:%s;%s", ano, "*")))
 	if err != nil {
 		//error
 		return "", err
@@ -430,11 +431,13 @@ func QueryAnoPort(ano string) (string, error) {
 		return "", errors.New("multiply port exist")
 	} else {
 		//存在，取出端口号，key->(ano,port)
+		var anowithport = ""
 		var port = ""
-		_, err := fmt.Sscanf(keys[0], "Ano+Port:%s %s", &ano, &port)
+		_, err := fmt.Sscanf(keys[0], "Ano+Port:%s", &anowithport)
 		if err != nil {
 			return "", err
 		}
+		port = strings.Split(anowithport, ";")[1]
 		return port, nil
 	}
 

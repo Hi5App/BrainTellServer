@@ -4,7 +4,6 @@ import (
 	"errors"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"time"
@@ -47,14 +46,14 @@ var Emails []string
 
 func LoadConfig() error {
 	//配置系统日志
-	path := "./logs/systemlog"
-	writer, _ := rotatelogs.New(
-		path+".%Y%m%d%H%M",
-		rotatelogs.WithLinkName(path),
-		rotatelogs.WithMaxAge(30*24*time.Hour),
-		rotatelogs.WithRotationTime(1*time.Hour),
-	)
-	log.SetOutput(writer)
+	//path := "./logs/systemlog"
+	//writer, _ := rotatelogs.New(
+	//	path+".%Y%m%d%H%M",
+	//	rotatelogs.WithLinkName(path),
+	//	rotatelogs.WithMaxAge(30*24*time.Hour),
+	//	rotatelogs.WithRotationTime(1*time.Hour),
+	//)
+	//log.SetOutput(writer)
 	customFormatter := new(log.TextFormatter)
 	customFormatter.TimestampFormat = "2006-01-02 15:04:05"
 	customFormatter.FullTimestamp = true
@@ -95,7 +94,7 @@ func LoadConfig() error {
 	DataPath = MainPath + "/data"
 	Tmpdir = MainPath + "/tmp"
 	ImageDir = MainPath + "/image"
-	CollaborateBinPath = MainPath + "/"
+	CollaborateBinPath = MainPath + "/collaborate/CollServer"
 	CropProcess = config.GetInt64("cropprocess")
 	Emails = config.GetStringSlice("emails")
 	return nil

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"os/exec"
 	"strings"
 )
 
@@ -96,21 +95,15 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		ch := make(chan int)
-		go func(ch chan<- int) {
-			//cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("%s %s %s %s %s %s", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
-			cmd := exec.Command("/bin/sh", "-c", "ping 127.0.0.1")
-			if err := cmd.Start(); err != nil {
-				log.Error(err.Error())
-			}
-			log.Infoln("start process")
-			ch <- 1
-			if err := cmd.Wait(); err != nil {
-				log.Error(err.Error())
-			}
-
-		}(ch)
-		<-ch
+		log.Infoln(fmt.Sprintf("%s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
+		//cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("%s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
+		//if err := cmd.Start(); err != nil {
+		//	log.Error(err.Error())
+		//}
+		//if err := cmd.Wait(); err != nil {
+		//	log.Error(err.Error())
+		//}
+		//log.Infoln("start process " + p.Ano + " success")
 	}
 
 	jsonbody, err := json.Marshal(&AllocateAnoPort{

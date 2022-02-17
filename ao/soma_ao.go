@@ -21,6 +21,7 @@ func GetSomaList(pa1, pa2 *utils.XYZ, image string) ([]*do.SomaInfo, error) {
 
 type UpdateSomaAo struct {
 	LocationId     int                 `json:"locationId"`
+	Locationtype   int                 `json:"locationtype"`
 	InsertSomalist []*models.TSomainfo `json:"insertsomalist"`
 	DeleteSomalist []string            `json:"deletesomalist"`
 	Owner          string              `json:"owner"`
@@ -53,6 +54,7 @@ func UpdateSomaList(pa *UpdateSomaAo) error {
 	_, err = do.UpdatePotentialSomaLocation(&models.TPotentialsomalocation{
 		Id:    pa.LocationId,
 		Owner: pa.Owner,
+		Type:  pa.Locationtype,
 	})
 
 	if err != nil {
@@ -62,9 +64,9 @@ func UpdateSomaList(pa *UpdateSomaAo) error {
 	if len(pa.DeleteSomalist) == 0 && len(pa.InsertSomalist) == 0 {
 		return nil
 	}
-	//delete
+	//delete soma
 	if len(pa.DeleteSomalist) != 0 {
-		_, err := do.DeleteSoma(pa.DeleteSomalist)
+		_, err := do.DeleteSoma(pa.DeleteSomalist, pa.Owner)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"event":  "UpdateSomaList",
@@ -77,7 +79,7 @@ func UpdateSomaList(pa *UpdateSomaAo) error {
 	if len(pa.InsertSomalist) == 0 {
 		return nil
 	}
-	//insert
+	//insert soma
 	lastsoma, err := do.QueryLastSoma(&models.TSomainfo{
 		Image: pa.Image,
 	})

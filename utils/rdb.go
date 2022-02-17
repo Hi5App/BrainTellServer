@@ -189,8 +189,8 @@ func InsertUser2RDB(pa *UserInfo) error {
 	if err != nil {
 		return err
 	}
-	conn.Do("SETEX", "USERNAME_"+pa.Name, 60, string(jsonbody))
-	conn.Do("SETEX", "USEREMAIL_"+pa.Email, 60, string(jsonbody))
+	conn.Do("SETEX", "USERNAME_"+pa.Name, 600, string(jsonbody))
+	conn.Do("SETEX", "USEREMAIL_"+pa.Email, 600, string(jsonbody))
 	return nil
 }
 
@@ -288,6 +288,9 @@ func GetLastestApkRes() ([]string, error) {
 
 // InsertPerformance2RDB 将用户点的soma个数插入到redis
 func InsertPerformance2RDB(key string, values map[string]int64) error {
+	if len(values) == 0 {
+		return nil
+	}
 	var value []interface{}
 	value = append(value, key)
 	for k, v := range values {

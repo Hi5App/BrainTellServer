@@ -8,6 +8,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"os/exec"
 	"strings"
 )
 
@@ -96,14 +97,14 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 		}
 
 		log.Infoln(fmt.Sprintf("%s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
-		//cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("%s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
-		//if err := cmd.Start(); err != nil {
-		//	log.Error(err.Error())
-		//}
-		//if err := cmd.Wait(); err != nil {
-		//	log.Error(err.Error())
-		//}
-		//log.Infoln("start process " + p.Ano + " success")
+		cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("nohup %s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
+		if err := cmd.Start(); err != nil {
+			log.Error(err.Error())
+		}
+		if err := cmd.Wait(); err != nil {
+			log.Error(err.Error())
+		}
+		log.Infoln("start process " + p.Ano + " success")
 	}
 
 	jsonbody, err := json.Marshal(&AllocateAnoPort{
@@ -118,14 +119,33 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 	utils.EncodeToHttp(w, 200, string(jsonbody))
 }
 
+type GetAnoImageParam struct {
+	User UserVerifyParam `json:"user"`
+}
+
+func (image *GetAnoImageParam) String() string {
+	jsonres, err := json.Marshal(image)
+	if err != nil {
+		return ""
+	}
+	return string(jsonres)
+}
+
+func (image *GetAnoImageParam) FromJsonString(jsonstr string) (utils.RequestParam, error) {
+	if err := json.Unmarshal([]byte(jsonstr), image); err != nil {
+		return nil, err
+	}
+	return image, nil
+}
+
 func GetAnoImage(w http.ResponseWriter, r *http.Request) {
-	var p UserVerifyParam
+	var p GetAnoImageParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
 		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
-	user, ok := param.(*UserVerifyParam)
+	_, ok := param.(*GetAnoImageParam)
 
 	if !ok {
 		log.WithFields(log.Fields{
@@ -136,11 +156,11 @@ func GetAnoImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(user.Passwd) == 0 || (len(user.Name) == 0 && len(user.Email) == 0) {
+	if len(p.User.Passwd) == 0 || (len(p.User.Name) == 0 && len(p.User.Email) == 0) {
 		log.WithFields(log.Fields{
 			"event": "Login",
 			"desc":  "Bad Param",
-		}).Errorf("%s\n", user)
+		}).Errorf("%s\n", p)
 		utils.EncodeToHttp(w, 400, "Bad Request")
 		return
 	}

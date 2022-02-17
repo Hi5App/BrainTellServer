@@ -115,8 +115,7 @@ func InsertSoma(pa []*models.TSomainfo) (int64, error) {
 	return affect.RowsAffected()
 }
 
-func DeleteSoma(pa []string) (int64, error) {
-	//jsonpa, _ := jsoniter.MarshalToString(pa)
+func DeleteSoma(pa []string, user string) (int64, error) {
 
 	names := make([]string, 0)
 	for _, v := range pa {
@@ -124,11 +123,13 @@ func DeleteSoma(pa []string) (int64, error) {
 	}
 
 	log.Info(names)
-	sql := "UPDATE t_somainfo SET Isdeleted = 1 WHERE Name IN (" + strings.Join(names, ",") + ")"
+
+	sql := fmt.Sprintf("UPDATE t_somainfo SET (Isdeleted,Updater) =(1,%s) WHERE Name IN (%s)", user, strings.Join(names, ","))
 	sqlres, err := utils.DB.Exec(sql)
 	if err != nil {
 		return 0, err
 	}
+
 	return sqlres.RowsAffected()
 }
 

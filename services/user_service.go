@@ -94,14 +94,33 @@ func (param *UserVerifyParam) FromJsonString(jsonstr string) (utils.RequestParam
 	return param, nil
 }
 
+type LoginParam struct {
+	User UserVerifyParam `json:"user"`
+}
+
+func (pa *LoginParam) String() string {
+	jsonres, err := json.Marshal(pa)
+	if err != nil {
+		return ""
+	}
+	return string(jsonres)
+}
+
+func (pa *LoginParam) FromJsonString(jsonstr string) (utils.RequestParam, error) {
+	if err := json.Unmarshal([]byte(jsonstr), pa); err != nil {
+		return nil, err
+	}
+	return pa, nil
+}
+
 func Login(w http.ResponseWriter, r *http.Request) {
-	var p UserVerifyParam
+	var p LoginParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
 		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
-	user, ok := param.(*UserVerifyParam)
+	_, ok := param.(*LoginParam)
 
 	if !ok {
 		log.WithFields(log.Fields{
@@ -112,19 +131,19 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(user.Passwd) == 0 || (len(user.Name) == 0 && len(user.Email) == 0) {
+	if len(p.User.Passwd) == 0 || (len(p.User.Name) == 0 && len(p.User.Email) == 0) {
 		log.WithFields(log.Fields{
 			"event": "Login",
 			"desc":  "Bad Param",
-		}).Errorf("%s\n", user)
+		}).Errorf("%s\n", p)
 		utils.EncodeToHttp(w, 400, "Bad Request")
 		return
 	}
 
 	userinfo, err := ao.Login(&do.UserInfo{
-		Name:   p.Name,
-		Email:  p.Email,
-		Passwd: p.Passwd,
+		Name:   p.User.Name,
+		Email:  p.User.Email,
+		Passwd: p.User.Passwd,
 	})
 	if err != nil {
 		w.WriteHeader(501)
@@ -146,14 +165,33 @@ type UserPerformance struct {
 	DailySoma int64 `json:"dailysoma"`
 }
 
+type GetUserPerformanceParam struct {
+	User UserVerifyParam `json:"user"`
+}
+
+func (pa *GetUserPerformanceParam) String() string {
+	jsonres, err := json.Marshal(pa)
+	if err != nil {
+		return ""
+	}
+	return string(jsonres)
+}
+
+func (pa *GetUserPerformanceParam) FromJsonString(jsonstr string) (utils.RequestParam, error) {
+	if err := json.Unmarshal([]byte(jsonstr), pa); err != nil {
+		return nil, err
+	}
+	return pa, nil
+}
+
 func GetUserPerformance(w http.ResponseWriter, r *http.Request) {
-	var p UserVerifyParam
+	var p GetUserPerformanceParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
 		utils.EncodeToHttp(w, 500, "")
 		return
 	}
-	user, ok := param.(*UserVerifyParam)
+	_, ok := param.(*GetUserPerformanceParam)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "Login",
@@ -163,18 +201,18 @@ func GetUserPerformance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(user.Passwd) == 0 || len(user.Name) == 0 {
+	if len(p.User.Passwd) == 0 || len(p.User.Name) == 0 {
 		log.WithFields(log.Fields{
 			"event": "",
 			"desc":  "Bad Param",
-		}).Warnf("%s\n", user)
+		}).Warnf("%s\n", p)
 		utils.EncodeToHttp(w, 400, "")
 		return
 	}
 
 	_, err = ao.Login(&do.UserInfo{
-		Name:   p.Name,
-		Passwd: p.Passwd,
+		Name:   p.User.Name,
+		Passwd: p.User.Passwd,
 	})
 	if err != nil {
 		w.WriteHeader(501)
@@ -189,8 +227,8 @@ func GetUserPerformance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	jsonbody, err := json.Marshal(&UserPerformance{
-		TotalSoma: performance[user.Name],
-		DailySoma: dailyperformance[user.Name],
+		TotalSoma: performance[p.User.Name],
+		DailySoma: dailyperformance[p.User.Name],
 	})
 	if err != nil {
 		log.Error(err)

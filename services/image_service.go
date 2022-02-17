@@ -11,8 +11,7 @@ import (
 
 type Image struct {
 	do.Image
-	User      UserVerifyParam      `json:"user"`
-	Condition utils.QueryCondition `json:"condition"`
+	User UserVerifyParam `json:"user"`
 }
 
 func (image *Image) String() string {

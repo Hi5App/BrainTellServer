@@ -4,8 +4,10 @@ import (
 	"errors"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"golang.org/x/sync/semaphore"
 	"time"
 	"xorm.io/xorm"
 )
@@ -41,19 +43,19 @@ var CollaborateBinPath string
 var Tmpdir string
 var ImageDir string
 var AesKey string
-var CropProcess int64
+var availableCropProcess *semaphore.Weighted
 var Emails []string
 
 func LoadConfig() error {
 	//配置系统日志
-	//path := "./logs/systemlog"
-	//writer, _ := rotatelogs.New(
-	//	path+".%Y%m%d%H%M",
-	//	rotatelogs.WithLinkName(path),
-	//	rotatelogs.WithMaxAge(30*24*time.Hour),
-	//	rotatelogs.WithRotationTime(1*time.Hour),
-	//)
-	//log.SetOutput(writer)
+	path := "./logs/systemlog"
+	writer, _ := rotatelogs.New(
+		path+".%Y%m%d%H%M",
+		rotatelogs.WithLinkName(path),
+		rotatelogs.WithMaxAge(30*24*time.Hour),
+		rotatelogs.WithRotationTime(1*time.Hour),
+	)
+	log.SetOutput(writer)
 	customFormatter := new(log.TextFormatter)
 	customFormatter.TimestampFormat = "2006-01-02 15:04:05"
 	customFormatter.FullTimestamp = true
@@ -95,7 +97,7 @@ func LoadConfig() error {
 	Tmpdir = MainPath + "/tmp"
 	ImageDir = MainPath + "/image"
 	CollaborateBinPath = MainPath + "/collaborate/CollServer"
-	CropProcess = config.GetInt64("cropprocess")
+	availableCropProcess = semaphore.NewWeighted(config.GetInt64("cropprocess"))
 	Emails = config.GetStringSlice("emails")
 	return nil
 }

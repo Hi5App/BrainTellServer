@@ -15,8 +15,7 @@ func main() {
 			"event": "Load Config",
 		}).Fatal(http.ListenAndServe("localhost:8000", nil))
 	}
-
-	//services.SendPerformance()
+	services.SendPerformance()
 
 	http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Test")

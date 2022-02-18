@@ -59,7 +59,6 @@ func EncodeToHttp(w http.ResponseWriter, status int, pa string) {
 }
 
 func SendFile(w http.ResponseWriter, status int, pa string) {
-	w.WriteHeader(status)
 	f, err := os.Open(pa)
 	defer f.Close()
 

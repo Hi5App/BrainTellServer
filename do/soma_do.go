@@ -124,7 +124,7 @@ func DeleteSoma(pa []string, user string) (int64, error) {
 
 	log.Info(names)
 
-	sql := fmt.Sprintf("UPDATE t_somainfo SET (Isdeleted,Updater) =(1,%s) WHERE Name IN (%s)", user, strings.Join(names, ","))
+	sql := fmt.Sprintf("UPDATE t_somainfo SET Isdeleted = 1,Updater= \"%s\" WHERE Name IN (%s)", user, strings.Join(names, ","))
 	sqlres, err := utils.DB.Exec(sql)
 	if err != nil {
 		return 0, err

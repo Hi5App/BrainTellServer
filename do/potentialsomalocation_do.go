@@ -60,6 +60,7 @@ func UpdatePotentialSomaLocation(pa *models.TPotentialsomalocation) (int64, erro
 	var pc models.TPotentialsomalocation
 	pc = *pa
 	pa.Owner = ""
+	pa.Type = 0
 	affect, err := utils.DB.NewSession().Update(pc, pa)
 	if err != nil {
 		log.WithFields(log.Fields{

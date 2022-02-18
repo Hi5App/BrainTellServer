@@ -74,7 +74,7 @@ func GetLocationTTL(key string) (int64, error) {
 		log.WithFields(log.Fields{
 			"event": "Redis",
 			"desc":  "GetLocationTTL <=30",
-		}).Warnf("%v\n", err)
+		}).Warnf("%s %v \n", key, res)
 		return 0, errors.New(fmt.Sprintf("GetLocationTTL %s <=30", key))
 	}
 	return res, nil

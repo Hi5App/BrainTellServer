@@ -1,3 +1,5 @@
 
 BrainTellServer
 systemlog.txt
+logs/systemlog
+logs/systemlog/*

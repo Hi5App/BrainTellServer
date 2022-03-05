@@ -14,6 +14,31 @@ type TAnotation struct {
 	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 }
 
+type TArbor struct {
+	Id        int       `xorm:"not null pk autoincr INT"`
+	Name      string    `xorm:"not null unique VARCHAR(100)"`
+	Somaid    int       `xorm:"not null INT"`
+	Image     string    `xorm:"not null VARCHAR(100)"`
+	X         string    `xorm:"not null DECIMAL(10,3)"`
+	Y         string    `xorm:"not null DECIMAL(10,3)"`
+	Z         string    `xorm:"not null DECIMAL(10)"`
+	Status    int       `xorm:"not null default 0 INT"`
+	IsDeleted int       `xorm:"not null default 0 INT"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
+}
+
+type TArborresult struct {
+	Id        int       `xorm:"not null pk autoincr INT"`
+	X         string    `xorm:"not null DECIMAL(10,3)"`
+	Y         string    `xorm:"not null DECIMAL(10,3)"`
+	Z         string    `xorm:"not null DECIMAL(10,3)"`
+	Arborname string    `xorm:"not null VARCHAR(100)"`
+	IsDeleted int       `xorm:"not null default 0 INT"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
+}
+
 type TEffectSoma struct {
 	Id        int       `xorm:"not null pk autoincr INT"`
 	Name      string    `xorm:"not null unique VARCHAR(100)"`

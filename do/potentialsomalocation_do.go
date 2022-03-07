@@ -18,7 +18,7 @@ func QueryPotentialSomaLocation(pa *models.TPotentialsomalocation, pd *utils.Que
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 
 	locations := make([]*models.TPotentialsomalocation, 0)
-	session := utils.DB.Where("Isdeleted = ?", 0).And("Owner = ?", "")
+	session := utils.DB.Where("Isdeleted = ?", 0).And("Owner = ?", "").OrderBy("ctime")
 	if pd != nil {
 		session = session.Limit(pd.Limit, pd.Off)
 	}

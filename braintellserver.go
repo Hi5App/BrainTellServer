@@ -37,12 +37,14 @@ func main() {
 	http.HandleFunc("/dynamic/collaborate/getanoneuron", services.GetAnoNeuron)
 	http.HandleFunc("/dynamic/collaborate/getano", services.GetAno)
 
+	http.HandleFunc("/dynamic/collaborate/inheritother", services.InheritOther)
 	http.HandleFunc("/dynamic/collaborate/createnewanofromzero", services.CreateFromZero)
 	http.HandleFunc("/dynamic/collaborate/createnewanofromother", services.CreateFromOther)
-	http.HandleFunc("/dynamic/collaborate/inheritother", services.InheritOther)
+
 	//image service
 	http.HandleFunc("/dynamic/image/getimagelist", services.GetImageList)
 	http.HandleFunc("/dynamic/image/cropimage", services.CropImage)
+
 	//resource service
 	http.HandleFunc("/dynamic/musics", services.GetMusicList)
 	http.HandleFunc("/dynamic/updateapk", services.GetLatestApk)

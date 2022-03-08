@@ -32,6 +32,9 @@ func main() {
 	http.HandleFunc("/dynamic/soma/getpotentiallocation", services.GetPotentialSomaLocation)
 	http.HandleFunc("/dynamic/soma/getsomalist", services.GetSomaList)
 	http.HandleFunc("/dynamic/soma/updatesomalist", services.UpdateSomaList)
+	//check arbor service
+	http.HandleFunc("/dynamic/arbor/getarbor", services.GetArbor)
+	http.HandleFunc("/dynamic/arbor/updatearborresult", services.UpdateArborResult)
 	//collaborate service
 	http.HandleFunc("/dynamic/collaborate/getanoimage", services.GetAnoImage)
 	http.HandleFunc("/dynamic/collaborate/getanoneuron", services.GetAnoNeuron)
@@ -44,7 +47,8 @@ func main() {
 	//image service
 	http.HandleFunc("/dynamic/image/getimagelist", services.GetImageList)
 	http.HandleFunc("/dynamic/image/cropimage", services.CropImage)
-
+	http.HandleFunc("/dynamic/swc/cropswc", services.CropSWC)
+	http.HandleFunc("/dynamic/apo/cropapo", services.CropApo)
 	//resource service
 	http.HandleFunc("/dynamic/musics", services.GetMusicList)
 	http.HandleFunc("/dynamic/updateapk", services.GetLatestApk)

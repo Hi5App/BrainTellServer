@@ -1,5 +1,6 @@
 package utils
 
+import "C"
 import (
 	"context"
 	"errors"
@@ -17,7 +18,7 @@ type BBox struct {
 	Obj string `json:"obj"`
 }
 
-func GetBB(pa *BBox) (string, error) {
+func GetBBImage(pa *BBox) (string, error) {
 	ctx := context.TODO()
 	if err := availableCropProcess.Acquire(ctx, 1); err != nil {
 		log.Infof("Failed to acquire semaphore: %v\n", err)
@@ -52,5 +53,17 @@ func GetBB(pa *BBox) (string, error) {
 			"status": "Success",
 			"out":    string(out),
 		}).Infof("\n")
+	return savefile, nil
+}
+
+func GetBBSwc(pa *BBox) (string, error) {
+	savefile := Tmpdir + "/" + fmt.Sprintf("%s_%d_%d_%d_%d_%d_%d_%d.eswc", pa.Obj,
+		int(pa.Pa1.X), int(pa.Pa1.Y), int(pa.Pa1.Z),
+		int(pa.Pa2.X), int(pa.Pa2.Y), int(pa.Pa2.Z),
+		time.Now().UnixNano())
+	res := C.getSwcInBlock(C.CString(DataPath+pa.Obj), C.int(pa.Pa1.X), C.int(pa.Pa2.X), C.int(pa.Pa1.Y), C.int(pa.Pa2.Y), C.int(pa.Pa1.Z), C.int(pa.Pa2.Z), C.CString(savefile))
+	if res == 0 {
+		return "", errors.New("crop Swc Failed")
+	}
 	return savefile, nil
 }

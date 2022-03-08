@@ -84,7 +84,6 @@ func (param *BBoxParam) FromJsonString(jsonstr string) (utils.RequestParam, erro
 }
 
 func CropImage(w http.ResponseWriter, r *http.Request) {
-	//todo
 	var p BBoxParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
@@ -110,7 +109,7 @@ func CropImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out, err := utils.GetBB(&p.BB)
+	out, err := utils.GetBBImage(&p.BB)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "CropImage",
@@ -123,5 +122,43 @@ func CropImage(w http.ResponseWriter, r *http.Request) {
 }
 
 func CropSWC(w http.ResponseWriter, r *http.Request) {
+	var p BBoxParam
+	param, err := utils.DecodeFromHttp(r, &p)
+	if err != nil {
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	_, ok := param.(*BBoxParam)
+	if !ok {
+		log.WithFields(log.Fields{
+			"event": "CropImage",
+			"desc":  "param.(*CropImage) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 500, "")
+		return
+	}
+
+	if _, err := ao.Login(&do.UserInfo{
+		Name:   p.User.Name,
+		Passwd: p.User.Passwd,
+	}); err != nil {
+		utils.EncodeToHttp(w, 401, err.Error())
+		return
+	}
+
+	out, err := utils.GetBBSwc(&p.BB)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "CropSwc",
+			"desc":  "param.(*CropImage) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 501, err.Error())
+		return
+	}
+	utils.SendFile(w, 200, out)
+}
+
+func CropApo(w http.ResponseWriter, r *http.Request) {
 	//todo
 }

@@ -11,14 +11,14 @@ import (
 	"sync"
 )
 
-var PotentialMutex sync.Mutex
-var PotentialQueue []*do.PotentialSomaLocation
+var ArborMutex sync.Mutex
+var ArborQueue []*do.Arbor
 
-type GetPotentialSomaLocationParam struct {
+type GetArborParam struct {
 	User UserVerifyParam `json:"user"`
 }
 
-func (pa *GetPotentialSomaLocationParam) String() string {
+func (pa *GetArborParam) String() string {
 	jsonres, err := json.Marshal(pa)
 	if err != nil {
 		return ""
@@ -26,21 +26,22 @@ func (pa *GetPotentialSomaLocationParam) String() string {
 	return string(jsonres)
 }
 
-func (pa *GetPotentialSomaLocationParam) FromJsonString(jsonstr string) (utils.RequestParam, error) {
+func (pa *GetArborParam) FromJsonString(jsonstr string) (utils.RequestParam, error) {
 	if err := json.Unmarshal([]byte(jsonstr), pa); err != nil {
 		return nil, err
 	}
 	return pa, nil
 }
-func GetPotentialSomaLocation(w http.ResponseWriter, r *http.Request) {
-	var p GetPotentialSomaLocationParam
+
+func GetArbor(w http.ResponseWriter, r *http.Request) {
+	var p GetArborParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
 		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
 
-	_, ok := param.(*GetPotentialSomaLocationParam)
+	_, ok := param.(*GetArborParam)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "GetPotentialSomaLocations",
@@ -68,10 +69,10 @@ func GetPotentialSomaLocation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//构建一个队列
-	PotentialMutex.Lock()
-	defer PotentialMutex.Unlock()
-	if len(PotentialQueue) == 0 {
-		locations, err := ao.GetPotentialSomaLocation()
+	ArborMutex.Lock()
+	defer ArborMutex.Unlock()
+	if len(ArborQueue) == 0 {
+		locations, err := ao.GetArbors()
 		if err != nil {
 			log.WithFields(log.Fields{
 				"event": "Get Potential Locations",
@@ -80,15 +81,13 @@ func GetPotentialSomaLocation(w http.ResponseWriter, r *http.Request) {
 			utils.EncodeToHttp(w, 501, err.Error())
 			return
 		}
-		PotentialQueue = locations
+		ArborQueue = locations
 	}
-
-	for i, v := range PotentialQueue {
-		if err := utils.LockLocation("PotentialSomaLocation"+fmt.Sprint(v.Id), p.User.Name, 60*10, true); err != nil {
+	for i, v := range ArborQueue {
+		if err := utils.LockLocation(fmt.Sprintf("Arbor_%d", v.Id), p.User.Name, 15*60, false); err != nil {
 			continue
 		}
-
-		PotentialQueue = PotentialQueue[i+1:]
+		ArborQueue = ArborQueue[i+1:]
 		jsonbody, err := json.Marshal(v)
 		if err != nil {
 			log.Error(err)
@@ -99,7 +98,7 @@ func GetPotentialSomaLocation(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
-	PotentialQueue = nil
+	ArborQueue = nil
 	utils.EncodeToHttp(w, 502, "Empty")
 	return
 }

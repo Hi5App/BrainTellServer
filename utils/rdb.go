@@ -10,7 +10,11 @@ import (
 	"strings"
 )
 
-func LockLocation(locationId int64, user string) error {
+// LockLocation 设置访问用户锁
+// ismutex 互斥
+// expire 过期的秒数
+func LockLocation(lockkey string, user string, expire int, ismutex bool) error {
+
 	conn := Pool.Get()
 	defer conn.Close()
 	if _, err := conn.Do("SELECT", 0); err != nil {
@@ -21,33 +25,44 @@ func LockLocation(locationId int64, user string) error {
 		return err
 	}
 
-	res, err := redis.Int64(conn.Do("EXISTS", "PotentialSomaLocation"+fmt.Sprint(locationId)))
+	res, err := redis.Int64(conn.Do("EXISTS", lockkey))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Redis",
 			"desc":  "Set Lock",
-			"pa":    locationId,
+			"pa":    lockkey,
 		}).Warnf("%v\n", err)
 		return err
 	}
 
-	if res != 0 {
+	if ismutex && res != 0 {
+		//互斥锁且已经有锁了
 		log.WithFields(log.Fields{
 			"event": "Redis",
 			"desc":  "Set Lock exist",
-			"pa":    locationId,
+			"pa":    lockkey,
 		}).Warnf("%v\n", err)
-		return errors.New("PotentialSomaLocation" + fmt.Sprint(locationId) + "Lock exist")
+		return errors.New(lockkey + "Lock exist")
 	}
-
-	_, err = redis.String(conn.Do("SETEX", "PotentialSomaLocation"+fmt.Sprint(locationId), 10*60, user))
+	//可以加锁
+	_, err = redis.Int(conn.Do("RPUSH", lockkey, user))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Redis",
-			"desc":  "Set Lock exist",
-			"pa":    locationId,
+			"desc":  "Set Lock Failed",
+			"pa":    lockkey,
 		}).Warnf("%v\n", err)
-		return errors.New("PotentialSomaLocation" + fmt.Sprint(locationId) + "lock Failed")
+		return errors.New(lockkey + "lock Failed")
+	}
+
+	ret, err := redis.Int(conn.Do("EXPIRE", lockkey, expire))
+	if err != nil || ret == 0 {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Set Lock expire failed",
+			"pa":    lockkey,
+		}).Warnf("%v\n", err)
+		return errors.New(lockkey + "lock Failed")
 	}
 	return nil
 }
@@ -80,7 +95,7 @@ func GetLocationTTL(key string) (int64, error) {
 	return res, nil
 }
 
-func GetLocationValue(key string) (string, error) {
+func GetLocationValue(key string) ([]string, error) {
 	conn := Pool.Get()
 	defer conn.Close()
 	if _, err := conn.Do("SELECT", 0); err != nil {
@@ -88,15 +103,15 @@ func GetLocationValue(key string) (string, error) {
 			"event": "Redis",
 			"desc":  "Get conn failed",
 		}).Warnf("%v\n", err)
-		return "", err
+		return nil, err
 	}
-	res, err := redis.String(conn.Do("GET", key))
+	res, err := redis.Strings(conn.Do("LRANGE", key, 0, -1))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Redis",
 			"desc":  "GetLocationValue failed",
 		}).Warnf("%v\n", err)
-		return "", err
+		return nil, err
 	}
 	return res, nil
 }

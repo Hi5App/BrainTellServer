@@ -40,17 +40,25 @@ func UpdateSomaList(pa *UpdateSomaAo) error {
 	if _, err := utils.GetLocationTTL("PotentialSomaLocation" + fmt.Sprint(pa.LocationId)); err != nil {
 		return err
 	}
-	user, err := utils.GetLocationValue("PotentialSomaLocation" + fmt.Sprint(pa.LocationId))
+	users, err := utils.GetLocationValue("PotentialSomaLocation" + fmt.Sprint(pa.LocationId))
 	if err != nil {
 		return err
 	}
-	if user != pa.Owner {
-		return errors.New(fmt.Sprintf("Not right user,%s %s\n", user, pa.Owner))
+
+	for _, user := range users {
+		if user != pa.Owner {
+			return errors.New(fmt.Sprintf("Not right user,%s %s\n", user, pa.Owner))
+		}
+	}
+
+	if f, err := utils.In(users, pa.Owner); err != nil || !f {
+		return errors.New(fmt.Sprintf("Not right user,%v %s\n", users, pa.Owner))
 	}
 
 	if utils.SetKeyTTL("PotentialSomaLocation"+fmt.Sprint(pa.LocationId), 10*60) != nil {
 		return err
 	}
+
 	_, err = do.UpdatePotentialSomaLocation(&models.TPotentialsomalocation{
 		Id:    pa.LocationId,
 		Owner: pa.Owner,

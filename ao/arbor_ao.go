@@ -7,18 +7,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const QueueSize = 500
-
-func GetPotentialSomaLocation() ([]*do.PotentialSomaLocation, error) {
-	locations, err := do.QueryPotentialSomaLocation(&models.TPotentialsomalocation{}, &utils.QueryCondition{
+func GetArbors() ([]*do.Arbor, error) {
+	arbors, err := do.QueryArbors(&models.TArbor{}, &utils.QueryCondition{
 		Limit: QueueSize, Off: 0,
 	})
 	if err != nil {
 		log.WithFields(log.Fields{
-			"event": "GetPotentialSomaLocations",
+			"event": "GetArbors",
 			"desc":  "Query MySQL failed",
 		}).Warnf("%v\n", err)
 		return nil, err
 	}
-	return locations, nil
+	return arbors, nil
 }

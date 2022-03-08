@@ -30,16 +30,17 @@ type TArbor struct {
 }
 
 type TArborresult struct {
-	Id        int       `xorm:"not null pk autoincr INT"`
-	X         float64   `xorm:"not null DECIMAL(10,3)"`
-	Y         float64   `xorm:"not null DECIMAL(10,3)"`
-	Z         float64   `xorm:"not null DECIMAL(10,3)"`
-	Type      int       `xorm:"not null default 0 INT"`
-	Owner     string    `xorm:"not null index VARCHAR(100)"`
-	Arborname string    `xorm:"not null index VARCHAR(100)"`
-	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
+	Id          int       `xorm:"not null pk autoincr INT"`
+	X           float64   `xorm:"not null DECIMAL(10,3)"`
+	Y           float64   `xorm:"not null DECIMAL(10,3)"`
+	Z           float64   `xorm:"not null DECIMAL(10,3)"`
+	Type        int       `xorm:"not null default 0 INT"`
+	Owner       string    `xorm:"not null index VARCHAR(100)"`
+	Arborname   string    `xorm:"not null index VARCHAR(100)"`
+	Updateowner string    `xorm:"not null index VARCHAR(100)"`
+	Isdeleted   int       `xorm:"not null default 0 INT"`
+	Ctime       time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime       time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 }
 
 type TEffectSoma struct {

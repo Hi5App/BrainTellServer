@@ -62,22 +62,46 @@ func GetBBImage(pa *BBox) (string, error) {
 }
 
 func GetBBSwc(pa *BBox) (string, error) {
-	//这里pa中的res存储eswc的部分路径 /image/soma/arbor/
+	//这里pa中的res存储eswc的部分路径 /image/soma/arbor
 	//obj存户arborname
+
+	ctx := context.TODO()
+	if err := availableCropProcess.Acquire(ctx, 1); err != nil {
+		log.Infof("Failed to acquire semaphore: %v\n", err)
+		return "", errors.New(fmt.Sprintf("Failed to acquire semaphore: %v", err))
+	}
+	defer availableCropProcess.Release(1)
+
 	savefile := Tmpdir + "/" + fmt.Sprintf("%s_%d_%d_%d_%d_%d_%d_%d.eswc", pa.Obj,
 		int(pa.Pa1.X), int(pa.Pa1.Y), int(pa.Pa1.Z),
 		int(pa.Pa2.X), int(pa.Pa2.Y), int(pa.Pa2.Z),
 		time.Now().UnixNano())
-	res := C.getSwcInBlock(C.CString(DataPath+pa.Res+pa.Obj+".eswc"),
-		C.int(pa.Pa1.X),
-		C.int(pa.Pa2.X),
-		C.int(pa.Pa1.Y),
-		C.int(pa.Pa2.Y),
-		C.int(pa.Pa1.Z),
-		C.int(pa.Pa2.Z),
-		C.CString(savefile))
-	if res == 0 {
-		return "", errors.New("crop Swc Failed")
+
+	cmd := exec.Command(MainPath+"/cropswc", DataPath+pa.Res+"/"+pa.Obj+".eswc",
+		fmt.Sprint(int(pa.Pa1.X)), fmt.Sprint(int(pa.Pa2.X)),
+		fmt.Sprint(int(pa.Pa1.Y)), fmt.Sprint(int(pa.Pa2.Y)),
+		fmt.Sprint(int(pa.Pa1.Z)), fmt.Sprint(int(pa.Pa2.Z)),
+		savefile,
+	)
+	log.Infoln(cmd.String())
+	cmd.Env = append(os.Environ())
+
+	out, err := cmd.Output()
+
+	if err != nil {
+		log.WithFields(
+			log.Fields{
+				"event":  "crop swc",
+				"status": "Failed",
+				"out":    string(out),
+			}).Warnf("%s\n", err)
+		return "", err
 	}
+	log.WithFields(
+		log.Fields{
+			"event":  "crop image",
+			"status": "Success",
+			"out":    string(out),
+		}).Infof("\n")
 	return savefile, nil
 }

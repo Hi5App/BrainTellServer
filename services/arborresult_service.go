@@ -37,7 +37,7 @@ func UpdateArborResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, ok := param.(*UpdateSomaParam)
+	_, ok := param.(*UpdateArborResultParam)
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "Login",

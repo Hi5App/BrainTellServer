@@ -4,8 +4,6 @@ import (
 	"errors"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"golang.org/x/sync/semaphore"
@@ -49,14 +47,14 @@ var Emails []string
 
 func LoadConfig() error {
 	//配置系统日志
-	path := "./logs/systemlog"
-	writer, _ := rotatelogs.New(
-		path+".%Y%m%d%H%M",
-		rotatelogs.WithLinkName(path),
-		rotatelogs.WithMaxAge(30*24*time.Hour),
-		rotatelogs.WithRotationTime(1*time.Hour),
-	)
-	log.SetOutput(writer)
+	//path := "./logs/systemlog"
+	//writer, _ := rotatelogs.New(
+	//	path+".%Y%m%d%H%M",
+	//	rotatelogs.WithLinkName(path),
+	//	rotatelogs.WithMaxAge(30*24*time.Hour),
+	//	rotatelogs.WithRotationTime(1*time.Hour),
+	//)
+	//log.SetOutput(writer)
 	customFormatter := new(log.TextFormatter)
 	customFormatter.TimestampFormat = "2006-01-02 15:04:05"
 	customFormatter.FullTimestamp = true

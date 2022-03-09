@@ -91,7 +91,6 @@ func InsertSoma(pa []*models.TSomainfo) (int64, error) {
 	sql := "INSERT IGNORE INTO t_somainfo (Name,Image,X,Y,Z,Location,Owner) values "
 	paras := make([]string, 0)
 	for _, v := range pa {
-
 		paras = append(paras, fmt.Sprintf("(\"%s\",\"%s\",%f,%f,%f,%d,\"%s\")",
 			v.Name, v.Image, v.X, v.Y, v.Z, v.Location, v.Owner))
 	}

@@ -10,19 +10,19 @@ import (
 )
 
 type UpdateArboResultAo struct {
-	SomaId     int                    `json:"somaid"`
+	ArborId    int                    `json:"arborid"`
+	ArborName  string                 `json:"arborname"`
 	SomaType   int                    `json:"somatype"`
 	Insertlist []*models.TArborresult `json:"insertlist"`
 	Deletelist []int                  `json:"deletelist"`
 	Owner      string                 `json:"owner"`
-	Image      string                 `json:"image"`
 }
 
 func UpdateArborResult(pa *UpdateArboResultAo) error {
-	if _, err := utils.GetLocationTTL(fmt.Sprintf("Arbor_%d", pa.SomaId)); err != nil {
+	if _, err := utils.GetLocationTTL(fmt.Sprintf("Arbor_%d", pa.ArborId)); err != nil {
 		return err
 	}
-	users, err := utils.GetLocationValue(fmt.Sprintf("Arbor_%d", pa.SomaId))
+	users, err := utils.GetLocationValue(fmt.Sprintf("Arbor_%d", pa.ArborId))
 	if err != nil {
 		return err
 	}
@@ -37,12 +37,12 @@ func UpdateArborResult(pa *UpdateArboResultAo) error {
 		return errors.New(fmt.Sprintf("Not right user,%v %s\n", users, pa.Owner))
 	}
 
-	if utils.SetKeyTTL(fmt.Sprintf("Arbor_%d", pa.SomaId), 10*60) != nil {
+	if utils.SetKeyTTL(fmt.Sprintf("Arbor_%d", pa.ArborId), 10*60) != nil {
 		return err
 	}
 
 	_, err = do.UpdateArbor(&models.TArbor{
-		Id:     pa.SomaId,
+		Id:     pa.ArborId,
 		Owner:  pa.Owner,
 		Status: pa.SomaType,
 	})
@@ -68,6 +68,10 @@ func UpdateArborResult(pa *UpdateArboResultAo) error {
 
 	if len(pa.Insertlist) == 0 {
 		return nil
+	}
+	for _, v := range pa.Insertlist {
+		v.Owner = pa.Owner
+		v.Arborname = pa.ArborName
 	}
 	_, err = do.InsertArborResult(pa.Insertlist)
 	if err != nil {

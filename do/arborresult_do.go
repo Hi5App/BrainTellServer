@@ -36,11 +36,11 @@ func InsertArborResult(pa []*models.TArborresult) (int64, error) {
 		}).Warnf("%v\n", err)
 		return 0, err
 	}
-
+	affected, _ := affect.RowsAffected()
 	log.WithFields(log.Fields{
 		"event":  "Insert ArborResult",
 		"pa":     jsonpa,
-		"affect": affect,
+		"affect": affected,
 	}).Infof("Success")
 
 	return affect.RowsAffected()

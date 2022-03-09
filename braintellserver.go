@@ -13,9 +13,9 @@ func main() {
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Load Config",
-		}).Fatal(http.ListenAndServe("localhost:8000", nil))
+		}).Fatal()
 	}
-	services.SendPerformance()
+	//services.SendPerformance()
 
 	http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Test")

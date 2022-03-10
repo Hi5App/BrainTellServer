@@ -35,6 +35,7 @@ func main() {
 	//check arbor service
 	http.HandleFunc("/dynamic/arbor/getarbor", services.GetArbor)
 	http.HandleFunc("/dynamic/arbor/updatearborresult", services.UpdateArborResult)
+	http.HandleFunc("/dynamic/arbor/queryarborresult", services.QueryArborResult)
 	//collaborate service
 	http.HandleFunc("/dynamic/collaborate/getanoimage", services.GetAnoImage)
 	http.HandleFunc("/dynamic/collaborate/getanoneuron", services.GetAnoNeuron)

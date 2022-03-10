@@ -66,6 +66,23 @@ func DeleteArborResult(pa []int, user string) (int64, error) {
 	return affect, nil
 }
 
-func QueryArborResult(pa1, pa2 *utils.XYZ, image string, pd *utils.QueryCondition) ([]*SomaInfo, error) {
-	return nil, nil
+func QueryArborResult(arborname string) ([]*ArborResult, error) {
+	session := utils.DB.NewSession().Where("Isdeleted = ?", 0).And("ArborName = ?", arborname)
+	rows := make([]*models.TArborresult, 0)
+	err := session.Find(&rows)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*ArborResult, 0)
+	for _, v := range rows {
+		res = append(res, &ArborResult{
+			X:         v.X,
+			Y:         v.Y,
+			Z:         v.Z,
+			Type:      v.Type,
+			Owner:     v.Owner,
+			ArborName: v.Arborname,
+		})
+	}
+	return res, nil
 }

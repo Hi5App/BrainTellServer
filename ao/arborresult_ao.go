@@ -83,3 +83,7 @@ func UpdateArborResult(pa *UpdateArboResultAo) error {
 	}
 	return nil
 }
+
+func QueryArborResult(arborname string) ([]*do.ArborResult, error) {
+	return do.QueryArborResult(arborname)
+}

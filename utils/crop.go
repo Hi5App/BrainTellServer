@@ -1,11 +1,5 @@
 package utils
 
-/*
-#cgo CFLAGS: -I../cpp
-#cgo LDFLAGS: -L./ -lcropswc
-#include "cwrap.h"
-*/
-import "C"
 import (
 	"context"
 	"errors"

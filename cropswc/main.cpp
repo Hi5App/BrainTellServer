@@ -18,10 +18,10 @@ int main(int argc,char *argv[])
     std::cout<<swcname<<std::endl;
     std::cout<<savepath<<std::endl;
     std::cout<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<endl;
-    std::cout<<"1";
+
     NeuronTree nt=readSWC_file(swcname);
     V_NeuronSWC_list segments=NeuronTree__2__V_NeuronSWC_list(nt);
-std::cout<<"1";
+
     V_NeuronSWC_list tosave;
     for(std::vector<V_NeuronSWC_unit>::size_type i=0;i<segments.seg.size();i++)
     {
@@ -40,6 +40,6 @@ std::cout<<"1";
     }
 
     NeuronTree savent=V_NeuronSWC_list__2__NeuronTree(tosave);
-        writeESWC_file(savepath,savent);
+    writeESWC_file(savepath,savent);
         return 0;
 }

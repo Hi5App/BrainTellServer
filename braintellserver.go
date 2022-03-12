@@ -15,7 +15,7 @@ func main() {
 			"event": "Load Config",
 		}).Fatal()
 	}
-	//services.SendPerformance()
+	services.SendPerformance()
 
 	http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Test")

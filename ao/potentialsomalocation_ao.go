@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const QueueSize = 500
+const QueueSize = 1000
 
 func GetPotentialSomaLocation() ([]*do.PotentialSomaLocation, error) {
 	locations, err := do.QueryPotentialSomaLocation(&models.TPotentialsomalocation{}, &utils.QueryCondition{

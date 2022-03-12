@@ -84,7 +84,7 @@ func GetArbor(w http.ResponseWriter, r *http.Request) {
 		ArborQueue = locations
 	}
 	for i, v := range ArborQueue {
-		if err := utils.LockLocation(fmt.Sprintf("Arbor_%d", v.Id), p.User.Name, 15*60, false); err != nil {
+		if err := utils.LockLocation(fmt.Sprintf("Arbor_%d", v.Id), p.User.Name, 15*60, true); err != nil {
 			continue
 		}
 		ArborQueue = ArborQueue[i+1:]

@@ -12,7 +12,7 @@ import (
 type UpdateArboResultAo struct {
 	ArborId    int                    `json:"arborid"`
 	ArborName  string                 `json:"arborname"`
-	SomaType   int                    `json:"somatype"`
+	Status     int                    `json:"status"`
 	Insertlist []*models.TArborresult `json:"insertlist"`
 	Deletelist []int                  `json:"deletelist"`
 	Owner      string                 `json:"owner"`
@@ -44,7 +44,7 @@ func UpdateArborResult(pa *UpdateArboResultAo) error {
 	_, err = do.UpdateArbor(&models.TArbor{
 		Id:     pa.ArborId,
 		Owner:  pa.Owner,
-		Status: pa.SomaType,
+		Status: pa.Status,
 	})
 
 	if err != nil {

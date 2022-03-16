@@ -9,7 +9,7 @@ import (
 
 func GetArbors() ([]*do.Arbor, error) {
 	arbors, err := do.QueryArbors(&models.TArbor{}, &utils.QueryCondition{
-		Limit: QueueSize, Off: 0,
+		Limit: utils.QueueSize, Off: 0,
 	})
 	if err != nil {
 		log.WithFields(log.Fields{

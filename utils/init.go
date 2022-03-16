@@ -45,8 +45,10 @@ var ImageDir string
 var AesKey string
 var availableCropProcess *semaphore.Weighted
 var Emails []string
+var QueueSize int
 
 func LoadConfig() error {
+
 	//配置系统日志
 	path := "./logs/systemlog"
 	writer, _ := rotatelogs.New(
@@ -98,6 +100,7 @@ func LoadConfig() error {
 	ImageDir = MainPath + "/image"
 	CollaborateBinPath = MainPath + "/collaborate/CollServer"
 	availableCropProcess = semaphore.NewWeighted(config.GetInt64("cropprocess"))
+	QueueSize = config.GetInt("queuesize")
 	Emails = config.GetStringSlice("emails")
 	return nil
 }

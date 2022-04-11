@@ -64,6 +64,7 @@ func UpdateArbor(pa *models.TArbor) (int64, error) {
 	var pc models.TArbor
 	pc = *pa
 	pa.Owner = ""
+	pa.Status = 0
 	affect, err := utils.DB.NewSession().Update(pc, pa)
 
 	if err != nil {

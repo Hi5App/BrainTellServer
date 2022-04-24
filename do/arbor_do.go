@@ -5,6 +5,7 @@ import (
 	"BrainTellServer/utils"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
+	"strconv"
 )
 
 type Arbor struct {
@@ -80,4 +81,24 @@ func UpdateArbor(pa *models.TArbor) (int64, error) {
 		"affect": affect,
 	}).Infof("Success")
 	return affect, nil
+}
+
+func QueryArborGroupByUser(isToday bool)(map[string]int64,error)  {
+	var sql string
+	if !isToday {
+		sql = "select Owner as Name, count(*) as ArborNum from t_arbor where Isdeleted = 0  and status!=0 and ctime group by Owner order by ArborNum DESC"
+	} else {
+		sql = "select Owner as Name, count(*) as ArborNum from t_arbor where Isdeleted = 0 and status!=0 and date_format(ctime,'%Y%m%d')=date_format(now(),'%Y%m%d') group by Owner order by ArborNum DESC"
+	}
+
+	resultsSlice, err := utils.DB.Query(sql)
+	if err != nil {
+		return nil, err
+	}
+	res := make(map[string]int64)
+	for _, v := range resultsSlice {
+		num, _ := strconv.Atoi(string(v["ArborNum"]))
+		res[string(v["Name"])] = int64(num)
+	}
+	return res, err
 }

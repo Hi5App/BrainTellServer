@@ -15,16 +15,24 @@ func SendPerformance() {
 	spec := "0 0 23 * * ?"
 	c.AddFunc(spec, func() {
 		log.Infof("cron")
-		performance, dailyperformance, err := ao.GetSomaCnt()
+		totalsoma, dailysoma, err := ao.GetSomaCnt()
 		if err != nil {
 			log.WithFields(log.Fields{
 				"event": "SendPerformance",
-			}).Error("failed")
+			}).Error("get soma failed")
 		}
 
+		totalarbor,dailtarbor,err:=ao.GetCheckCnt()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event": "SendPerformance",
+			}).Error("get arbor failed")
+		}
 		html := "<html>\n<body>"
-		html += utils.ConvertPerformance2html("Total Soma", performance)
-		html += utils.ConvertPerformance2html("Daily Soma", dailyperformance)
+		html += utils.ConvertPerformance2html("Total Proof", totalarbor)
+		html += utils.ConvertPerformance2html("Daily Proof", dailtarbor)
+		html += utils.ConvertPerformance2html("Total Soma", totalsoma)
+		html += utils.ConvertPerformance2html("Daily Soma", dailysoma)
 		html += "</body>\n</html>"
 		e := email.NewEmail()
 		e.From = "huhudexiaozhuzhu@126.com"

@@ -1,8 +1,8 @@
 package do
 
 import (
-	"BrainTellServer/models"
 	"BrainTellServer/utils"
+	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
 	"strconv"
@@ -15,90 +15,98 @@ type Arbor struct {
 	Image  string    `json:"image"`
 	Loc    utils.XYZ `json:"loc"`
 	Status int       `json:"status"`
-	Owner  string    `json:"owner"`
 }
 
-func QueryArbors(pa *models.TArbor, pd *utils.QueryCondition) ([]*Arbor, error) {
-	arbors := make([]*models.TArbor, 0)
-	session := utils.DB.Where("Isdeleted = ?", 0).And("Owner = ?", "").OrderBy("ctime")
-	if pd != nil {
-		session = session.Limit(pd.Limit, pd.Off)
-	}
-	err := session.Find(&arbors, pa)
+func QueryArbors(owner string) ([]*Arbor, error) {
 
-	jsonpa, _ := jsoniter.MarshalToString(pa)
+	sql := "select * from t_arbor where Isdeleted=0 " +
+		"and Id not in (select ArborId from t_arborresult where t_arborresult.Isdeleted=0 and Owner= " +
+		fmt.Sprintf("\"%s\"", owner) + ")" +
+		"and Id not in (select ArborId from t_arborresult where t_arborresult.Isdeleted=0 group by ArborId having count(*) >10) limit 10"
+
+	arbors, err := utils.DB.QueryString(sql)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"event": "Query Arbor",
-			"pa":    jsonpa,
-		}).Warnf("%v\n", err)
 		return nil, err
 	}
-
 	res := make([]*Arbor, 0)
 	for _, arbor := range arbors {
-		res = append(res, &Arbor{
-			Id:     arbor.Id,
-			Name:   arbor.Name,
-			SomaId: arbor.Somaid,
-			Image:  arbor.Image,
-			Loc: utils.XYZ{
-				X: arbor.X,
-				Y: arbor.Y,
-				Z: arbor.Z,
-			},
-			Status: arbor.Status,
-			Owner:  arbor.Owner,
-		})
+		var val Arbor
+
+		if v, err := strconv.Atoi(arbor["Id"]); err != nil {
+			continue
+		} else {
+			val.Id = v
+		}
+
+		if v, ok := arbor["Name"]; !ok {
+			continue
+		} else {
+			val.Name = v
+		}
+
+		if v, ok := arbor["SomaId"]; !ok {
+			continue
+		} else {
+			val.SomaId = v
+		}
+
+		if v, ok := arbor["Image"]; !ok {
+			continue
+		} else {
+			val.Image = v
+		}
+
+		if v, err := strconv.ParseFloat(arbor["X"], 64); err != nil {
+			continue
+		} else {
+			val.Loc.X = v
+		}
+
+		if v, err := strconv.ParseFloat(arbor["Y"], 64); err != nil {
+			continue
+		} else {
+			val.Loc.Y = v
+		}
+
+		if v, err := strconv.ParseFloat(arbor["Z"], 64); err != nil {
+			continue
+		} else {
+			val.Loc.Z = v
+		}
+
+		if v, err := strconv.Atoi(arbor["Status"]); err != nil {
+			continue
+		} else {
+			val.Status = v
+		}
+
+		res = append(res, &val)
 	}
 	jsonres, _ := jsoniter.MarshalToString(res)
 	log.WithFields(log.Fields{
 		"event": "Query Arbor",
-		"pa":    jsonpa,
 		"RES":   jsonres,
+		"Owner": owner,
 	}).Infof("Success")
 	return res, nil
 }
 
-func UpdateArbor(pa *models.TArbor) (int64, error) {
-	jsonpa, _ := jsoniter.MarshalToString(pa)
-	var pc models.TArbor
-	pc = *pa
-	pa.Owner = ""
-	pa.Status = 0
-	affect, err := utils.DB.NewSession().Update(pc, pa)
-
-	if err != nil {
-		log.WithFields(log.Fields{
-			"event": "Update Arbor",
-			"pa":    jsonpa,
-		}).Warnf("%v\n", err)
-		return 0, err
-	}
-	log.WithFields(log.Fields{
-		"event":  "Update Arbor",
-		"pa":     jsonpa,
-		"affect": affect,
-	}).Infof("Success")
-	return affect, nil
-}
-
-func QueryArborGroupByUser(isToday bool)(map[string]int64,error)  {
-	var sql string
-	if !isToday {
-		sql = "select Owner as Name, count(*) as ArborNum from t_arbor where Isdeleted = 0  and status!=0 and ctime group by Owner order by ArborNum DESC"
-	} else {
-		sql = "select Owner as Name, count(*) as ArborNum from t_arbor where Isdeleted = 0 and status!=0 and date_format(ctime,'%Y%m%d')=date_format(now(),'%Y%m%d') group by Owner order by ArborNum DESC"
-	}
-
-	resultsSlice, err := utils.DB.Query(sql)
-	if err != nil {
-		return nil, err
-	}
-	res := make(map[string]int64)
-	for _, v := range resultsSlice {
-		num, _ := strconv.Atoi(string(v["ArborNum"]))
-		res[string(v["Name"])] = int64(num)
-	}
-	return res, err
-}
+//func QueryArborGroupByUser(isToday bool) (map[string]int64, error) {
+//	var sql string
+//	if !isToday {
+//		sql = "select Owner as Name, count(*) as ArborNum from t_arbor where Isdeleted = 0  and status!=0 and ctime group by Owner order by ArborNum DESC"
+//	} else {
+//		sql = "select Owner as Name, count(*) as ArborNum from t_arbor where Isdeleted = 0 and status!=0 and date_format(ctime,'%Y%m%d')=date_format(now(),'%Y%m%d') group by Owner order by ArborNum DESC"
+//	}
+//
+//	resultsSlice, err := utils.DB.Query(sql)
+//	if err != nil {
+//		return nil, err
+//	}
+//	res := make(map[string]int64)
+//	for _, v := range resultsSlice {
+//		num, _ := strconv.Atoi(string(v["ArborNum"]))
+//		res[string(v["Name"])] = int64(num)
+//	}
+//	return res, err
+//}

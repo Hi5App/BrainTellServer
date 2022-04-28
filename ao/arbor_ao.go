@@ -2,15 +2,11 @@ package ao
 
 import (
 	"BrainTellServer/do"
-	"BrainTellServer/models"
-	"BrainTellServer/utils"
 	log "github.com/sirupsen/logrus"
 )
 
-func GetArbors() ([]*do.Arbor, error) {
-	arbors, err := do.QueryArbors(&models.TArbor{}, &utils.QueryCondition{
-		Limit: utils.QueueSize, Off: 0,
-	})
+func GetArbors(owner string) ([]*do.Arbor, error) {
+	arbors, err := do.QueryArbors(owner)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "GetArbors",

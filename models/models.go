@@ -17,40 +17,36 @@ type TAnotation struct {
 type TArbor struct {
 	Id        int       `xorm:"not null pk autoincr INT"`
 	Name      string    `xorm:"not null unique VARCHAR(100)"`
-	Somaid    string    `xorm:"not null index VARCHAR(100)"`
+	Somaid    string    `xorm:"not null unique(t_arbor_SomaId_X_Y_Z_uindex) VARCHAR(100)"`
 	Image     string    `xorm:"not null index VARCHAR(100)"`
-	X         float64   `xorm:"not null DECIMAL(10,3)"`
-	Y         float64   `xorm:"not null DECIMAL(10,3)"`
-	Z         float64   `xorm:"not null DECIMAL(10)"`
+	X         float64   `xorm:"not null unique(t_arbor_SomaId_X_Y_Z_uindex) DECIMAL(10,3)"`
+	Y         float64   `xorm:"not null unique(t_arbor_SomaId_X_Y_Z_uindex) DECIMAL(10,3)"`
+	Z         float64   `xorm:"not null unique(t_arbor_SomaId_X_Y_Z_uindex) DECIMAL(10)"`
 	Status    int       `xorm:"not null default 0 index(t_arbor_Is_deleted_Status_index) INT"`
-	Owner     string    `xorm:"not null default '' index VARCHAR(100)"`
 	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
 	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 	Isdeleted int       `xorm:"not null default 0 index(t_arbor_Is_deleted_Status_index) INT"`
 }
 
 type TArborresult struct {
-	Id          int       `xorm:"not null pk autoincr INT"`
-	X           float64   `xorm:"not null DECIMAL(10,3)"`
-	Y           float64   `xorm:"not null DECIMAL(10,3)"`
-	Z           float64   `xorm:"not null DECIMAL(10,3)"`
-	Type        int       `xorm:"not null default 0 INT"`
-	Owner       string    `xorm:"not null index VARCHAR(100)"`
-	Arborname   string    `xorm:"not null index VARCHAR(100)"`
-	Ctime       time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
-	Mtime       time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
-	Isdeleted   int       `xorm:"not null default 0 INT"`
-	Updateowner string    `xorm:"not null index VARCHAR(100)"`
+	Id        int       `xorm:"not null pk autoincr INT"`
+	Arborid   int       `xorm:"not null index(t_arborresult_ArborId_Iddeleted_index) INT"`
+	Result    int       `xorm:"not null comment('用户判断的结果') INT"`
+	Form      int       `xorm:"not null comment('用户从什么方式获得数据') index INT"`
+	Owner     string    `xorm:"not null index VARCHAR(200)"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
+	Isdeleted int       `xorm:"not null default 0 index(t_arborresult_ArborId_Iddeleted_index) INT"`
 }
 
 type TEffectSoma struct {
 	Id        int       `xorm:"not null pk autoincr INT"`
 	Name      string    `xorm:"not null unique VARCHAR(100)"`
-	X         float64   `xorm:"not null DECIMAL(10,3)"`
-	Y         float64   `xorm:"not null DECIMAL(10,3)"`
-	Z         float64   `xorm:"not null DECIMAL(10,3)"`
-	Imageid   string    `xorm:"not null index VARCHAR(100)"`
-	From      int       `xorm:"not null comment('来源 0:来自t_somainfo') INT"`
+	X         float64   `xorm:"not null unique(t_effect_soma_ImageId_X_Y_Z_uindex) DECIMAL(10,3)"`
+	Y         float64   `xorm:"not null unique(t_effect_soma_ImageId_X_Y_Z_uindex) DECIMAL(10,3)"`
+	Z         float64   `xorm:"not null unique(t_effect_soma_ImageId_X_Y_Z_uindex) DECIMAL(10,3)"`
+	Image     string    `xorm:"not null unique(t_effect_soma_ImageId_X_Y_Z_uindex) index VARCHAR(100)"`
+	From      int       `xorm:"not null default 0 comment('来源 0:来自t_somainfo') INT"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
 	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
 	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
@@ -71,8 +67,8 @@ type TPotentialsomalocation struct {
 	X         int       `xorm:"not null unique(t_potentialsomalocation_loc) INT"`
 	Y         int       `xorm:"not null unique(t_potentialsomalocation_loc) INT"`
 	Z         int       `xorm:"not null unique(t_potentialsomalocation_loc) INT"`
-	Type      int       `xorm:"default 0 comment('位置点是否有效 -1:无效位置 0:有效 ') INT"`
-	Dataset   int       `xorm:"default 0 comment('图像数据集') INT"`
+	Type      int       `xorm:"default 0 comment('位置点是否有效 -1:无效位置 0:未决定 1:有soma 2:无soma') INT"`
+	Dataset   int       `xorm:"default 0 comment('图像数据集 0:soma') INT"`
 	Owner     string    `xorm:"not null default '' comment('访问者的用户名') index VARCHAR(100)"`
 	Isdeleted int       `xorm:"not null default 0 comment('是否有效，0为有效，非0无效') unique(t_potentialsomalocation_loc) INT"`
 	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('创建时间') TIMESTAMP created"`
@@ -101,11 +97,11 @@ type TSomainfo struct {
 
 type TUserinfo struct {
 	Id        int       `xorm:"not null pk autoincr INT"`
-	Name      string    `xorm:"not null comment('用户名') unique VARCHAR(100)"`
-	Email     string    `xorm:"not null comment('邮箱') unique VARCHAR(100)"`
-	Nickname  string    `xorm:"not null comment('昵称') VARCHAR(100)"`
-	Passwd    string    `xorm:"not null comment('密码') VARCHAR(100)"`
-	Score     int       `xorm:"not null default 0 comment('得分') index INT"`
+	Name      string    `xorm:"not null unique VARCHAR(100)"`
+	Email     string    `xorm:"not null unique VARCHAR(100)"`
+	Nickname  string    `xorm:"not null VARCHAR(100)"`
+	Passwd    string    `xorm:"not null VARCHAR(100)"`
+	Score     int       `xorm:"not null default 0 index INT"`
 	Appkey    string    `xorm:"not null default '' comment('网易云信appkey') VARCHAR(100)"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
 	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`

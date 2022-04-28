@@ -37,7 +37,7 @@ func QueryEffectSoma(pa *models.TEffectSoma) ([]*TEffectSoma, error) {
 			X:       soma.X,
 			Y:       soma.Y,
 			Z:       soma.Z,
-			Imageid: soma.Imageid,
+			Imageid: soma.Image,
 			From:    soma.From,
 		})
 	}

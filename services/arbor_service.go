@@ -63,8 +63,6 @@ func GetArbor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//构建一个队列
-
 	locations, err := ao.GetArbors(p.User.Name)
 	if err != nil {
 		log.WithFields(log.Fields{

@@ -1,0 +1,39 @@
+20220428 多人检查变更1
+1. /dynamic/arbor/getarbor
+参数不变
+取消设置互斥锁，所有人都有权访问任何数据
+取消内存队列，每个请求实时查询数据库，因此对数据会有很大的压力，所以每次返回10个数据。
+禁止客户端缓存，服务器已经实现了缓存
+返回：
+type Arbor struct {
+    Id     int       `json:"id"`
+    Name   string    `json:"name"`
+    SomaId string    `json:"somaId"`
+    Image  string    `json:"image"`
+    Loc    utils.XYZ `json:"loc"`
+    Status int       `json:"status"`
+}结构的json数组
+2. /dynamic/arbor/queryarborresult 查询指定的arbor的结果
+参数变为
+type QueryArborResultParam struct {
+	ArborId int             `json:"arborname"`
+	User    UserVerifyParam `json:"user"`
+}
+返回
+type ArborResult struct {
+    ArborId int
+    Result  int
+    Form    int
+    Owner   string
+}结构的json数组
+3. /dynamic/arbor/updatearborresult 更新检查结果，目前只新增，不允许删除
+参数变为
+type UpdateArborResultParam struct {
+	Pa   ao.UpdateArboResultAo `json:"pa"`
+	User UserVerifyParam       `json:"user"`
+}
+
+type UpdateArboResultAo struct {
+	Insertlist []*models.TArborresult `json:"insertlist"`
+}
+返回200表示成功

@@ -3,71 +3,46 @@ package do
 import (
 	"BrainTellServer/models"
 	"BrainTellServer/utils"
-	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
-	"strings"
+	"strconv"
 )
 
 type ArborResult struct {
-	X         float64
-	Y         float64
-	Z         float64
-	Type      int
-	Owner     string
-	ArborName string
+	ArborId int
+	Result  int
+	Form    int
+	Owner   string
 }
 
 func InsertArborResult(pa []*models.TArborresult) (int64, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
-	sql := "INSERT IGNORE INTO t_arborresult (X,Y,Z,Type,Owner,ArborName) values "
-	paras := make([]string, 0)
-	for _, v := range pa {
-		paras = append(paras, fmt.Sprintf("(%f,%f,%f,%d,\"%s\",\"%s\")",
-			v.X, v.Y, v.Z, v.Type, v.Owner, v.Arborname))
-	}
-	sql += strings.Join(paras, ",")
 
-	affect, err := utils.DB.Exec(sql)
+	affected, err := utils.DB.Insert(pa)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Insert ArborResult",
 			"pa":    jsonpa,
-		}).Warnf("%v\n", err)
+			"err":   err,
+		}).Infof("Failed")
 		return 0, err
 	}
-	affected, _ := affect.RowsAffected()
 	log.WithFields(log.Fields{
 		"event":  "Insert ArborResult",
 		"pa":     jsonpa,
 		"affect": affected,
 	}).Infof("Success")
 
-	return affect.RowsAffected()
+	return affected, nil
 }
 
 func DeleteArborResult(pa []int, user string) (int64, error) {
-	session := utils.DB.NewSession().Where("Isdeleted = ?", 0).In("Id", pa)
-	affect, err := session.Update(&models.TArborresult{
-		Updateowner: user,
-		Isdeleted:   1,
-	})
-	if err != nil {
-		log.WithFields(log.Fields{
-			"event": "delete ArborResult",
-		}).Warnf("%v\n", err)
-		return 0, err
-	}
-
-	log.WithFields(log.Fields{
-		"event":  "delete ArborResult",
-		"affect": affect,
-	}).Infof("Success")
-	return affect, nil
+	//todo
+	return 0, nil
 }
 
-func QueryArborResult(arborname string) ([]*ArborResult, error) {
-	session := utils.DB.NewSession().Where("Isdeleted = ?", 0).And("ArborName = ?", arborname)
+func QueryArborResult(pa *models.TArborresult) ([]*ArborResult, error) {
+	session := utils.DB.NewSession().Where("Isdeleted = ?", 0).And("ArborId = ?", pa.Arborid)
 	rows := make([]*models.TArborresult, 0)
 	err := session.Find(&rows)
 	if err != nil {
@@ -76,13 +51,31 @@ func QueryArborResult(arborname string) ([]*ArborResult, error) {
 	res := make([]*ArborResult, 0)
 	for _, v := range rows {
 		res = append(res, &ArborResult{
-			X:         v.X,
-			Y:         v.Y,
-			Z:         v.Z,
-			Type:      v.Type,
-			Owner:     v.Owner,
-			ArborName: v.Arborname,
+			ArborId: v.Arborid,
+			Result:  v.Result,
+			Form:    v.Form,
+			Owner:   v.Owner,
 		})
 	}
 	return res, nil
+}
+
+func QueryArborGroupByUser(isToday bool) (map[string]int64, error) {
+	var sql string
+	if !isToday {
+		sql = "select Owner as Name, count(*) as CheckNum from t_arborresult where Isdeleted = 0 and ctime group by Owner order by CheckNum DESC"
+	} else {
+		sql = "select Owner as Name, count(*) as CheckNum from t_arborresult where Isdeleted = 0 and date_format(ctime,'%Y%m%d')=date_format(now(),'%Y%m%d') group by Owner order by CheckNum DESC"
+	}
+
+	resultsSlice, err := utils.DB.Query(sql)
+	if err != nil {
+		return nil, err
+	}
+	res := make(map[string]int64)
+	for _, v := range resultsSlice {
+		num, _ := strconv.Atoi(string(v["SomaNum"]))
+		res[string(v["Name"])] = int64(num)
+	}
+	return res, err
 }

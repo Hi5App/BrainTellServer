@@ -59,7 +59,10 @@ func UpdateArborResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p.Pa.Owner = p.User.Name
+	for _, pv := range p.Pa.Insertlist {
+		pv.Owner = p.User.Name
+	}
+
 	err = ao.UpdateArborResult(&p.Pa)
 	if err != nil {
 		utils.EncodeToHttp(w, 501, err.Error())
@@ -69,8 +72,8 @@ func UpdateArborResult(w http.ResponseWriter, r *http.Request) {
 }
 
 type QueryArborResultParam struct {
-	Arborname string          `json:"arborname"`
-	User      UserVerifyParam `json:"user"`
+	ArborId int             `json:"arborname"`
+	User    UserVerifyParam `json:"user"`
 }
 
 func (param *QueryArborResultParam) String() string {
@@ -87,6 +90,7 @@ func (param *QueryArborResultParam) FromJsonString(jsonstr string) (utils.Reques
 	}
 	return param, nil
 }
+
 func QueryArborResult(w http.ResponseWriter, r *http.Request) {
 	var p QueryArborResultParam
 	param, err := utils.DecodeFromHttp(r, &p)
@@ -117,7 +121,7 @@ func QueryArborResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := ao.QueryArborResult(p.Arborname)
+	res, err := ao.QueryArborResult(p.ArborId)
 	if err != nil {
 		utils.EncodeToHttp(w, 501, err.Error())
 		return

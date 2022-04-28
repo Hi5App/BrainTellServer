@@ -15,7 +15,7 @@ func GetEffectSomaImage() ([]string, error) {
 
 func GetEffectSoma(image string) ([]*do.TEffectSoma, error) {
 	somas, err := do.QueryEffectSoma(&models.TEffectSoma{
-		Imageid: image,
+		Image: image,
 	})
 	if err != nil {
 		return nil, err

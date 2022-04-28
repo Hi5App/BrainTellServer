@@ -18,7 +18,6 @@ type Arbor struct {
 }
 
 func QueryArbors(owner string) ([]*Arbor, error) {
-
 	sql := "select * from t_arbor where Isdeleted=0 " +
 		"and Id not in (select ArborId from t_arborresult where t_arborresult.Isdeleted=0 and Owner= " +
 		fmt.Sprintf("\"%s\"", owner) + ")" +
@@ -29,6 +28,7 @@ func QueryArbors(owner string) ([]*Arbor, error) {
 		return nil, err
 	}
 	res := make([]*Arbor, 0)
+
 	for _, arbor := range arbors {
 		var val Arbor
 
@@ -82,6 +82,7 @@ func QueryArbors(owner string) ([]*Arbor, error) {
 
 		res = append(res, &val)
 	}
+
 	jsonres, _ := jsoniter.MarshalToString(res)
 	log.WithFields(log.Fields{
 		"event": "Query Arbor",
@@ -90,23 +91,3 @@ func QueryArbors(owner string) ([]*Arbor, error) {
 	}).Infof("Success")
 	return res, nil
 }
-
-//func QueryArborGroupByUser(isToday bool) (map[string]int64, error) {
-//	var sql string
-//	if !isToday {
-//		sql = "select Owner as Name, count(*) as ArborNum from t_arbor where Isdeleted = 0  and status!=0 and ctime group by Owner order by ArborNum DESC"
-//	} else {
-//		sql = "select Owner as Name, count(*) as ArborNum from t_arbor where Isdeleted = 0 and status!=0 and date_format(ctime,'%Y%m%d')=date_format(now(),'%Y%m%d') group by Owner order by ArborNum DESC"
-//	}
-//
-//	resultsSlice, err := utils.DB.Query(sql)
-//	if err != nil {
-//		return nil, err
-//	}
-//	res := make(map[string]int64)
-//	for _, v := range resultsSlice {
-//		num, _ := strconv.Atoi(string(v["ArborNum"]))
-//		res[string(v["Name"])] = int64(num)
-//	}
-//	return res, err
-//}

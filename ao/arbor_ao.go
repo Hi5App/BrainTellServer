@@ -7,6 +7,7 @@ import (
 
 func GetArbors(owner string) ([]*do.Arbor, error) {
 	arbors, err := do.QueryArbors(owner)
+
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "GetArbors",

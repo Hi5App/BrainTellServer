@@ -21,7 +21,7 @@ func QueryArbors(owner string) ([]*Arbor, error) {
 	sql := "select * from t_arbor where Isdeleted=0 " +
 		"and Id not in (select ArborId from t_arborresult where t_arborresult.Isdeleted=0 and Owner= " +
 		fmt.Sprintf("\"%s\"", owner) + ")" +
-		"and Id not in (select ArborId from t_arborresult where t_arborresult.Isdeleted=0 group by ArborId having count(*) >10) limit 10"
+		"and Id not in (select ArborId from t_arborresult where t_arborresult.Isdeleted=0 group by ArborId having count(*) >3) limit 10"
 
 	arbors, err := utils.DB.QueryString(sql)
 	if err != nil {

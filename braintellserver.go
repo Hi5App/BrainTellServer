@@ -4,8 +4,9 @@ import (
 	"BrainTellServer/services"
 	"BrainTellServer/utils"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -36,6 +37,9 @@ func main() {
 	http.HandleFunc("/dynamic/arbor/getarbor", services.GetArbor)
 	http.HandleFunc("/dynamic/arbor/queryarborresult", services.QueryArborResult)
 	http.HandleFunc("/dynamic/arbor/updatearborresult", services.UpdateArborResult)
+	http.HandleFunc("/dynamic/arbordetail/insert", services.InsertArborDetail)
+	http.HandleFunc("/dynamic/arbordetail/delete", services.DeleteArbordetail)
+	http.HandleFunc("/dynamic/arbordetail/query", services.QueryArborDetail)
 
 	//collaborate service
 	http.HandleFunc("/dynamic/collaborate/getanoimage", services.GetAnoImage)

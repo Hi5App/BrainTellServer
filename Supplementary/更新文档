@@ -37,3 +37,37 @@ type UpdateArboResultAo struct {
 	Insertlist []*models.TArborresult `json:"insertlist"`
 }
 返回200表示成功
+
+3. /dynamic/arbordetail/insert
+参数
+type InsertArborDetailParam struct {
+	pa   []*do.ArborDetail `json:"pa"`
+	User UserVerifyParam   `json:"user"`
+}
+type ArborDetail struct {
+	Id      int     `json:"id"`
+	ArborId int     `json:"arborId"`
+	X       float64 `json:"x"`
+	Y       float64 `json:"y"`
+	Z       float64 `json:"z"`
+	Type    int     `json:"type"`
+	Owner   string  `json:"owner"`
+}
+
+返回 200表示成功
+4. /dynamic/arbordetail/delete
+type DeleteArborDetailParam struct {
+	pa   []*do.ArborDetail `json:"pa"`
+	User UserVerifyParam   `json:"user"`
+}
+ArborDetail只需要Id
+
+5./dynamic/arbordetail/query
+参数
+type QueryArborDetailParam struct {
+	pa   *do.ArborDetail `json:"pa"`
+	User UserVerifyParam `json:"user"`
+}
+ArborDetail只需arborId
+返回
+do.ArborDetail数组

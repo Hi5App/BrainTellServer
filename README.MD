@@ -14,3 +14,16 @@
    2. XORM
    3. Redis
    4. HTTP
+3. 项目使用config文件配置
+   1. mysql配置
+   2. redis配置
+   3. aeskey:aes加密字符串（未使用）
+   4. mainpath:主文件夹路径
+   5. cropprocess:cropswc和cropimage的并发数
+   6. emails:日报发送对象
+4. 项目使用Docker容器化
+   1. Nginx容器
+   2. MySQL容器
+   3. Redis容器
+   4. Web服务容器
+5. 

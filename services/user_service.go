@@ -161,8 +161,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 type UserPerformance struct {
-	TotalSoma int64 `json:"totalsoma"`
-	DailySoma int64 `json:"dailysoma"`
+	TotalSoma  int64 `json:"totalsoma"`
+	DailySoma  int64 `json:"dailysoma"`
+	TotalCheck int64 `json:"totalCheck"`
+	DailyCheck int64 `json:"dailyCheck"`
 }
 
 type GetUserPerformanceParam struct {
@@ -220,15 +222,19 @@ func GetUserPerformance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	performance, dailyperformance, err := ao.GetSomaCnt()
+	somaperformance, somadailyperformance, err := ao.GetSomaCnt()
+	checkperformance, checkdailyperformance, err := ao.GetCheckCnt()
 	if err != nil {
 		w.WriteHeader(502)
 		utils.EncodeToHttp(w, 502, " failed")
 		return
 	}
+
 	jsonbody, err := json.Marshal(&UserPerformance{
-		TotalSoma: performance[p.User.Name],
-		DailySoma: dailyperformance[p.User.Name],
+		TotalSoma:  somaperformance[p.User.Name],
+		DailySoma:  somadailyperformance[p.User.Name],
+		TotalCheck: checkperformance[p.User.Name],
+		DailyCheck: checkdailyperformance[p.User.Name],
 	})
 	if err != nil {
 		log.Error(err)

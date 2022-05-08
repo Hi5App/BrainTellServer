@@ -12,7 +12,7 @@ import (
 )
 
 type QueryArborDetailParam struct {
-	pa   *do.ArborDetail `json:"pa"`
+	Pa   *do.ArborDetail `json:"pa"`
 	User UserVerifyParam `json:"user"`
 }
 
@@ -69,7 +69,7 @@ func QueryArborDetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res, err := ao.QueryArborDetail(&models.TArbordetail{
-		Arborid: p.pa.ArborId,
+		Arborid: p.Pa.ArborId,
 	})
 
 	if err != nil {
@@ -91,7 +91,7 @@ func QueryArborDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 type InsertArborDetailParam struct {
-	pa   []*do.ArborDetail `json:"pa"`
+	Pa   []*do.ArborDetail `json:"pa"`
 	User UserVerifyParam   `json:"user"`
 }
 
@@ -146,7 +146,7 @@ func InsertArborDetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pp := make([]*models.TArbordetail, 0)
-	for _, v := range p.pa {
+	for _, v := range p.Pa {
 		pp = append(pp, &models.TArbordetail{
 			Arborid: v.ArborId,
 			X:       v.X,
@@ -172,7 +172,7 @@ func InsertArborDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 type DeleteArborDetailParam struct {
-	pa   []*do.ArborDetail `json:"pa"`
+	Pa   []*do.ArborDetail `json:"pa"`
 	User UserVerifyParam   `json:"user"`
 }
 
@@ -228,7 +228,7 @@ func DeleteArbordetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pp := make([]*models.TArbordetail, 0)
-	for _, v := range p.pa {
+	for _, v := range p.Pa {
 		pp = append(pp, &models.TArbordetail{
 			Id: v.Id,
 		})

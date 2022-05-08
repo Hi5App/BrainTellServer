@@ -23,7 +23,7 @@ type UpdateSomaAo struct {
 	LocationId     int                 `json:"locationId"`
 	Locationtype   int                 `json:"locationtype"`
 	InsertSomalist []*models.TSomainfo `json:"insertsomalist"`
-	DeleteSomalist []string            `json:"deletesomalist"`
+	DeleteSomalist []int               `json:"deletesomalist"`
 	Owner          string              `json:"owner"`
 	Image          string              `json:"image"`
 }

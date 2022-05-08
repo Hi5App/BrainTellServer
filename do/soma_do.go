@@ -11,6 +11,7 @@ import (
 )
 
 type SomaInfo struct {
+	Id       int       `json:"id"`
 	Name     string    `json:"name"`
 	Image    string    `json:"image"`
 	Loc      utils.XYZ `json:"loc"`
@@ -43,6 +44,7 @@ func QuerySoma(pa1, pa2 *utils.XYZ, image string, pd *utils.QueryCondition) ([]*
 	res := make([]*SomaInfo, 0)
 	for _, soma := range somas {
 		res = append(res, &SomaInfo{
+			Id:    soma.Id,
 			Name:  soma.Name,
 			Image: soma.Image,
 			Loc: utils.XYZ{
@@ -114,22 +116,16 @@ func InsertSoma(pa []*models.TSomainfo) (int64, error) {
 	return affect.RowsAffected()
 }
 
-func DeleteSoma(pa []string, user string) (int64, error) {
+func DeleteSoma(pa []int, user string) (int64, error) {
 
-	names := make([]string, 0)
-	for _, v := range pa {
-		names = append(names, "\""+v+"\"")
-	}
-
-	log.Info(names)
-
-	sql := fmt.Sprintf("UPDATE t_somainfo SET Isdeleted = 1,Updater= \"%s\" WHERE Name IN (%s)", user, strings.Join(names, ","))
-	sqlres, err := utils.DB.Exec(sql)
+	affect, err := utils.DB.In("Id", pa).Update(&models.TSomainfo{
+		Isdeleted: 1,
+	})
 	if err != nil {
 		return 0, err
 	}
 
-	return sqlres.RowsAffected()
+	return affect, nil
 }
 
 func QueryLastSoma(pa *models.TSomainfo) (*SomaInfo, error) {

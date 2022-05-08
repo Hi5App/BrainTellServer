@@ -61,7 +61,7 @@ func QueryArborDetail(pa *models.TArbordetail) ([]*ArborDetail, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 	res := make([]*ArborDetail, 0)
 	rows := make([]*models.TArbordetail, 0)
-	err := utils.DB.NewSession().Find(rows, pa)
+	err := utils.DB.NewSession().Find(&rows, pa)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "query arbordetail failed",

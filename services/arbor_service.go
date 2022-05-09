@@ -79,5 +79,4 @@ func GetArbor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.EncodeToHttp(w, 200, string(jsonstr))
-	return
 }

@@ -7,12 +7,20 @@ import (
 )
 
 type UpdateArboResultAo struct {
-	Insertlist []*models.TArborresult `json:"insertlist"`
+	Insertlist []*do.ArborResult `json:"insertlist"`
 }
 
 func UpdateArborResult(pa *UpdateArboResultAo) error {
-
-	_, err := do.InsertArborResult(pa.Insertlist)
+	insertlist := make([]*models.TArborresult, 0)
+	for _, v := range pa.Insertlist {
+		insertlist = append(insertlist, &models.TArborresult{
+			Arborid: v.ArborId,
+			Result:  v.Result,
+			Form:    v.Form,
+			Owner:   v.Owner,
+		})
+	}
+	_, err := do.InsertArborResult(insertlist)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event":  "UpdateSomaList",

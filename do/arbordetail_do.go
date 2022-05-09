@@ -10,13 +10,11 @@ import (
 )
 
 type ArborDetail struct {
-	Id      int     `json:"id"`
-	ArborId int     `json:"arborId"`
-	X       float64 `json:"x"`
-	Y       float64 `json:"y"`
-	Z       float64 `json:"z"`
-	Type    int     `json:"type"`
-	Owner   string  `json:"owner"`
+	Id      int       `json:"id"`
+	ArborId int       `json:"arborId"`
+	Loc     utils.XYZ `json:"loc"`
+	Type    int       `json:"type"`
+	Owner   string    `json:"owner"`
 }
 
 func InsetArborDetail(pa []*models.TArbordetail) (int, error) {
@@ -73,11 +71,13 @@ func QueryArborDetail(pa *models.TArbordetail) ([]*ArborDetail, error) {
 		res = append(res, &ArborDetail{
 			Id:      v.Id,
 			ArborId: v.Arborid,
-			X:       v.X,
-			Y:       v.Y,
-			Z:       v.Z,
-			Type:    v.Type,
-			Owner:   v.Owner,
+			Loc: utils.XYZ{
+				X: v.X,
+				Y: v.Y,
+				Z: v.Z,
+			},
+			Type:  v.Type,
+			Owner: v.Owner,
 		})
 	}
 	return res, nil

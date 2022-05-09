@@ -72,7 +72,7 @@ func UpdateArborResult(w http.ResponseWriter, r *http.Request) {
 }
 
 type QueryArborResultParam struct {
-	ArborId int             `json:"arborname"`
+	ArborId int             `json:"arborId"`
 	User    UserVerifyParam `json:"user"`
 }
 

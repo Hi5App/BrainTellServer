@@ -149,9 +149,9 @@ func InsertArborDetail(w http.ResponseWriter, r *http.Request) {
 	for _, v := range p.Pa {
 		pp = append(pp, &models.TArbordetail{
 			Arborid: v.ArborId,
-			X:       v.X,
-			Y:       v.Y,
-			Z:       v.Z,
+			X:       v.Loc.X,
+			Y:       v.Loc.Y,
+			Z:       v.Loc.Z,
 			Type:    v.Type,
 			Owner:   p.User.Name,
 		})
@@ -172,8 +172,8 @@ func InsertArborDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 type DeleteArborDetailParam struct {
-	Pa   []*do.ArborDetail `json:"pa"`
-	User UserVerifyParam   `json:"user"`
+	Pa   []int           `json:"pa"`
+	User UserVerifyParam `json:"user"`
 }
 
 //只需要pa.Id
@@ -230,7 +230,7 @@ func DeleteArbordetail(w http.ResponseWriter, r *http.Request) {
 	pp := make([]*models.TArbordetail, 0)
 	for _, v := range p.Pa {
 		pp = append(pp, &models.TArbordetail{
-			Id: v.Id,
+			Id: v,
 		})
 	}
 	_, err = ao.DeleteArbordetail(pp)

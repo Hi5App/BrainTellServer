@@ -19,8 +19,8 @@ func TestLog(t *testing.T) {
 		}
 	}
 
-	//log.Infoln("start process " + p.Ano + " success")
-	for {
-
-	}
+	////log.Infoln("start process " + p.Ano + " success")
+	//for {
+	//
+	//}
 }

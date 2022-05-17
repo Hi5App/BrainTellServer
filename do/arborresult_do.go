@@ -27,6 +27,7 @@ func InsertArborResult(pa []*models.TArborresult) (int64, error) {
 		}).Infof("Failed")
 		return 0, err
 	}
+
 	log.WithFields(log.Fields{
 		"event":  "Insert ArborResult",
 		"pa":     jsonpa,
@@ -63,7 +64,7 @@ func QueryArborResult(pa *models.TArborresult) ([]*ArborResult, error) {
 func QueryArborGroupByUser(isToday bool) (map[string]int64, error) {
 	var sql string
 	if !isToday {
-		sql = "select Owner as Name, count(*) as CheckNum from t_arborresult where Isdeleted = 0 and ctime group by Owner order by CheckNum DESC"
+		sql = "select Owner as Name, count(*) as CheckNum from t_arborresult where Isdeleted = 0 group by Owner order by CheckNum DESC"
 	} else {
 		sql = "select Owner as Name, count(*) as CheckNum from t_arborresult where Isdeleted = 0 and date_format(ctime,'%Y%m%d')=date_format(now(),'%Y%m%d') group by Owner order by CheckNum DESC"
 	}
@@ -74,7 +75,7 @@ func QueryArborGroupByUser(isToday bool) (map[string]int64, error) {
 	}
 	res := make(map[string]int64)
 	for _, v := range resultsSlice {
-		num, _ := strconv.Atoi(string(v["SomaNum"]))
+		num, _ := strconv.Atoi(string(v["CheckNum"]))
 		res[string(v["Name"])] = int64(num)
 	}
 	return res, err

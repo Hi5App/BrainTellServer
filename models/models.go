@@ -47,8 +47,8 @@ type TArborresult struct {
 	Result    int       `xorm:"not null comment('用户判断的结果') INT"`
 	Form      int       `xorm:"not null comment('用户从什么方式获得数据') index INT"`
 	Owner     string    `xorm:"not null index VARCHAR(200)"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 	Isdeleted int       `xorm:"not null default 0 index(t_arborresult_ArborId_Iddeleted_index) INT"`
 }
 
@@ -61,8 +61,8 @@ type TEffectSoma struct {
 	Image     string    `xorm:"not null unique(t_effect_soma_ImageId_X_Y_Z_uindex) index VARCHAR(100)"`
 	From      int       `xorm:"not null default 0 comment('来源 0:来自t_somainfo') INT"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 }
 
 type TImage struct {
@@ -70,8 +70,8 @@ type TImage struct {
 	Name      string    `xorm:"not null unique VARCHAR(100)"`
 	Detail    string    `xorm:"not null JSON"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 }
 
 type TPotentialsomalocation struct {
@@ -84,8 +84,8 @@ type TPotentialsomalocation struct {
 	Dataset   int       `xorm:"default 0 comment('图像数据集 0:soma') INT"`
 	Owner     string    `xorm:"not null default '' comment('访问者的用户名') index VARCHAR(100)"`
 	Isdeleted int       `xorm:"not null default 0 comment('是否有效，0为有效，非0无效') unique(t_potentialsomalocation_loc) INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('创建时间') TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('最后一次更新时间') TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('创建时间') TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('最后一次更新时间') TIMESTAMP updated"`
 }
 
 type TSomainfo struct {
@@ -104,8 +104,8 @@ type TSomainfo struct {
 	Methods   string    `xorm:"comment('refine方法和参数') JSON"`
 	Refinedid int       `xorm:"not null default 0 comment('refine结果的id') INT"`
 	Isdeleted int       `xorm:"not null default 0 comment('是否有效，0为有效，非0无效') unique(t_somainfo_loc) INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('创建时间') TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('更新时间') TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('创建时间') TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('更新时间') TIMESTAMP updated"`
 }
 
 type TUserinfo struct {
@@ -118,6 +118,6 @@ type TUserinfo struct {
 	Appkey   string `xorm:"not null default '' comment('网易云信appkey
 ') VARCHAR(100)"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 }

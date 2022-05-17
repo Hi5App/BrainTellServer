@@ -37,9 +37,14 @@ func InsetArborDetail(pa []*models.TArbordetail) (int, error) {
 
 func DeleteArbordetail(pa []*models.TArbordetail) (int, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
-	affected, err := utils.DB.NewSession().Update(&models.TArbordetail{
+	idList := make([]int, 0)
+	for _, v := range pa {
+		idList = append(idList, v.Id)
+	}
+
+	affected, err := utils.DB.NewSession().In("Id", idList).Update(&models.TArbordetail{
 		Isdeleted: 1,
-	}, pa)
+	})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "delete arbordetail failed",
@@ -47,6 +52,7 @@ func DeleteArbordetail(pa []*models.TArbordetail) (int, error) {
 		}).Warnf("%v\n", err)
 		return 0, err
 	}
+
 	log.WithFields(log.Fields{
 		"event": "delete arbordetail success",
 		"pa":    jsonpa,
@@ -59,7 +65,7 @@ func QueryArborDetail(pa *models.TArbordetail) ([]*ArborDetail, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 	res := make([]*ArborDetail, 0)
 	rows := make([]*models.TArbordetail, 0)
-	err := utils.DB.NewSession().Find(&rows, pa)
+	err := utils.DB.NewSession().Where("Isdeleted = ?", 0).Find(&rows, pa)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "query arbordetail failed",

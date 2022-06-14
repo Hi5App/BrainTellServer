@@ -47,6 +47,13 @@ func Login(pa *do.UserInfo) (*do.UserInfo, error) {
 		}).Warnf("%s,%v\n", pa, err)
 		return nil, err
 	}
+
+	log.WithFields(log.Fields{
+		"event":    "user login query info",
+		"user_len": len(users),
+		"users":    users,
+	}).Warnf("%v\n", err)
+
 	if len(users) != 0 {
 		utils.InsertUser2RDB(users[0])
 		return users[0], nil

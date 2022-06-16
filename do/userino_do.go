@@ -3,6 +3,7 @@ package do
 import (
 	"BrainTellServer/models"
 	"BrainTellServer/utils"
+	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
 )
@@ -26,6 +27,8 @@ func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, err
 		Passwd: pa.Passwd,
 	})
 
+	fmt.Printf("----------userinfo_do QueryUser Find error: %v-------------------\n", err)
+
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Query userinfo",
@@ -45,6 +48,8 @@ func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, err
 			NickName: user.Nickname,
 		})
 	}
+
+	fmt.Printf("----------userinfo_do QueryUser Find result: %v-------------------\n", res)
 
 	jsonres, _ := jsoniter.MarshalToString(res)
 	log.WithFields(log.Fields{

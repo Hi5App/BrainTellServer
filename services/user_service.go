@@ -166,8 +166,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("----------login final json body: %v-------------------\n", jsonbody)
-
 	utils.EncodeToHttp(w, 200, string(jsonbody))
 	return
 

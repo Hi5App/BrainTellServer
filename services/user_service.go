@@ -5,6 +5,7 @@ import (
 	"BrainTellServer/do"
 	"BrainTellServer/utils"
 	"encoding/json"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -120,7 +121,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		utils.EncodeToHttp(w, 500, err.Error())
 		return
 	}
+
+	fmt.Printf("----------login decode error: %v-------------------\n", err)
+
 	_, ok := param.(*LoginParam)
+
+	fmt.Printf("----------login param transfer error: %v-------------------\n", ok)
 
 	if !ok {
 		log.WithFields(log.Fields{
@@ -145,6 +151,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Email:  p.User.Email,
 		Passwd: p.User.Passwd,
 	})
+
+	fmt.Printf("----------login user info: %v-------------------\n", userinfo)
+	fmt.Printf("----------login ao.login error: %v-------------------\n", err)
+
 	if err != nil {
 		w.WriteHeader(501)
 		utils.EncodeToHttp(w, 501, "Login Failed."+err.Error())
@@ -155,6 +165,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		log.Error(err)
 		return
 	}
+
+	fmt.Printf("----------login final json body: %v-------------------\n", jsonbody)
+
 	utils.EncodeToHttp(w, 200, string(jsonbody))
 	return
 

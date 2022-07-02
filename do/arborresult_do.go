@@ -3,6 +3,7 @@ package do
 import (
 	"BrainTellServer/models"
 	"BrainTellServer/utils"
+	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
 	"strconv"
@@ -17,24 +18,71 @@ type ArborResult struct {
 
 func InsertArborResult(pa []*models.TArborresult) (int64, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
+	// 判断record arborID Owner是否存在
 
-	affected, err := utils.DB.Insert(pa)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"event": "Insert ArborResult",
-			"pa":    jsonpa,
-			"err":   err,
-		}).Infof("Failed")
-		return 0, err
+	fmt.Println("insert-arbor-result,len of pa:", len(pa))
+	var totalAffected = int64(0)
+
+	for i := 0; i < len(pa); i++ {
+		arborResult := &models.TArborresult{
+			Arborid: pa[i].Arborid,
+			Owner:   pa[i].Owner,
+		}
+		fmt.Printf("insert-arbor-result, arbor result before:%v\n", arborResult)
+		has, err := utils.DB.Get(arborResult)
+		fmt.Println("insert-arbor-result, result exist:", has)
+		fmt.Printf("insert-arbor-result, arbor result after:%v\n", arborResult)
+
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event": "Insert ArborResult Get",
+				"pa":    jsonpa,
+				"err":   err,
+			}).Infof("Failed")
+			return 0, err
+		}
+
+		if has == true {
+			// exist update 覆盖之前的result
+			arborResult.Result = pa[i].Result
+			affected, err := utils.DB.ID(arborResult.Id).Update(arborResult)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"event": "Insert Cover ArborResult",
+					"pa":    jsonpa,
+					"err":   err,
+				}).Infof("Failed")
+				return 0, err
+			}
+			fmt.Printf("insert-arbor-result, update affected:%v\n", affected)
+			totalAffected += affected
+		} else {
+			// not exist insert
+			affected, err := utils.DB.Insert(pa[i])
+			if err != nil {
+				log.WithFields(log.Fields{
+					"event": "Insert ArborResult",
+					"pa":    jsonpa,
+					"err":   err,
+				}).Infof("Failed")
+				return 0, err
+			}
+			fmt.Printf("insert-arbor-result, insert affected:%v\n", affected)
+			totalAffected += affected
+		}
 	}
 
-	log.WithFields(log.Fields{
-		"event":  "Insert ArborResult",
-		"pa":     jsonpa,
-		"affect": affected,
-	}).Infof("Success")
+	//affected, err := utils.DB.Insert(pa)
+	//if err != nil {
+	//	log.WithFields(log.Fields{
+	//		"event": "Insert ArborResult",
+	//		"pa":    jsonpa,
+	//		"err":   err,
+	//	}).Infof("Failed")
+	//	return 0, err
+	//}
 
-	return affected, nil
+	return totalAffected, nil
 }
 
 func DeleteArborResult(pa []int, user string) (int64, error) {

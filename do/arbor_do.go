@@ -17,8 +17,8 @@ type Arbor struct {
 	Status int       `json:"status"`
 }
 
-func QueryArbors(owner string) ([]*Arbor, error) {
-	sql := "select * from t_arbor where Isdeleted=0 " +
+func QueryArbors(owner string, maxId int64) ([]*Arbor, error) {
+	sql := "select * from t_arbor where Isdeleted=0 " + "and Id>" + fmt.Sprintf("%d", maxId) + " " +
 		"and Id not in (select ArborId from t_arborresult where t_arborresult.Isdeleted=0 and Owner= " +
 		fmt.Sprintf("\"%s\"", owner) + ")" +
 		"and Id not in (select ArborId from t_arborresult where t_arborresult.Isdeleted=0 group by ArborId having count(*) >3) limit 10"

@@ -11,6 +11,8 @@ import (
 
 type GetArborParam struct {
 	User UserVerifyParam `json:"user"`
+	// prevent repeated arborId
+	MaxId int64 `json:"maxId"`
 }
 
 func (pa *GetArborParam) String() string {
@@ -63,7 +65,7 @@ func GetArbor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	locations, err := ao.GetArbors(p.User.Name)
+	locations, err := ao.GetArbors(p.User.Name, p.MaxId)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Get Potential Locations",

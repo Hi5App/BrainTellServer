@@ -5,8 +5,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func GetArbors(owner string) ([]*do.Arbor, error) {
-	arbors, err := do.QueryArbors(owner)
+func GetArbors(owner string, maxId int64) ([]*do.Arbor, error) {
+	arbors, err := do.QueryArbors(owner, maxId)
 
 	if err != nil {
 		log.WithFields(log.Fields{

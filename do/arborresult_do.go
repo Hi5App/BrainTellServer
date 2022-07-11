@@ -25,8 +25,9 @@ func InsertArborResult(pa []*models.TArborresult) (int64, error) {
 
 	for i := 0; i < len(pa); i++ {
 		arborResult := &models.TArborresult{
-			Arborid: pa[i].Arborid,
-			Owner:   pa[i].Owner,
+			Arborid:   pa[i].Arborid,
+			Owner:     pa[i].Owner,
+			Isdeleted: 0,
 		}
 		fmt.Printf("insert-arbor-result, arbor result before:%v\n", arborResult)
 		has, err := utils.DB.Get(arborResult)

@@ -398,12 +398,25 @@ func AllocatePort(ano string) (string, error) {
 
 	port, err := redis.String(conn.Do("LPOP", "PORTQUEUE"))
 	if err != nil {
+		// log message
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "POP PORT QUEUE failed",
+		}).Warnf("%v\n", err)
+
 		return "", err
 	}
 
 	res, err := redis.Int(conn.Do("EXISTS", fmt.Sprintf("Ano+Port:%s;%s", "*", port)))
 	if err != nil {
 		conn.Do("RPUSH", "PORTQUEUE", port)
+
+		// log message
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "PUSH PORT QUEUE failed",
+		}).Warnf("%v\n", err)
+
 		return "", err
 	}
 
@@ -415,9 +428,22 @@ func AllocatePort(ano string) (string, error) {
 
 	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Ano+Port:%s;%s", ano, port), 3*10*60, ano))
 	if err != nil {
+		// log message
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "SET EX LIFETIME failed",
+		}).Warnf("%v\n", err)
+
 		return "", err
 	}
 	if ret != "OK" {
+
+		// log message
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "SET EX LIFETIME ret not ok",
+		}).Warnf("%v\n", err)
+
 		return "", errors.New("can not allocate port")
 	}
 	return port, nil

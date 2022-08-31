@@ -59,6 +59,9 @@ func main() {
 	http.HandleFunc("/dynamic/musics", services.GetMusicList)
 	http.HandleFunc("/dynamic/updateapk", services.GetLatestApk)
 
+	// game server
+	http.HandleFunc("/game/dynamic/user/login", services.GameLogin)
+
 	log.WithFields(log.Fields{
 		"event": "start server",
 	}).Fatal(http.ListenAndServe(":8000", nil))

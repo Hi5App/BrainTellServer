@@ -124,3 +124,56 @@ func DeltelUser(pa *models.TUserinfo) (int64, error) {
 	}).Infof("Success")
 	return affect, nil
 }
+
+//QueryGameUser game func
+func QueryGameUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, error) {
+	jsonpa, _ := jsoniter.MarshalToString(pa)
+
+	users := make([]*models.TUserinfo, 0)
+
+	session := utils.DB.NewSession()
+	defer session.Close()
+	session.Where("Isdeleted = ?", 0)
+	if pd != nil {
+		session = session.Limit(pd.Limit, pd.Off)
+	}
+	err := session.Find(&users, &models.TUserinfo{
+
+		Name:   pa.Name,
+		Email:  pa.Email,
+		Passwd: pa.Passwd,
+	})
+
+	fmt.Printf("----------userinfo_do QueryUser Find error: %v-------------------\n", err)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Query userinfo",
+			"pa":    jsonpa,
+		}).Warnf("%v\n", err)
+		return nil, err
+	}
+
+	res := make([]*UserInfo, 0)
+	for _, user := range users {
+		res = append(res, &UserInfo{
+			Id:       user.Id,
+			Name:     user.Name,
+			Email:    user.Email,
+			Score:    user.Score,
+			AppKey:   user.Appkey,
+			NickName: user.Nickname,
+		})
+	}
+
+	fmt.Printf("----------userinfo_do QueryUser Find result: %v-------------------\n", res)
+
+	jsonres, _ := jsoniter.MarshalToString(res)
+	log.WithFields(log.Fields{
+		"event": "Query userinfo",
+		"pa":    jsonpa,
+		"RES":   jsonres,
+	}).Infof("Success")
+
+	return res, nil
+}

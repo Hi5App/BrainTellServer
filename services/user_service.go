@@ -268,3 +268,59 @@ func ResetPasswd(w http.ResponseWriter, r *http.Request) {
 func RegisterNetease(w http.ResponseWriter, r *http.Request) {
 	//todo
 }
+
+// GameLogin game func
+func GameLogin(w http.ResponseWriter, r *http.Request) {
+	var p LoginParam
+	param, err := utils.DecodeFromHttp(r, &p)
+	if err != nil {
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	fmt.Printf("----------login decode error: %v-------------------\n", err)
+	_, ok := param.(*LoginParam)
+	fmt.Printf("----------login param transfer error: %v-------------------\n", ok)
+
+	if !ok {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "param.(*do.UserInfo) failed",
+		}).Errorf("%v\n", err)
+		utils.EncodeToHttp(w, 400, "Bad Request")
+		return
+	}
+
+	if len(p.User.Passwd) == 0 || (len(p.User.Name) == 0 && len(p.User.Email) == 0) {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "Bad Param",
+		}).Errorf("%s\n", p)
+		utils.EncodeToHttp(w, 400, "Bad Request")
+		return
+	}
+
+	userinfo, err := ao.GameLogin(&do.UserInfo{
+		Name:   p.User.Name,
+		Email:  p.User.Email,
+		Passwd: p.User.Passwd,
+	})
+
+	fmt.Printf("----------login user info: %v-------------------\n", userinfo)
+	fmt.Printf("----------login ao.login error: %v-------------------\n", err)
+
+	if err != nil {
+		w.WriteHeader(501)
+		utils.EncodeToHttp(w, 501, "Login Failed."+err.Error())
+		return
+	}
+	jsonbody, err := json.Marshal(userinfo)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	utils.EncodeToHttp(w, 200, string(jsonbody))
+	return
+
+}

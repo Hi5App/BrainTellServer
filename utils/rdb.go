@@ -420,11 +420,14 @@ func AllocatePort(ano string) (string, error) {
 		return "", err
 	}
 
+	// 检查端口是否已经被占用 通过redis ano+port 字段来实现
 	if res == 1 {
 		conn.Do("RPUSH", "PORTQUEUE", port)
 		log.Error("Port %d Has in Use", port)
 		return "-1", errors.New("port Has in Use，please try again")
 	}
+
+	// 设定指定的key值和过期时间 SETEX KEY_NAME TIMEOUT VALUE 有效期30 min
 
 	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Ano+Port:%s;%s", ano, port), 3*10*60, ano))
 	if err != nil {

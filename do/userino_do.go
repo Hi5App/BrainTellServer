@@ -9,6 +9,7 @@ import (
 )
 
 type UserInfo = utils.UserInfo
+type GameUserInfo = utils.GameUserInfo
 
 func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
@@ -126,10 +127,10 @@ func DeltelUser(pa *models.TUserinfo) (int64, error) {
 }
 
 //QueryGameUser game func
-func QueryGameUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, error) {
+func QueryGameUser(pa *models.TGameUserinfo, pd *utils.QueryCondition) ([]*GameUserInfo, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 
-	users := make([]*models.TUserinfo, 0)
+	users := make([]*models.TGameUserinfo, 0)
 
 	session := utils.DB.NewSession()
 	defer session.Close()
@@ -137,8 +138,7 @@ func QueryGameUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo,
 	if pd != nil {
 		session = session.Limit(pd.Limit, pd.Off)
 	}
-	err := session.Find(&users, &models.TUserinfo{
-
+	err := session.Find(&users, &models.TGameUserinfo{
 		Name:   pa.Name,
 		Email:  pa.Email,
 		Passwd: pa.Passwd,
@@ -148,21 +148,19 @@ func QueryGameUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo,
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"event": "Query userinfo",
+			"event": "Query game userinfo",
 			"pa":    jsonpa,
 		}).Warnf("%v\n", err)
 		return nil, err
 	}
 
-	res := make([]*UserInfo, 0)
+	res := make([]*GameUserInfo, 0)
 	for _, user := range users {
-		res = append(res, &UserInfo{
-			Id:       user.Id,
-			Name:     user.Name,
-			Email:    user.Email,
-			Score:    user.Score,
-			AppKey:   user.Appkey,
-			NickName: user.Nickname,
+		res = append(res, &GameUserInfo{
+			Id:    user.Id,
+			Name:  user.Name,
+			Email: user.Email,
+			Score: user.Score,
 		})
 	}
 
@@ -170,7 +168,7 @@ func QueryGameUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo,
 
 	jsonres, _ := jsoniter.MarshalToString(res)
 	log.WithFields(log.Fields{
-		"event": "Query userinfo",
+		"event": "Query game userinfo",
 		"pa":    jsonpa,
 		"RES":   jsonres,
 	}).Infof("Success")

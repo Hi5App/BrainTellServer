@@ -285,7 +285,7 @@ func GameLogin(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "Login",
-			"desc":  "param.(*do.UserInfo) failed",
+			"desc":  "Game param.(*do.UserInfo) failed",
 		}).Errorf("%v\n", err)
 		utils.EncodeToHttp(w, 400, "Bad Request")
 		return
@@ -294,13 +294,13 @@ func GameLogin(w http.ResponseWriter, r *http.Request) {
 	if len(p.User.Passwd) == 0 || (len(p.User.Name) == 0 && len(p.User.Email) == 0) {
 		log.WithFields(log.Fields{
 			"event": "Login",
-			"desc":  "Bad Param",
+			"desc":  "Game Bad Param",
 		}).Errorf("%s\n", p)
 		utils.EncodeToHttp(w, 400, "Bad Request")
 		return
 	}
 
-	userinfo, err := ao.GameLogin(&do.UserInfo{
+	userinfo, err := ao.GameLogin(&do.GameUserInfo{
 		Name:   p.User.Name,
 		Email:  p.User.Email,
 		Passwd: p.User.Passwd,

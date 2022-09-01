@@ -32,6 +32,14 @@ type UserInfo struct {
 	Passwd   string `json:"passwd"`
 }
 
+type GameUserInfo struct {
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Score  int    `json:"score"`
+	Passwd string `json:"passwd"`
+}
+
 type Image struct {
 	Name   string `json:"name"`
 	Detail string `json:"detail"`

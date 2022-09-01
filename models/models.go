@@ -121,3 +121,14 @@ type TUserinfo struct {
 	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
 	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
 }
+
+type TGameUserinfo struct {
+	Id        int       `xorm:"not null pk autoincr unique INT"`
+	Name      string    `xorm:"not null unique VARCHAR(100)"`
+	Email     string    `xorm:"not null unique VARCHAR(100)"`
+	Passwd    string    `xorm:"not null VARCHAR(100)"`
+	Score     int       `xorm:"not null default 0 comment('玩家练习模式最高分') INT"`
+	Isdeleted int       `xorm:"not null default 0 INT"`
+	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' comment('创建时间') TIMESTAMP"`
+	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' comment('更新时间') TIMESTAMP"`
+}

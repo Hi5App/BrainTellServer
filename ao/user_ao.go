@@ -65,7 +65,7 @@ func Login(pa *do.UserInfo) (*do.UserInfo, error) {
 }
 
 // GameLogin game func
-func GameLogin(pa *do.UserInfo) (*do.UserInfo, error) {
+func GameLogin(pa *do.GameUserInfo) (*do.GameUserInfo, error) {
 	// todo redis buffer authentication
 	//user, err := utils.QueryUserFromRDB(pa)
 	//fmt.Printf("----------user_ao Redis Query user: %v-------------------\n", user)
@@ -76,7 +76,7 @@ func GameLogin(pa *do.UserInfo) (*do.UserInfo, error) {
 	//	return user, nil
 	//}
 
-	users, err := do.QueryGameUser(&models.TUserinfo{
+	users, err := do.QueryGameUser(&models.TGameUserinfo{
 		Name:   pa.Name,
 		Email:  pa.Email,
 		Passwd: pa.Passwd,
@@ -90,7 +90,7 @@ func GameLogin(pa *do.UserInfo) (*do.UserInfo, error) {
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Login",
-			"desc":  "Login Failed",
+			"desc":  "Game Login Failed",
 		}).Warnf("%s,%v\n", pa, err)
 		return nil, err
 	}

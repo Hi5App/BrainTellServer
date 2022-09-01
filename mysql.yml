@@ -2,8 +2,7 @@ kind: reverse
 name: testdb
 source:
   database: mysql
-#  conn_str: 'root:1234@tcp(127.0.0.1:3306)/Brain?parseTime=true'
-  conn_str: 'root:1234@tcp(139.155.28.154:26002)/Brain?parseTime=true'
+  conn_str: 'root:1234@tcp(127.0.0.1:3306)/Brain?parseTime=true'
 targets:
 - type: codes
   language: golang

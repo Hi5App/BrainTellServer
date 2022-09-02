@@ -60,6 +60,7 @@ func main() {
 	http.HandleFunc("/dynamic/updateapk", services.GetLatestApk)
 
 	// game server
+	//http.HandleFunc("/game/dynamic/user/register", services.GameRegister)
 	http.HandleFunc("/game/dynamic/user/login", services.GameLogin)
 
 	log.WithFields(log.Fields{

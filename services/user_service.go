@@ -17,6 +17,12 @@ type RegisterParam struct {
 	Passwd   string `json:"passwd"`
 }
 
+type GameRegisterParam struct {
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Passwd string `json:"passwd"`
+}
+
 func (param *RegisterParam) String() string {
 	jsonres, err := json.Marshal(param)
 	if err != nil {
@@ -25,7 +31,22 @@ func (param *RegisterParam) String() string {
 	return string(jsonres)
 }
 
+func (param *GameRegisterParam) String() string {
+	jsonres, err := json.Marshal(param)
+	if err != nil {
+		return ""
+	}
+	return string(jsonres)
+}
+
 func (param *RegisterParam) FromJsonString(jsonstr string) (utils.RequestParam, error) {
+	if err := json.Unmarshal([]byte(jsonstr), param); err != nil {
+		return nil, err
+	}
+	return param, nil
+}
+
+func (param *GameRegisterParam) FromJsonString(jsonstr string) (utils.RequestParam, error) {
 	if err := json.Unmarshal([]byte(jsonstr), param); err != nil {
 		return nil, err
 	}
@@ -284,7 +305,7 @@ func GameLogin(w http.ResponseWriter, r *http.Request) {
 
 	if !ok {
 		log.WithFields(log.Fields{
-			"event": "Login",
+			"event": "Game Login",
 			"desc":  "Game param.(*do.UserInfo) failed",
 		}).Errorf("%v\n", err)
 		utils.EncodeToHttp(w, 400, "Bad Request")
@@ -293,7 +314,7 @@ func GameLogin(w http.ResponseWriter, r *http.Request) {
 
 	if len(p.User.Passwd) == 0 || (len(p.User.Name) == 0 && len(p.User.Email) == 0) {
 		log.WithFields(log.Fields{
-			"event": "Login",
+			"event": "Game Login",
 			"desc":  "Game Bad Param",
 		}).Errorf("%s\n", p)
 		utils.EncodeToHttp(w, 400, "Bad Request")
@@ -323,4 +344,46 @@ func GameLogin(w http.ResponseWriter, r *http.Request) {
 	utils.EncodeToHttp(w, 200, string(jsonbody))
 	return
 
+}
+
+func GameRegister(w http.ResponseWriter, r *http.Request) {
+	var p GameRegisterParam
+	param, err := utils.DecodeFromHttp(r, &p)
+	if err != nil {
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	user, ok := param.(*GameRegisterParam)
+	if !ok {
+		log.WithFields(log.Fields{
+			"event": "Game Register",
+			"desc":  "param.(*do.UserInfo) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 400, "Bad Request")
+		return
+	}
+
+	if len(user.Name) == 0 || len(user.Passwd) == 0 || len(user.Email) == 0 {
+		log.WithFields(log.Fields{
+			"event": "Game Register",
+			"desc":  "Bad Param",
+		}).Warnf("%s\n", user)
+		utils.EncodeToHttp(w, 400, "Register Failed")
+		return
+	}
+
+	//todo ao.game register
+	err = ao.Register(&do.UserInfo{
+		Name:   p.Name,
+		Email:  p.Email,
+		Passwd: p.Passwd,
+	})
+
+	if err != nil {
+		utils.EncodeToHttp(w, 501, "Register Failed."+err.Error())
+		return
+	}
+
+	utils.EncodeToHttp(w, 200, "Register Success")
 }

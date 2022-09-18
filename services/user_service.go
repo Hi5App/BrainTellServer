@@ -387,3 +387,7 @@ func GameRegister(w http.ResponseWriter, r *http.Request) {
 
 	utils.EncodeToHttp(w, 200, "Register Success")
 }
+
+func GameUpdataRecord(w http.ResponseWriter, r *http.Request) {
+
+}

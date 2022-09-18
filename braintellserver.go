@@ -62,6 +62,7 @@ func main() {
 	// game server
 	//http.HandleFunc("/game/dynamic/user/register", services.GameRegister)
 	http.HandleFunc("/game/dynamic/user/login", services.GameLogin)
+	http.HandleFunc("/game/dynamic/user/uploadrecord", services.GameUpdataRecord)
 
 	log.WithFields(log.Fields{
 		"event": "start server",

@@ -132,3 +132,16 @@ type TGameUserinfo struct {
 	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' comment('创建时间') TIMESTAMP"`
 	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' comment('更新时间') TIMESTAMP"`
 }
+
+type TGameRecord struct {
+	Id        int       `xorm:"not null pk autoincr unique INT"`
+	Username  string    `xorm:"not null comment('玩家标识符') unique VARCHAR(100)"`
+	Swcid     string    `xorm:"not null comment('swc标识符') VARCHAR(100)"`
+	Correctbp string    `xorm:"not null default '' comment('正确的branching points的index') VARCHAR(100)"`
+	Wrongbp   string    `xorm:"not null default '' comment('错误的Branching Point的Index') VARCHAR(100)"`
+	Missedbp  string    `xorm:"not null default '' comment('缺失的，但应该是正确的Branching Point的index') VARCHAR(100)"`
+	Points    int       `xorm:"not null default 0 comment('玩家该局得分') INT"`
+	Isdeleted int       `xorm:"not null default 0 INT"`
+	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' DATETIME"`
+	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' DATETIME"`
+}

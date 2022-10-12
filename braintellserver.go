@@ -3,7 +3,6 @@ package main
 import (
 	"BrainTellServer/services"
 	"BrainTellServer/utils"
-	"fmt"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -18,9 +17,9 @@ func main() {
 	}
 	services.SendPerformance()
 
-	http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Test")
-	})
+	//http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
+	//	fmt.Fprintln(w, "Test")
+	//})
 	//user service
 	http.HandleFunc("/dynamic/user/register", services.Register)
 	http.HandleFunc("/dynamic/user/login", services.Login)
@@ -61,9 +60,10 @@ func main() {
 
 	// game server
 	//http.HandleFunc("/game/dynamic/user/register", services.GameRegister)
-	http.HandleFunc("/game/dynamic/user/login", services.GameLogin)
-	http.HandleFunc("/game/dynamic/user/uploadrecord", services.GameUpdataRecord)
-	http.HandleFunc("/game/dynamic/swc/bppoint/insert", services.InsertBranchingPoints)
+	http.HandleFunc("/dynamic/game/user/login", services.GameLogin)
+	//http.HandleFunc("/game/dynamic/user/uploadrecord", services.GameUpdataRecord)
+	http.HandleFunc("/dynamic/game/swc/bppoint/insert", services.InsertBranchingPoints)
+
 	log.WithFields(log.Fields{
 		"event": "start server",
 	}).Fatal(http.ListenAndServe(":8000", nil))

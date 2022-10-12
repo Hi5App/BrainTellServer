@@ -11,7 +11,8 @@ import (
 )
 
 type InsertBranchingPointsParam struct {
-	Sd   []*do.SwcDetail `json:"sd"`
+	//Sd   []*do.SwcDetail `json:"sd"`
+	Sd   do.SwcDetail    `json:"sd"`
 	User UserVerifyParam `json:"user"`
 }
 
@@ -66,19 +67,26 @@ func InsertBranchingPoints(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TArbordetail_todo SwcDetail
-	pp := make([]*models.TGameRecord, 0)
-	for _, v := range p.Sd {
-		pp = append(pp, &models.TGameRecord{
-			Swcid:     v.Swcid,
-			Username:  v.Username,
-			Points:    v.Points,
-			Correctbp: v.Correctbp,
-			Wrongbp:   v.Wrongbp,
-			Missedbp:  v.Missedbp,
-		})
-	}
-	err = ao.InsertBP(pp)
+	//pp := make([]*models.TGameRecord, 0)
+	//for _, v := range p.Sd {
+	//	pp = append(pp, &models.TGameRecord{
+	//		Swcid:     v.Swcid,
+	//		Username:  v.Username,
+	//		Points:    v.Points,
+	//		Correctbp: v.Correctbp,
+	//		Wrongbp:   v.Wrongbp,
+	//		Missedbp:  v.Missedbp,
+	//	})
+	//}
+
+	err = ao.InsertBP(&models.TGameRecord{
+		Swcid:     p.Sd.Swcid,
+		Username:  p.Sd.Username,
+		Points:    p.Sd.Points,
+		Correctbp: p.Sd.Correctbp,
+		Wrongbp:   p.Sd.Wrongbp,
+		Missedbp:  p.Sd.Missedbp,
+	})
 
 	if err != nil {
 		log.WithFields(log.Fields{

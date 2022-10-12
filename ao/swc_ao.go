@@ -5,7 +5,7 @@ import (
 	"BrainTellServer/models"
 )
 
-func InsertBP(pa []*models.TGameRecord) error {
+func InsertBP(pa *models.TGameRecord) error {
 
 	_, err := do.InsertBP(pa)
 	if err != nil {

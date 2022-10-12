@@ -17,7 +17,7 @@ type SwcDetail struct {
 	Correctbp string `json:"correctbp"`
 }
 
-func InsertBP(pa []*models.TGameRecord) (int64, error) {
+func InsertBP(pa *models.TGameRecord) (int64, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 	session := utils.DB.NewSession()
 	defer session.Close()

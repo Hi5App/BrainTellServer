@@ -81,7 +81,7 @@ func InsertBranchingPoints(w http.ResponseWriter, r *http.Request) {
 
 	err = ao.InsertBP(&models.TGameRecord{
 		Swcid:     p.Sd.Swcid,
-		Username:  p.Sd.Username,
+		Username:  p.User.Name,
 		Points:    p.Sd.Points,
 		Correctbp: p.Sd.Correctbp,
 		Wrongbp:   p.Sd.Wrongbp,

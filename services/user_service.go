@@ -8,6 +8,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"strings"
 )
 
 type RegisterParam struct {
@@ -88,7 +89,21 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		utils.EncodeToHttp(w, 501, "Register Failed."+err.Error())
+		// error message process
+		var errorString = err.Error()
+		var returnString = ""
+		if strings.Contains(errorString, "Duplicate") {
+			if strings.Contains(errorString, "Email_uindex") {
+				returnString = "Email has been registered"
+			}
+
+			if strings.Contains(errorString, "Name_uindex") {
+				returnString = "Name has been registered"
+			}
+		} else {
+			returnString = errorString
+		}
+		utils.EncodeToHttp(w, 501, "Register Failed."+returnString)
 		return
 	}
 

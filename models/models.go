@@ -115,7 +115,7 @@ type TUserinfo struct {
 	Nickname string `xorm:"not null VARCHAR(100)"`
 	Passwd   string `xorm:"not null VARCHAR(100)"`
 	Score    int    `xorm:"not null default 0 index INT"`
-	Appkey   string `xorm:"not null default '' comment('网易云信appkey
+	Appkey string `xorm:"not null default '' comment('网易云信appkey
 ') VARCHAR(100)"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
 	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
@@ -142,6 +142,6 @@ type TGameRecord struct {
 	Missedbp  string    `xorm:"not null default '' comment('缺失的，但应该是正确的Branching Point的index') VARCHAR(100)"`
 	Points    int       `xorm:"not null default 0 comment('玩家该局得分') INT"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' DATETIME"`
-	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' DATETIME"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('创建时间') TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('更新时间') TIMESTAMP updated"`
 }

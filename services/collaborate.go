@@ -73,14 +73,19 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("----------collaborate: login-------------------\n")
+
 	if len(p.Ano) == 0 || len(p.Neuron) == 0 {
 		utils.EncodeToHttp(w, 501, "Bad Request")
+
+		fmt.Printf("----------collaborate: ano and neuron not found-------------------\n")
 		return
 	}
 
 	port, err := utils.QueryAnoPort(p.Ano)
 	if err != nil {
 		utils.EncodeToHttp(w, 502, "can not allocate Port,"+err.Error())
+		fmt.Printf("----------collaborate: can not allocate port-------------------\n")
 		return
 	}
 
@@ -89,20 +94,26 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			if port == "" {
 				utils.EncodeToHttp(w, 503, "can not allocate Port,"+err.Error())
+				fmt.Printf("----------collaborate: allocate port error null-------------------\n")
 				return
 			} else {
 				utils.EncodeToHttp(w, 504, "can not allocate Port,"+err.Error())
+				fmt.Printf("----------collaborate: allocate port error not null-------------------\n")
 				return
 			}
 		}
+
+		fmt.Printf("----------collaborate: %s %s %s %s %s %s \n", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano)
 
 		log.Infoln(fmt.Sprintf("%s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
 		cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("nohup %s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
 		if err := cmd.Start(); err != nil {
 			log.Error(err.Error())
+			fmt.Printf("----------collaborate: command error %s-------------------\n", err.Error())
 		}
 		if err := cmd.Wait(); err != nil {
 			log.Error(err.Error())
+			fmt.Printf("----------collaborate: command error %s-------------------\n", err.Error())
 		}
 		log.Infoln("start process " + p.Ano + " success")
 	}

@@ -11,6 +11,7 @@ void sighandle(int sig){
     fsync(1);fsync(2);
     exit(0);
 }
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);

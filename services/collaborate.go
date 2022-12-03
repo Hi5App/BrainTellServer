@@ -77,7 +77,6 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 
 	if len(p.Ano) == 0 || len(p.Neuron) == 0 {
 		utils.EncodeToHttp(w, 501, "Bad Request")
-
 		fmt.Printf("----------collaborate: ano and neuron not found-------------------\n")
 		return
 	}
@@ -89,8 +88,12 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("----------collaborate: query ano port: %v-------------------\n", port)
+
 	if port == "" {
 		port, err = utils.AllocatePort(p.Ano)
+		fmt.Printf("----------collaborate: allocate port: %v-------------------\n", port)
+
 		if err != nil {
 			if port == "" {
 				utils.EncodeToHttp(w, 503, "can not allocate Port,"+err.Error())
@@ -122,6 +125,8 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 		Ano:  p.Ano,
 		Port: port,
 	})
+
+	fmt.Printf("----------collaborate: final data: %v, %v-------------------\n", p.Ano, port)
 
 	if err != nil {
 		utils.EncodeToHttp(w, 505, err.Error())

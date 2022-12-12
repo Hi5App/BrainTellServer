@@ -123,7 +123,7 @@ QStringList getApoInBlock(const QString msg,const QList <CellAPO>& wholePoint)
 void setredis(int port,const char *ano)
 {
     // 取消DB0中键ano的过期时间
-    redisContext *c = redisConnect("172.18.0.3", 6379);
+    redisContext *c = redisConnect("172.18.0.2", 6379);
     if (c == NULL || c->err) {
         if (c) {
             printf("Error: %s\n", c->errstr);
@@ -147,7 +147,7 @@ void setredis(int port,const char *ano)
 void setexpire(int port,const char *ano,int expiretime)
 {
     //设置DB0中键ano的过期时间
-    redisContext *c = redisConnect("172.18.0.3", 6379);
+    redisContext *c = redisConnect("172.18.0.2", 6379);
     if (c == NULL || c->err) {
         if (c) {
             printf("Error: %s\n", c->errstr);
@@ -162,6 +162,26 @@ void setexpire(int port,const char *ano,int expiretime)
     freeReplyObject(reply);
     redisFree(c);
 }
+
+
+void recoverPort(int port)
+{
+    redisContext *c = redisConnect("172.18.0.2", 6379);
+        if (c == NULL || c->err) {
+            if (c) {
+                printf("Error: %s\n", c->errstr);
+            } else {
+                printf("Can't allocate redis context\n");
+            }
+        }
+        redisReply *reply = (redisReply *)redisCommand(c, "SELECT 0");
+        freeReplyObject(reply);
+        qDebug()<<QString("RPUSH PORTQUEUE %1").arg(port).toStdString().c_str();
+        reply=(redisReply *)redisCommand(c, QString("RPUSH PORTQUEUE %1").arg(port).toStdString().c_str());
+        freeReplyObject(reply);
+        redisFree(c);
+}
+
 NeuronTree convertMsg2NT(QStringList pointlist,int client,int user,int mode)
 {
     NeuronTree newTempNT;

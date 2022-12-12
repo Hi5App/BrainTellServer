@@ -158,7 +158,7 @@ void setexpire(int port,const char *ano,int expiretime)
     redisReply *reply = (redisReply *)redisCommand(c, "SELECT 0");
     freeReplyObject(reply);
     qDebug()<<QString("EXPIRE Ano+Port:%1;%2 %3").arg(ano).arg(port).arg(expiretime).toStdString().c_str();
-    reply=(redisReply *)redisCommand(c, QString("EXPIRE Ano+Port:%1;%2 %3").arg(ano).arg(port).arg(expiretime*100).toStdString().c_str());
+    reply=(redisReply *)redisCommand(c, QString("EXPIRE Ano+Port:%1;%2 %3").arg(ano).arg(port).arg(expiretime).toStdString().c_str());
     freeReplyObject(reply);
     redisFree(c);
 }

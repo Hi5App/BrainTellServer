@@ -32,7 +32,7 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
 
 CollServer::~CollServer(){
     // change set expire time 60 -> 10
-    setexpire(Port.toInt(),AnoName.toStdString().c_str(),10);
+    setexpire(Port.toInt(),AnoName.toStdString().c_str(),5);
     // recover port
     recoverPort(Port.toInt());
     std::cerr<<AnoName.toStdString()+" server is released\n";

@@ -407,6 +407,7 @@ func AllocatePort(ano string) (string, error) {
 		return "", err
 	}
 
+	// 检测端口是否已经存在连接
 	res, err := redis.Int(conn.Do("EXISTS", fmt.Sprintf("Ano+Port:%s;%s", "*", port)))
 	if err != nil {
 		conn.Do("RPUSH", "PORTQUEUE", port)

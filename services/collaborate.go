@@ -81,6 +81,7 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// <ano:*> = 1, 返回port，否则（=0 or >1）返回“”
 	port, err := utils.QueryAnoPort(p.Ano)
 	if err != nil {
 		utils.EncodeToHttp(w, 502, "can not allocate Port,"+err.Error())
@@ -91,6 +92,8 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("----------collaborate: query ano port: %v-------------------\n", port)
 
 	if port == "" {
+
+		// 从port queue得到一个空闲的port，并设置有效时间为30min
 		port, err = utils.AllocatePort(p.Ano)
 		fmt.Printf("----------collaborate: allocate port: %v-------------------\n", port)
 

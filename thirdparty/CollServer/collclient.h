@@ -27,6 +27,7 @@ public:
     static void delseg(const QString msg);//减线
     static void addmarkers(const QString msg);//加点
     static void delmarkers(const QString msg);//减点
+    static void connectseg(const QString msg);//连线
     static void retypesegment(const QString msg);//线改颜色
 
     static QTimer timerforupdatemsg;//todo

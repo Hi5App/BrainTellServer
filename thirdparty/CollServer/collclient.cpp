@@ -92,6 +92,28 @@ void CollClient::delseg(const QString msg)
         std::cerr<<"INFO:not find del seg ,"<<msg.toStdString()<<std::endl;
 }
 
+void CollClient::connectseg(const QString msg){
+    QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
+    if(pointlistwithheader.size()<1){
+        std::cerr<<"ERROR:pointlistwithheader.size<1\n";
+    }
+
+    QStringList headerlist=pointlistwithheader[0].split(' ',Qt::SkipEmptyParts);
+    if(headerlist.size()<2) {
+        std::cerr<<"ERROR:headerlist.size<1\n";
+    }
+    unsigned int clienttype=headerlist[0].toUInt();
+    int useridx=headerlist[1].toUInt();
+
+    QStringList pointlist=pointlistwithheader;
+    pointlist.removeAt(0);
+    if(pointlist.size()==0){
+        std::cerr<<"ERROR:pointlist.size=0\n";
+    }
+    auto addnt=convertMsg2NT(pointlist,clienttype,useridx);
+    segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
+}
+
 void CollClient::addmarkers(const QString msg)
 {
     QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
@@ -262,6 +284,8 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
                 addmarkers(msg.right(msg.size()-QString("/addmarker_norm:").size()));
             }else if(msg.startsWith("/delmarker_norm:")||msg.startsWith("/delmarker_redo:")){
                 delmarkers(msg.right(msg.size()-QString("/delmarker_norm:").size()));
+            }else if(msg.startsWith("/connectline_norm:")||msg.startsWith("/connectline_redo:")){
+                connectseg(msg.right(msg.size()-QString("/connectline_norm:").size()));
             }else if(msg.startsWith("/retypeline_norm:")||msg.startsWith("/retypeline_redo:")){
                 retypesegment(msg.right(msg.size()-QString("/retypeline_norm:").size()));
             }

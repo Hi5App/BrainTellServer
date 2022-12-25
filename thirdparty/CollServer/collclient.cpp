@@ -29,6 +29,7 @@ CollClient:: CollClient(qintptr handle,QObject *parent ):QTcpSocket(parent){
     });
     setSocketOption(QAbstractSocket::KeepAliveOption,1);//keepalive
 
+
 }
 
 void CollClient::updateuserlist()
@@ -359,7 +360,6 @@ void CollClient::ondisconnect()
 void CollClient::receiveuser(const QString user)
 {
     username=user;
-
     if(CollClient::hashmap.contains(user))
     {
         std::cerr<<"ERROR:"+user.toStdString()+" is duolicate,will remove the first\n";
@@ -367,12 +367,11 @@ void CollClient::receiveuser(const QString user)
     }
     CollClient::hashmap[user]=this;
     CollClient::updateuserlist();
-
-    sendmsgcnt=0;
     //todo发送保存的文件
     sendfiles({
     anopath,apopath,swcpath
               });
+    sendmsgcnt=CollClient::savedmsgcnt;
     QString msg=QString("STARTCOLLABORATE:%1").arg(anopath.section('/',-1,-1));
     sendmsgs({msg});
 }
@@ -387,7 +386,7 @@ void CollClient::updatesendmsgcnt2processed()
                              CollClient::msglist.begin()+CollClient::processedmsgcnt));
         sendmsgcnt=CollClient::processedmsgcnt;
     }
-    sendmsgcnt-=CollClient::processedmsgcnt;
+//    sendmsgcnt-=CollClient::processedmsgcnt;
 }
 
 void CollClient::sendmsgs2client(int maxsize)
@@ -399,6 +398,8 @@ void CollClient::sendmsgs2client(int maxsize)
         maxsize=MIN(maxsize,CollClient::msglist.size()-sendmsgcnt);
     else
         maxsize=CollClient::msglist.size()-sendmsgcnt;
+    qDebug()<<"send to "<< this->username<<" :("<<CollClient::msglist.begin()+this->sendmsgcnt
+           <<","<<CollClient::msglist.begin()+this->sendmsgcnt+maxsize<<")/"<<CollClient::msglist.size();
     sendmsgs(QStringList(CollClient::msglist.begin()+this->sendmsgcnt,
                          CollClient::msglist.begin()+this->sendmsgcnt+maxsize));
     this->sendmsgcnt+=maxsize;

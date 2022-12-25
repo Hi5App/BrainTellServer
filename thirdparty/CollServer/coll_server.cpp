@@ -57,12 +57,14 @@ void CollServer::autosave()
         deleteLater();
     }else{ 
         auto sockets=CollClient::hashmap.values();
-        for(auto &socket:sockets)
+        for(auto &socket:sockets){
             socket->updatesendmsgcnt2processed();
-        CollClient::msglist.erase(CollClient::msglist.begin(),CollClient::msglist.begin()+CollClient::processedmsgcnt);
-        CollClient::msglist.reserve(5000);
-        CollClient::savedmsgcnt+=CollClient::processedmsgcnt;
-        CollClient::processedmsgcnt=0;
+         }
+
+//        CollClient::msglist.erase(CollClient::msglist.begin(),CollClient::msglist.begin()+CollClient::processedmsgcnt);
+//        CollClient::msglist.reserve(5000);
+        CollClient::savedmsgcnt=CollClient::processedmsgcnt;
+//        CollClient::processedmsgcnt=0;
 
         writeESWC_file(Prefix+"/"+AnoName+".ano.eswc",V_NeuronSWC_list__2__NeuronTree(CollClient::segments));
         writeAPO_file(Prefix+"/"+AnoName+".ano.apo",CollClient::markers);

@@ -22,6 +22,9 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     }
     connect(timerForAutoSave,&QTimer::timeout,this,&CollServer::autosave);
     connect(&CollClient::timerforupdatemsg,&QTimer::timeout,[]{
+        for (auto iter=CollClient::hashmap.begin();iter!=CollClient::hashmap.end();iter++){
+            qDebug()<<"user:"<<iter.key()<<" state:"<<iter.value()->state();
+        }
         auto sockets=CollClient::hashmap.values();
         for(auto &socket:sockets){
             socket->sendmsgs2client(10);
@@ -56,6 +59,9 @@ void CollServer::autosave()
         writeAPO_file(Prefix+"/"+AnoName+".ano.apo",CollClient::markers);
         deleteLater();
     }else{ 
+         for (auto iter=CollClient::hashmap.begin();iter!=CollClient::hashmap.end();iter++){
+             qDebug()<<"user:"<<iter.key()<<" state:"<<iter.value()->state();
+         }
         auto sockets=CollClient::hashmap.values();
         for(auto &socket:sockets){
             socket->updatesendmsgcnt2processed();

@@ -375,6 +375,7 @@ void CollClient::receiveuser(const QString user)
     sendfiles({
     anopath,apopath,swcpath
               });
+    qDebug()<<"receive user init sendmsgcnt = "<<sendmsgcnt;
     sendmsgcnt=CollClient::savedmsgcnt;
     QString msg=QString("STARTCOLLABORATE:%1").arg(anopath.section('/',-1,-1));
     sendmsgs({msg});
@@ -409,7 +410,7 @@ void CollClient::sendmsgs2client(int maxsize)
            <<","<<CollClient::msglist.begin()+end<<")/"<<CollClient::msglist.size();
     sendmsgs(QStringList(CollClient::msglist.begin()+this->sendmsgcnt,
                          CollClient::msglist.begin()+end));
-    this->sendmsgcnt+=maxsize;
+    this->sendmsgcnt=end;
 }
 void CollClient::resetdatatype()
 {

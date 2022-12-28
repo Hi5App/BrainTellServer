@@ -29,12 +29,16 @@ CollClient:: CollClient(qintptr handle,QObject *parent ):QTcpSocket(parent){
     });
     setSocketOption(QAbstractSocket::KeepAliveOption,1);//keepalive
 
+
 }
 
 void CollClient::updateuserlist()
 {
     auto users=CollClient::hashmap.keys();
     QString msg="/activeusers:"+users.join(',');
+    for (auto iter=CollClient::hashmap.begin();iter!=CollClient::hashmap.end();iter++){
+        qDebug()<<"user:"<<iter.key()<<" state:"<<iter.value()->state();
+    }
     for(auto &user:users){
         hashmap[user]->sendmsgs({msg});
     }
@@ -229,16 +233,17 @@ void CollClient::retypesegment(const QString msg)
 
 void CollClient::sendmsgs(const QStringList &msgs)
 {
-    if(!this) return;
+//    if(!this) return;
     if(this->state()!=QAbstractSocket::ConnectedState){
+        qDebug()<<"error: send msg to "<<this->username<<",but connect is "<<this->state();
         ondisconnect();
         return;
     }
 
     const std::string data=msgs.join(';').toStdString();
     const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
-    write(header.c_str(),header.size());
-    write(data.c_str(),data.size());
+    qDebug()<<"write to "<<username<<",headsize = "<<header.size()<<"，sendsize = "<<write(header.c_str(),header.size())<<","<<QString::fromStdString(header);
+    qDebug()<<"write to "<<username<<",datasize = "<<data.size()<<"，sendsize = "<<write(data.c_str(),data.size())<<","<<QString::fromStdString(data);
     this->flush();
 }
 
@@ -359,7 +364,6 @@ void CollClient::ondisconnect()
 void CollClient::receiveuser(const QString user)
 {
     username=user;
-
     if(CollClient::hashmap.contains(user))
     {
         std::cerr<<"ERROR:"+user.toStdString()+" is duolicate,will remove the first\n";
@@ -367,12 +371,11 @@ void CollClient::receiveuser(const QString user)
     }
     CollClient::hashmap[user]=this;
     CollClient::updateuserlist();
-
-    sendmsgcnt=0;
     //todo发送保存的文件
     sendfiles({
     anopath,apopath,swcpath
               });
+    sendmsgcnt=CollClient::savedmsgcnt;
     QString msg=QString("STARTCOLLABORATE:%1").arg(anopath.section('/',-1,-1));
     sendmsgs({msg});
 }
@@ -387,20 +390,25 @@ void CollClient::updatesendmsgcnt2processed()
                              CollClient::msglist.begin()+CollClient::processedmsgcnt));
         sendmsgcnt=CollClient::processedmsgcnt;
     }
-    sendmsgcnt-=CollClient::processedmsgcnt;
+//    sendmsgcnt-=CollClient::processedmsgcnt;
 }
 
 void CollClient::sendmsgs2client(int maxsize)
 {
     if(!this) return;
-    if(CollClient::msglist.size()<=sendmsgcnt)
+    if(CollClient::msglist.size()<=sendmsgcnt){
+        qDebug()<<"msglist.size="<<msglist.size()<<" sendmsgcnt="<<sendmsgcnt;
         return;
-    if(maxsize>0)
-        maxsize=MIN(maxsize,CollClient::msglist.size()-sendmsgcnt);
-    else
-        maxsize=CollClient::msglist.size()-sendmsgcnt;
+    }
+    auto end=MIN(int(CollClient::msglist.size()),int(this->sendmsgcnt+maxsize));
+//    if(maxsize>0)
+//        maxsize=MIN(maxsize,CollClient::msglist.size()-sendmsgcnt);
+//    else
+//        maxsize=CollClient::msglist.size()-sendmsgcnt;
+    qDebug()<<"send to "<< this->username<<" :("<<CollClient::msglist.begin()+this->sendmsgcnt
+           <<","<<CollClient::msglist.begin()+end<<")/"<<CollClient::msglist.size();
     sendmsgs(QStringList(CollClient::msglist.begin()+this->sendmsgcnt,
-                         CollClient::msglist.begin()+this->sendmsgcnt+maxsize));
+                         CollClient::msglist.begin()+end));
     this->sendmsgcnt+=maxsize;
 }
 void CollClient::resetdatatype()

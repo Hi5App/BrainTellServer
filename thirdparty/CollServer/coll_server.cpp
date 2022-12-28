@@ -22,6 +22,9 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     }
     connect(timerForAutoSave,&QTimer::timeout,this,&CollServer::autosave);
     connect(&CollClient::timerforupdatemsg,&QTimer::timeout,[]{
+        for (auto iter=CollClient::hashmap.begin();iter!=CollClient::hashmap.end();iter++){
+            qDebug()<<"user:"<<iter.key()<<" state:"<<iter.value()->state();
+        }
         auto sockets=CollClient::hashmap.values();
         for(auto &socket:sockets){
             socket->sendmsgs2client(10);
@@ -56,13 +59,18 @@ void CollServer::autosave()
         writeAPO_file(Prefix+"/"+AnoName+".ano.apo",CollClient::markers);
         deleteLater();
     }else{ 
+         for (auto iter=CollClient::hashmap.begin();iter!=CollClient::hashmap.end();iter++){
+             qDebug()<<"user:"<<iter.key()<<" state:"<<iter.value()->state();
+         }
         auto sockets=CollClient::hashmap.values();
-        for(auto &socket:sockets)
+        for(auto &socket:sockets){
             socket->updatesendmsgcnt2processed();
-        CollClient::msglist.erase(CollClient::msglist.begin(),CollClient::msglist.begin()+CollClient::processedmsgcnt);
-        CollClient::msglist.reserve(5000);
-        CollClient::savedmsgcnt+=CollClient::processedmsgcnt;
-        CollClient::processedmsgcnt=0;
+         }
+
+//        CollClient::msglist.erase(CollClient::msglist.begin(),CollClient::msglist.begin()+CollClient::processedmsgcnt);
+//        CollClient::msglist.reserve(5000);
+        CollClient::savedmsgcnt=CollClient::processedmsgcnt;
+//        CollClient::processedmsgcnt=0;
 
         writeESWC_file(Prefix+"/"+AnoName+".ano.eswc",V_NeuronSWC_list__2__NeuronTree(CollClient::segments));
         writeAPO_file(Prefix+"/"+AnoName+".ano.apo",CollClient::markers);

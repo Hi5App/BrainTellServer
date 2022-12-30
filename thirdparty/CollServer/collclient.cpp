@@ -239,6 +239,7 @@ void CollClient::sendmsgs(const QStringList &msgs)
         ondisconnect();
         return;
     }
+    qDebug()<<msgs<<"server send msgs:";
 
     const std::string data=msgs.join(';').toStdString();
     const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
@@ -313,6 +314,7 @@ void CollClient::onread()
                 //准备接收数据头
                 if(this->canReadLine()){
                     QString msg=readLine(1024).trimmed();
+                    qDebug()<<QString(msg).toStdString().c_str();
                     if(!msg.startsWith("DataTypeWithSize:")){
                         this->write({"Socket Receive ERROR!"});
                         std::cerr<<username.toStdString()+" receive not match format\n";
@@ -335,6 +337,7 @@ void CollClient::onread()
                     this->read(data,datatype.datasize);
                     data[datatype.datasize]='\0';
                     std::cout<<QDateTime::currentDateTime().toString(" yyyy/MM/dd hh:mm:ss ").toStdString()<<(++receivedcnt)<<" receive from "<<username.toStdString()<<" :"<<data<<std::endl;
+                    qDebug()<<QString("client read message %1, %2").arg(username).arg(data).toStdString().c_str();
                     preprocessmsgs(QString(data).trimmed().split(';',Qt::SkipEmptyParts));
                     resetdatatype();
                     delete [] data;
@@ -351,6 +354,7 @@ void CollClient::onread()
 
 void CollClient::ondisconnect()
 {
+    qDebug()<<QString("client disconnect").toStdString().c_str();
     this->flush();
     while(this->bytesAvailable())
         onread();
@@ -375,6 +379,7 @@ void CollClient::receiveuser(const QString user)
     sendfiles({
     anopath,apopath,swcpath
               });
+    qDebug()<<"receive user init sendmsgcnt = "<<sendmsgcnt;
     sendmsgcnt=CollClient::savedmsgcnt;
     QString msg=QString("STARTCOLLABORATE:%1").arg(anopath.section('/',-1,-1));
     sendmsgs({msg});
@@ -409,7 +414,8 @@ void CollClient::sendmsgs2client(int maxsize)
            <<","<<CollClient::msglist.begin()+end<<")/"<<CollClient::msglist.size();
     sendmsgs(QStringList(CollClient::msglist.begin()+this->sendmsgcnt,
                          CollClient::msglist.begin()+end));
-    this->sendmsgcnt+=maxsize;
+//    this->sendmsgcnt+=maxsize;
+    this->sendmsgcnt=end;
 }
 void CollClient::resetdatatype()
 {

@@ -41,11 +41,15 @@ HEADERS += \
     neuron_editing/v_neuronswc.h \
     utils.h
 
+HEADERS += $$PWD/include/hiredis/hiredis.h
+
 DISTFILES +=
 
 macx: LIBS += -L$$PWD/lib/ -lhiredis
+LIBS +=-L$$PWD/lib/ -lhiredis
 
 INCLUDEPATH += $$PWD/include
 DEPENDPATH += $$PWD/include
 
 macx: PRE_TARGETDEPS += $$PWD/lib/libhiredis.a
+PRE_TARGETDEPS += $$PWD/lib/libhiredis.a

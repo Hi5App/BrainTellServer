@@ -3,7 +3,7 @@
 #include "neuron_editing/neuron_format_converter.h"
 
 #include "utils.h"
-
+#include "hiredis/hiredis.h"
 void dirCheck(QString dirBaseName)
 {
     if(!QDir(QCoreApplication::applicationDirPath()+"/"+dirBaseName).exists())

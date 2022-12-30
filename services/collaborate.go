@@ -188,6 +188,9 @@ func GetAnoImage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.EncodeToHttp(w, 500, err.Error())
 	}
+
+	log.Infoln("get effect soma" + strings.Join(images, ","))
+
 	utils.EncodeToHttp(w, 200, strings.Join(images, ","))
 
 }

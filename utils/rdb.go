@@ -105,6 +105,7 @@ func GetLocationValue(key string) ([]string, error) {
 		}).Warnf("%v\n", err)
 		return nil, err
 	}
+	//res是一个String切片，里面是user.Name
 	res, err := redis.Strings(conn.Do("LRANGE", key, 0, -1))
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -227,6 +228,7 @@ func InsertImage2RDB(pa []*Image) error {
 	if err != nil {
 		return err
 	}
+	//Setex 命令为指定的 key 设置值及其过期时间。如果 key 已经存在， SETEX 命令将会替换旧的值。
 	conn.Do("SETEX", "ImageList", 5*60, str)
 	return nil
 }
@@ -323,6 +325,7 @@ func InsertPerformance2RDB(key string, values map[string]int64) error {
 		return err
 	}
 
+	//将performance作为列表存储在redis中,key是"totalsoma"
 	_, err := redis.Int64(conn.Do("RPUSH", value...))
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -339,6 +342,7 @@ func InsertPerformance2RDB(key string, values map[string]int64) error {
 func QueryPerformance2RDB(key string) (map[string]int64, error) {
 	conn := Pool.Get()
 	defer conn.Close()
+	//切换到指定数据库
 	if _, err := conn.Do("SELECT", 0); err != nil {
 		log.WithFields(log.Fields{
 			"event": "Redis",
@@ -396,6 +400,7 @@ func AllocatePort(ano string) (string, error) {
 		return "", err
 	}
 
+	//Lpop 命令用于移除并返回列表的第一个元素。
 	port, err := redis.String(conn.Do("LPOP", "PORTQUEUE"))
 	if err != nil {
 		// log message
@@ -424,7 +429,7 @@ func AllocatePort(ano string) (string, error) {
 	// 检查端口是否已经被占用 通过redis ano+port 字段来实现
 	if res == 1 {
 		conn.Do("RPUSH", "PORTQUEUE", port)
-		log.Error("Port %d Has in Use", port)
+		log.Errorf("Port %s Has in Use", port)
 		return "-1", errors.New("port Has in Use，please try again")
 	}
 
@@ -464,6 +469,7 @@ func QueryAnoPort(ano string) (string, error) {
 		return "", err
 	}
 
+	//Keys 命令用于查找所有符合给定模式 pattern 的 key
 	keys, err := redis.Strings(conn.Do("Keys", fmt.Sprintf("Ano+Port:%s;%s", ano, "*")))
 	if err != nil {
 		//error

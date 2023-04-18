@@ -18,6 +18,8 @@ func QueryPotentialSomaLocation(pa *models.TPotentialsomalocation, pd *utils.Que
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 
 	locations := make([]*models.TPotentialsomalocation, 0)
+	//??
+	//默认升序
 	session := utils.DB.Where("Isdeleted = ?", 0).And("Owner = ?", "").OrderBy("ctime")
 	if pd != nil {
 		session = session.Limit(pd.Limit, pd.Off)
@@ -61,6 +63,7 @@ func UpdatePotentialSomaLocation(pa *models.TPotentialsomalocation) (int64, erro
 	pc = *pa
 	pa.Owner = ""
 	pa.Type = 0
+	//这里不用事务吧，而且事务没有开启，是否应该传入&pc
 	affect, err := utils.DB.NewSession().Update(pc, pa)
 	if err != nil {
 		log.WithFields(log.Fields{

@@ -100,6 +100,7 @@ func LoadConfig() error {
 	ImageDir = MainPath + "/image"
 	CollaborateBinPath = MainPath + "/collaborate/CollServer"
 	availableCropProcess = semaphore.NewWeighted(config.GetInt64("cropprocess"))
+	//没有这个key时，QueueSize=0
 	QueueSize = config.GetInt("queuesize")
 	Emails = config.GetStringSlice("emails")
 	return nil

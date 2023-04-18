@@ -88,6 +88,7 @@ type TPotentialsomalocation struct {
 	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('最后一次更新时间') TIMESTAMP updated"`
 }
 
+// t_somainfo_loc是联合唯一索引,
 type TSomainfo struct {
 	Id        int       `xorm:"not null pk autoincr comment('序号') INT"`
 	Name      string    `xorm:"not null comment('soma在图像内的编号e.18454_00001') unique VARCHAR(100)"`
@@ -115,7 +116,7 @@ type TUserinfo struct {
 	Nickname string `xorm:"not null VARCHAR(100)"`
 	Passwd   string `xorm:"not null VARCHAR(100)"`
 	Score    int    `xorm:"not null default 0 index INT"`
-	Appkey string `xorm:"not null default '' comment('网易云信appkey
+	Appkey   string `xorm:"not null default '' comment('网易云信appkey
 ') VARCHAR(100)"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
 	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
@@ -133,6 +134,7 @@ type TGameUserinfo struct {
 	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' comment('更新时间') TIMESTAMP"`
 }
 
+// correctbp, wrongbp, missedbp为什么是string类型
 type TGameRecord struct {
 	Id        int       `xorm:"not null pk autoincr unique INT"`
 	Username  string    `xorm:"not null comment('玩家标识符') unique VARCHAR(100)"`

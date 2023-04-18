@@ -28,11 +28,13 @@ func GetBBImage(pa *BBox) (string, error) {
 		int(pa.Pa1.X), int(pa.Pa1.Y), int(pa.Pa1.Z),
 		int(pa.Pa2.X), int(pa.Pa2.Y), int(pa.Pa2.Z),
 		time.Now().UnixNano())
+	//exec.Command第一个参数是命令，后面的参数是命令需要的参数
 	cmd := exec.Command(Vaa3dBin, ImageDir+"/"+pa.Obj+"/"+pa.Res, savefile,
 		fmt.Sprint(int(pa.Pa1.X)), fmt.Sprint(int(pa.Pa1.Y)), fmt.Sprint(int(pa.Pa1.Z)),
 		fmt.Sprint(int(pa.Pa2.X)), fmt.Sprint(int(pa.Pa2.Y)), fmt.Sprint(int(pa.Pa2.Z)),
 	)
 	log.Infoln(cmd.String())
+	//返回环境变量集合
 	cmd.Env = append(os.Environ())
 
 	out, err := cmd.Output()

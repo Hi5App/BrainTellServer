@@ -51,6 +51,7 @@ func UpdateSomaList(pa *UpdateSomaAo) error {
 		}
 	}
 
+	//??
 	if f, err := utils.In(users, pa.Owner); err != nil || !f {
 		return errors.New(fmt.Sprintf("Not right user,%v %s\n", users, pa.Owner))
 	}
@@ -59,6 +60,7 @@ func UpdateSomaList(pa *UpdateSomaAo) error {
 		return err
 	}
 
+	//??
 	_, err = do.UpdatePotentialSomaLocation(&models.TPotentialsomalocation{
 		Id:    pa.LocationId,
 		Owner: pa.Owner,
@@ -88,6 +90,7 @@ func UpdateSomaList(pa *UpdateSomaAo) error {
 		return nil
 	}
 	//insert soma
+	//获取最新的soma的名称
 	lastsoma, err := do.QueryLastSoma(&models.TSomainfo{
 		Image: pa.Image,
 	})

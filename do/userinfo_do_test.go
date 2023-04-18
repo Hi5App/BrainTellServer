@@ -14,4 +14,5 @@ func TestUserLogin(t *testing.T) {
 	db.Find(users)
 
 	logrus.Infoln("s")
+
 }

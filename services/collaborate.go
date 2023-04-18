@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os/exec"
 	"strings"
+	"sync"
 )
 
 func CreateFromZero(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +52,7 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 	var p InheritOtherParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, err.Error())
+		utils.EncodeToHttp(w, 400, err.Error())
 		return
 	}
 
@@ -61,7 +62,7 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 			"event": "GetPotentialSomaLocations",
 			"desc":  "param.(*do.PotentialSomaLocation) failed",
 		}).Warnf("%v\n", err)
-		utils.EncodeToHttp(w, 500, err.Error())
+		utils.EncodeToHttp(w, 400, err.Error())
 		return
 	}
 
@@ -69,6 +70,10 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 		Name:   p.User.Name,
 		Passwd: p.User.Passwd,
 	}); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "param.(*do.UserInfo) failed",
+		}).Warnf("%v\n", err)
 		utils.EncodeToHttp(w, 401, err.Error())
 		return
 	}
@@ -76,10 +81,15 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("----------collaborate: login-------------------\n")
 
 	if len(p.Ano) == 0 || len(p.Neuron) == 0 {
-		utils.EncodeToHttp(w, 501, "Bad Request")
+		utils.EncodeToHttp(w, 400, "Bad Request")
 		fmt.Printf("----------collaborate: ano and neuron not found-------------------\n")
 		return
 	}
+
+	//新加
+	lock := &sync.Mutex{}
+	lock.Lock()
+	defer lock.Unlock()
 
 	// <ano:*> = 1, 返回port，否则（=0 or >1）返回“”
 	port, err := utils.QueryAnoPort(p.Ano)
@@ -104,6 +114,7 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 				return
 			} else {
 				utils.EncodeToHttp(w, 504, "can not allocate Port,"+err.Error())
+				// 从队列中取出的端口已被使用，客户端需要重新发送请求
 				fmt.Printf("----------collaborate: allocate port error not null-------------------\n")
 				return
 			}
@@ -161,7 +172,7 @@ func GetAnoImage(w http.ResponseWriter, r *http.Request) {
 	var p GetAnoImageParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, err.Error())
+		utils.EncodeToHttp(w, 400, err.Error())
 		return
 	}
 	_, ok := param.(*GetAnoImageParam)
@@ -181,6 +192,19 @@ func GetAnoImage(w http.ResponseWriter, r *http.Request) {
 			"desc":  "Bad Param",
 		}).Errorf("%s\n", p)
 		utils.EncodeToHttp(w, 400, "Bad Request")
+		return
+	}
+	//这里不需要进行登录验证吗
+	//新加登录验证
+	if _, err := ao.Login(&do.UserInfo{
+		Name:   p.User.Name,
+		Passwd: p.User.Passwd,
+	}); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "param.(*do.UserInfo) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 401, err.Error())
 		return
 	}
 
@@ -219,7 +243,7 @@ func GetAnoNeuron(w http.ResponseWriter, r *http.Request) {
 	var p GetAnoNeuronParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, err.Error())
+		utils.EncodeToHttp(w, 400, err.Error())
 		return
 	}
 	_, ok := param.(*GetAnoNeuronParam)
@@ -290,7 +314,7 @@ func GetAno(w http.ResponseWriter, r *http.Request) {
 	var p GetAnoParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
-		utils.EncodeToHttp(w, 500, err.Error())
+		utils.EncodeToHttp(w, 400, err.Error())
 		return
 	}
 	_, ok := param.(*GetAnoParam)
@@ -324,6 +348,7 @@ func GetAno(w http.ResponseWriter, r *http.Request) {
 		utils.EncodeToHttp(w, 401, err.Error())
 		return
 	} else {
+		//!!!
 		w.Header().Set("Set-Cookie", fmt.Sprint(user.Id))
 	}
 

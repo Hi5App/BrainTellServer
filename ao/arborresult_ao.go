@@ -20,6 +20,7 @@ func UpdateArborResult(pa *UpdateArboResultAo) error {
 			Owner:   v.Owner,
 		})
 	}
+	//根据ArborId和Owner修改表中已存在的记录的result,并向表中插入不存在的记录
 	_, err := do.InsertArborResult(insertlist)
 	if err != nil {
 		log.WithFields(log.Fields{

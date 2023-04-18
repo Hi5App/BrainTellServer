@@ -20,6 +20,7 @@ func GetImageList(image *do.Image) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	//这里应该也要进行异常处理
 	utils.InsertImage2RDB(res)
 	return string(bytes), nil
 }

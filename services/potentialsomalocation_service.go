@@ -32,6 +32,9 @@ func (pa *GetPotentialSomaLocationParam) FromJsonString(jsonstr string) (utils.R
 	}
 	return pa, nil
 }
+
+// ??
+// 一次只能获取一个
 func GetPotentialSomaLocation(w http.ResponseWriter, r *http.Request) {
 	var p GetPotentialSomaLocationParam
 	param, err := utils.DecodeFromHttp(r, &p)

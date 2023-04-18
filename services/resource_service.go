@@ -67,6 +67,7 @@ func GetLatestApk(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if apkinfo[0] != qp.Version {
+		//apkinfo[0]是最新版本号,apkinfo[1]是最新版本的apk吗?为什么可以是string类型
 		utils.EncodeToHttp(w, 200, apkinfo[1])
 		return
 	}

@@ -1,5 +1,5 @@
 1. 用户手机点的soma会存储在t_somainfo表
-2. refine从t_somainfo表获取输入，并将refine后的输出导入t_efftect_soma
+2. refine从t_somainfo表获取输入，并将refine后的输出导入t_effect_soma
 3.重建
 3.1从t_efftect_soma获取soma数据，并将重建的结果swc按找Image/SomaId/Name.eswc的格式维护存储 (Name=SomaId_*,*可以自由发挥，注意不要重)，同时将Image文件夹拷贝复制到服务器制定路径/TeraConvertedBrain/data/arbor下
 3.2维护数据库的t_arbor表，只写Name，SomaId、Image、X、Y、Z，（X、Y、Z是这个128图像块的全局坐标，目前分辨率为此高分辨率）

@@ -158,10 +158,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//??
 	fmt.Printf("----------login decode error: %v-------------------\n", err)
 
 	_, ok := param.(*LoginParam)
 
+	//??
 	fmt.Printf("----------login param transfer error: %v-------------------\n", ok)
 
 	if !ok {
@@ -237,6 +239,7 @@ func GetUserPerformance(w http.ResponseWriter, r *http.Request) {
 	var p GetUserPerformanceParam
 	param, err := utils.DecodeFromHttp(r, &p)
 	if err != nil {
+		//utils.EncodeToHttp(w, 500, err.Error())
 		utils.EncodeToHttp(w, 500, "")
 		return
 	}
@@ -246,6 +249,7 @@ func GetUserPerformance(w http.ResponseWriter, r *http.Request) {
 			"event": "Login",
 			"desc":  "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
+		//utils.EncodeToHttp(w, 500, "bad request")
 		utils.EncodeToHttp(w, 500, "")
 		return
 	}
@@ -255,6 +259,7 @@ func GetUserPerformance(w http.ResponseWriter, r *http.Request) {
 			"event": "",
 			"desc":  "Bad Param",
 		}).Warnf("%s\n", p)
+		//utils.EncodeToHttp(w, 400, "Bad Request")
 		utils.EncodeToHttp(w, 400, "")
 		return
 	}
@@ -262,6 +267,7 @@ func GetUserPerformance(w http.ResponseWriter, r *http.Request) {
 	_, err = ao.Login(&do.UserInfo{
 		Name:   p.User.Name,
 		Passwd: p.User.Passwd,
+		//	Email:  p.User.Email,
 	})
 	if err != nil {
 		w.WriteHeader(501)

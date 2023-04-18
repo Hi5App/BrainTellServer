@@ -83,7 +83,8 @@ func UpdateSomaList(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		log.WithFields(log.Fields{
 			"event": "Login",
-			"desc":  "param.(*do.UserInfo) failed",
+			//"desc":  "param.(*UpdataSomaParam) failed",
+			"desc": "param.(*do.UserInfo) failed",
 		}).Warnf("%v\n", err)
 		utils.EncodeToHttp(w, 500, err.Error())
 		return

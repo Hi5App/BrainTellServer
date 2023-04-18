@@ -21,6 +21,8 @@ func QueryUser(pa *models.TUserinfo, pd *utils.QueryCondition) ([]*UserInfo, err
 	if pd != nil {
 		session = session.Limit(pd.Limit, pd.Off)
 	}
+	//可以直接用pa作为参数吗
+	//当使用结构作为条件查询时,XORM只会查询非零值字段。
 	err := session.Find(&users, &models.TUserinfo{
 
 		Name:   pa.Name,
@@ -126,12 +128,13 @@ func DeltelUser(pa *models.TUserinfo) (int64, error) {
 	return affect, nil
 }
 
-//QueryGameUser game func
+// QueryGameUser game func
 func QueryGameUser(pa *models.TGameUserinfo, pd *utils.QueryCondition) ([]*GameUserInfo, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 
 	users := make([]*models.TGameUserinfo, 0)
 
+	//事务？
 	session := utils.DB.NewSession()
 	defer session.Close()
 	session.Where("Isdeleted = ?", 0)

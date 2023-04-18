@@ -83,7 +83,9 @@ func SendFile(w http.ResponseWriter, status int, pa string) {
 }
 
 func In(haystack interface{}, needle interface{}) (bool, error) {
+	//获得haystack的反射值对象
 	sVal := reflect.ValueOf(haystack)
+	//获得haystack的种类名称
 	kind := sVal.Kind()
 	if kind == reflect.Slice || kind == reflect.Array {
 		for i := 0; i < sVal.Len(); i++ {
@@ -94,4 +96,35 @@ func In(haystack interface{}, needle interface{}) (bool, error) {
 		return false, nil
 	}
 	return false, errors.New("")
+}
+
+// 排序的同时返回其排序前索引
+func Sort(array []int) []int {
+	var n int = len(array)
+	var index []int
+	for i := 0; i < n; i++ {
+		index = append(index, i)
+	}
+	// fmt.Println(index)
+	// fmt.Println("数组array的长度为：", n)
+	if n < 2 {
+		return nil
+	}
+	for i := 1; i < n; i++ {
+		// fmt.Printf("检查第%d个元素%f\t", i, array[i])
+		var temp int = array[i]
+		var tempIndex = index[i]
+		var k int = i - 1
+		for k >= 0 && array[k] > temp {
+			k--
+		}
+		for j := i; j > k+1; j-- {
+			array[j] = array[j-1]
+			index[j] = index[j-1]
+		}
+		// fmt.Printf("其位置为%d\n", k+1)
+		array[k+1] = temp
+		index[k+1] = tempIndex
+	}
+	return index
 }

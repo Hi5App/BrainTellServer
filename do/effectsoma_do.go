@@ -3,6 +3,8 @@ package do
 import (
 	"BrainTellServer/models"
 	"BrainTellServer/utils"
+	"fmt"
+	"strconv"
 )
 
 type TEffectSoma struct {
@@ -16,11 +18,26 @@ type TEffectSoma struct {
 
 func QueryEffectSomaImage() ([]string, error) {
 	var images []string
-	err := utils.DB.Table("t_effect_soma").Where("Isdeleted = ?", 0).Cols("Image").Find(&images)
+	// Cols改为了Distinct
+	err := utils.DB.Table("t_effect_soma").Where("Isdeleted = ?", 0).Distinct("Image").Find(&images)
 	if err != nil {
 		return nil, err
 	}
-	return images, nil
+	var numbers []int
+	for _, value := range images {
+		var number int
+		number, _ = strconv.Atoi(value)
+		numbers = append(numbers, number)
+	}
+	fmt.Println(numbers)
+
+	var index []int = utils.Sort(numbers)
+	var sortedImages []string
+	for _, value := range index {
+		sortedImages = append(sortedImages, images[value])
+	}
+
+	return sortedImages, nil
 
 }
 
@@ -30,6 +47,7 @@ func QueryEffectSoma(pa *models.TEffectSoma) ([]*TEffectSoma, error) {
 	if err != nil {
 		return nil, err
 	}
+	//这里的TEffectSoma和models.TEffectSoma不一样
 	res := make([]*TEffectSoma, 0)
 	for _, soma := range somas {
 		res = append(res, &TEffectSoma{

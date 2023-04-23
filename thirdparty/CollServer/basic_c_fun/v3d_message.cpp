@@ -49,6 +49,7 @@ void v3d_msg(const char *msg, bool b_disp_QTDialog)
 
 void v3d_msg(const QString & msg, bool b_disp_QTDialog) //note that if I don't force (char *) conversion then there is a crash. noted by Hanchuan, 090516
 {
+    // qPrintable()函数将QString转换为C++标准的 const char* 字符串
 	v3d_msg((char *)(qPrintable(msg)), b_disp_QTDialog);
 }
 

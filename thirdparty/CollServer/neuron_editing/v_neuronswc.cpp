@@ -1380,6 +1380,7 @@ bool simplify_V_NeuronSWC_nodeindex(V_NeuronSWC & my_swc)
 }
 
 
+//???
 V_SWCNodes V_NeuronSWC::unique_nodes_info()
 {
 	V_SWCNodes res;	if (row.size()<1) return res;

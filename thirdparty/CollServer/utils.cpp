@@ -1,4 +1,4 @@
-#include <QCoreApplication>
+﻿#include <QCoreApplication>
 #include <QDir>
 #include "neuron_editing/neuron_format_converter.h"
 
@@ -6,6 +6,7 @@
 #include "hiredis/hiredis.h"
 void dirCheck(QString dirBaseName)
 {
+    //QCoreApplication::applicationDirPath()获取程序所在目录
     if(!QDir(QCoreApplication::applicationDirPath()+"/"+dirBaseName).exists())
     {
         QDir(QCoreApplication::applicationDirPath()).mkdir(dirBaseName);
@@ -123,7 +124,8 @@ QStringList getApoInBlock(const QString msg,const QList <CellAPO>& wholePoint)
 void setredis(int port,const char *ano)
 {
     // 取消DB0中键ano的过期时间
-    redisContext *c = redisConnect("172.18.0.2", 6379);
+    // 改为将键的有效时间设置为24h
+    redisContext *c = redisConnect("172.18.0.3", 6379);
     if (c == NULL || c->err) {
         if (c) {
             printf("Error: %s\n", c->errstr);
@@ -133,9 +135,10 @@ void setredis(int port,const char *ano)
     }
     redisReply *reply = (redisReply *)redisCommand(c, "SELECT 0");
     freeReplyObject(reply);
-
-    qDebug()<<QString("PERSIST Ano+Port:%1;%2").arg(ano).arg(port).toStdString().c_str();
-    reply=(redisReply *)redisCommand(c, QString("PERSIST Ano+Port:%1;%2").arg(ano).arg(port).toStdString().c_str());
+    // Redis PERSIST 命令用于移除给定 key 的过期时间，使得 key 永不过期。
+    qDebug()<<QString("EXPIRE Ano+Port:%1;%2 %3").arg(ano).arg(port).arg(5*60*60).toStdString().c_str();
+    // reply=(redisReply *)redisCommand(c, QString("PERSIST Ano+Port:%1;%2").arg(ano).arg(port).toStdString().c_str());
+    reply=(redisReply *)redisCommand(c, QString("EXPIRE Ano+Port:%1;%2 %3").arg(ano).arg(port).arg(5*60*60).toStdString().c_str());
     if(reply->integer!=1){
         exit(-1);
     }
@@ -146,8 +149,8 @@ void setredis(int port,const char *ano)
 
 void setexpire(int port,const char *ano,int expiretime)
 {
-    //设置DB0中键ano的过期时间
-    redisContext *c = redisConnect("172.18.0.2", 6379);
+    //设置DB0中键ano的过期时间,单位是s
+    redisContext *c = redisConnect("172.18.0.3", 6379);
     if (c == NULL || c->err) {
         if (c) {
             printf("Error: %s\n", c->errstr);
@@ -166,7 +169,7 @@ void setexpire(int port,const char *ano,int expiretime)
 
 void recoverPort(int port)
 {
-    redisContext *c = redisConnect("172.18.0.2", 6379);
+    redisContext *c = redisConnect("172.18.0.3", 6379);
         if (c == NULL || c->err) {
             if (c) {
                 printf("Error: %s\n", c->errstr);
@@ -176,7 +179,13 @@ void recoverPort(int port)
         }
         redisReply *reply = (redisReply *)redisCommand(c, "SELECT 0");
         freeReplyObject(reply);
+
+        qDebug()<<QString("LREM PORTQUEUE 0 %1").arg(port).toStdString().c_str();
+        reply=(redisReply *)redisCommand(c, QString("LREM PORTQUEUE 0 %1").arg(port).toStdString().c_str());
+        freeReplyObject(reply);
+
         qDebug()<<QString("RPUSH PORTQUEUE %1").arg(port).toStdString().c_str();
+        // Redis Rpush 命令用于将一个或多个值插入到列表的尾部(最右边)。
         reply=(redisReply *)redisCommand(c, QString("RPUSH PORTQUEUE %1").arg(port).toStdString().c_str());
         freeReplyObject(reply);
         redisFree(c);
@@ -308,4 +317,12 @@ void init()
         }
     }
 
+}
+
+void stringToXYZ(string xyz, float& x, float& y, float& z){
+    QString xyzstr = QString::fromStdString(xyz);
+    QStringList xyzstrs = xyzstr.split("_");
+    x = xyzstrs[0].toFloat();
+    y = xyzstrs[1].toFloat();
+    z = xyzstrs[2].toFloat();
 }

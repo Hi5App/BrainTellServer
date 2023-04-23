@@ -1,4 +1,4 @@
-#ifndef UTILS_H
+﻿#ifndef UTILS_H
 #define UTILS_H
 
 #include <QCoreApplication>
@@ -27,7 +27,11 @@ const int neuron_type_color[21][3] = {
     {168, 255, 128},  //	16
     {255, 168, 128},  //	17
     {168, 128, 255}, //	18
+    {0, 0, 0}, //19 //totally black. PHC, 2012-02-15
+    //the following (20-275) is used for matlab heat map. 120209 by WYN
+    {0,0,131}, //20
 };
+
 void dirCheck(QString dirBaseName);
 QStringList getSwcInBlock(const QString msg,const V_NeuronSWC_list& testVNL);
 QStringList getApoInBlock(const QString msg,const QList <CellAPO>& wholePoint);
@@ -43,4 +47,5 @@ double distance(const CellAPO &m1,const CellAPO &m2);
 int findnearest(const CellAPO &m,const QList<CellAPO> &markers);
 
 void init();
+void stringToXYZ(string xyz, float& x, float& y, float& z);
 #endif // UTILS_H

@@ -67,6 +67,7 @@ bool saveAnoFile(QString openFileNameLabel, const P_ObjectFileType & cc); // a c
 
 struct BasicSurfObj
 {
+    // long
 	V3DLONG n;				// index
 	RGBA8 color;
 	bool on;
@@ -174,6 +175,7 @@ struct NeuronTree : public BasicSurfObj
     bool flag;
     NeuronTree()
     {
+        // clear()释放内存
         listNeuron.clear(); hashNeuron.clear(); file=""; editable=false;
         linemode=-1; //-1 is no defined. 0 is NO, and 1 is yes
        flag=false;

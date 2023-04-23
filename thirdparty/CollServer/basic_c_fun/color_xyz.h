@@ -170,7 +170,7 @@ struct XYZ {
 	c_array<float, 3> v;
 	};
 
-        XYZ(float px, float py, float pz)	{this->x=px; this->y=py; this->z=pz;}
+    XYZ(float px, float py, float pz){this->x=px; this->y=py; this->z=pz;}
 	XYZ(float a=0)	{x=a; y=a; z=a;}
 	XYZ(RGB8 c)	    {x=c.r; y=c.g; z=c.b;}
 	XYZ(RGB16i c)	{x=c.r; y=c.g; z=c.b;}

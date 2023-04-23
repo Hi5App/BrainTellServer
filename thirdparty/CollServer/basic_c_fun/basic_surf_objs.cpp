@@ -289,13 +289,16 @@ bool writeMarker_file(const QString & filename, const QList <ImageMarker> & list
 	return true;
 }
 
+// 读取一个swc/eswc文件，生成NeuronTree对象
 NeuronTree readSWC_file(const QString& filename)
 {
 	NeuronTree nt;
     nt.file = QFileInfo(filename).absoluteFilePath();
 	QFile qf(filename);
+    // QIODevice::Text:以文本方式打开文件，读取时“\n”被自动翻译为换行符，写入时字符串结束符会自动翻译为系统平台的编码，如 Windows 平台下是“\r\n”
 	if (! qf.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
+// #ifndef 指令检查是否用#define定义了某个标识符，如果尚未定义标识符，或者如果它的定义已用 #undef 删除，则条件为 true（非零值）。 否则，条件为 false (0)
 #ifndef DISABLE_V3D_MSG
 		v3d_msg(QString("open file [%1] failed!").arg(filename));
 #endif
@@ -310,15 +313,18 @@ NeuronTree readSWC_file(const QString& filename)
 	QString name = "";
 	QString comment = "";
         nt.flag=true;
+    // 打印
     qDebug("-------------------------------------------------------");
     while (! qf.atEnd())
     {
         char _buf[1000], *buf;
         qf.readLine(_buf, sizeof(_buf));
+        // 去掉最前面的空格
         for (buf=_buf; (*buf && *buf==' '); buf++); //skip space
 
         //  add #name, #comment
         if (buf[0]=='\0')	continue;
+        // 当第一个字符为'#'时，读取name或comment
         if (buf[0]=='#')
         {
         	if (buf[1]=='n'&&buf[2]=='a'&&buf[3]=='m'&&buf[4]=='e'&&buf[5]==' ')
@@ -332,11 +338,13 @@ NeuronTree readSWC_file(const QString& filename)
         count++;
         NeuronSWC S;
 
+        // 以不保留空串的形式按' '分割一行，存入列表
         QStringList qsl = QString(buf).trimmed().split(" ",Qt::SkipEmptyParts);
         if (qsl.size()==0)   continue;
 
         for (int i=0; i<qsl.size(); i++)
         {
+            // 取字符串索引99处之前的内容
         	qsl[i].truncate(99);
         	if (i==0) S.n = qsl[i].toInt();
         	else if (i==1) S.type = qsl[i].toInt();
@@ -375,6 +383,7 @@ NeuronTree readSWC_file(const QString& filename)
     nt.hashNeuron = hashNeuron;
     nt.color = XYZW(0,0,0,0); /// alpha==0 means using default neuron color, 081115
     nt.on = true;
+    // QFileInfo(filename).baseName()获取不包含后缀的文件名
     nt.name = name.remove('\n'); if (nt.name.isEmpty()) nt.name = QFileInfo(filename).baseName();
     nt.comment = comment.remove('\n');
 

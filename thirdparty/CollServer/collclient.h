@@ -77,6 +77,7 @@ private:
 signals:
     void removeList(QThread*);
     void noUsers();
+    void exitNow();
 
 };
 

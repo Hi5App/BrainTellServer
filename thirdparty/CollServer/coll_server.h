@@ -7,6 +7,7 @@
 #include <set>
 #include "collclient.h"
 #include "collthread.h"
+#include <QNetworkAccessManager>
 
 class CollServer:public QTcpServer
 {
@@ -16,7 +17,13 @@ public:
     virtual ~CollServer();
     void incomingConnection(qintptr handle);
     XYZ getSomaCoordinate(QString apoPath);
-    vector<NeuronSWC> mulBiAndLoopDetection(V_NeuronSWC_list inputSegList);
+    vector<NeuronSWC> specStructsDetection(V_NeuronSWC_list inputSegList, double dist_thresh=3);
+    void autoDetectSpecStructs();
+    void handleMulFurcation(vector<NeuronSWC>& outputErroneousPoints, int& count);
+    void handleLoop(vector<NeuronSWC>& outputErroneousPoints, int& count);
+    void handleCrossing(vector<NeuronSWC>& outputErroneousPoints, int& count);
+    void handleTip(vector<NeuronSWC>& outputErroneousPoints, int& count);
+
     static CollServer* getInstance();
 
     static QStringList msglist;
@@ -45,7 +52,7 @@ signals:
 public slots:
     void autoSave();
     void imediateSave();
-    void autoDetectMulBifurcationAndLoop();
+    void autoDetect();
     void autoExit();
 
     void RemoveList(QThread* thread);
@@ -62,6 +69,8 @@ private:
     QTimer *timerForAutoExit;
     static CollServer* curServer;
     QList<CollThread*> list_thread;
+    QNetworkAccessManager* accessManager;
+    QString HostAddress;
 };
 
 #endif // COLL_SERVER_H

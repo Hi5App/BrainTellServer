@@ -34,16 +34,7 @@ CollClient:: CollClient(qintptr handle, CollServer* curServer, QObject *parent):
         if(username==""){
 //            this->disconnectFromHost();
 //            this->close();//关闭读
-            this->deleteLater();
-            auto sockets=myServer->hashmap.values();
-            for(auto &socket:sockets){
-                socket->deleteLater();
-            }
-
-            if(myServer->isListening())
-                myServer->close();
-            logfile->flush();
-            myServer->deleteLater();
+            emit exitNow();
         }
     });
     // 检测客户端是否掉线，并作相应处理
@@ -84,7 +75,7 @@ void CollClient::addseg(const QString msg)
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
     }
-    auto addnt=convertMsg2NT(pointlist,clienttype,useridx);
+    auto addnt=convertMsg2NT(pointlist,clienttype,useridx,0);
     myServer->segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
     qDebug()<<"server addseg";
 }
@@ -101,24 +92,29 @@ void CollClient::delseg(const QString msg)
         std::cerr<<"ERROR:headerlist.size<1\n";
     }
     int useridx=headerlist[1].toUInt();
-
     unsigned int clienttype=headerlist[0].toUInt();
+    unsigned int isMany=0;
+    if(headerlist.size()>=6)
+        isMany=headerlist[5].toUInt();
+
     QStringList pointlist=pointlistwithheader;
     pointlist.removeAt(0);
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
     }
-    auto delnt=convertMsg2NT(pointlist,clienttype,useridx);
-    auto delseg=NeuronTree__2__V_NeuronSWC_list(delnt).seg[0];
+    auto delnt=convertMsg2NT(pointlist,clienttype,useridx,isMany);
+    auto delsegs=NeuronTree__2__V_NeuronSWC_list(delnt).seg;
 
-    auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),delseg);
-    if(it!=myServer->segments.seg.end())
-    {
-        myServer->segments.seg.erase(it);
-        qDebug()<<"server delseg";
+    for(int i=0;i<delsegs.size();i++){
+        auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),delsegs[i]);
+        if(it!=myServer->segments.seg.end())
+        {
+            myServer->segments.seg.erase(it);
+            qDebug()<<"server delseg";
+        }
+        else
+            std::cerr<<"INFO:not find del seg ,"<<msg.toStdString()<<std::endl;
     }
-    else
-        std::cerr<<"INFO:not find del seg ,"<<msg.toStdString()<<std::endl;
 }
 
 void CollClient::connectseg(const QString msg){
@@ -139,7 +135,7 @@ void CollClient::connectseg(const QString msg){
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
     }
-    auto addnt=convertMsg2NT(pointlist,clienttype,useridx);
+    auto addnt=convertMsg2NT(pointlist,clienttype,useridx,0);
     myServer->segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
     qDebug()<<"server connectseg";
 }
@@ -306,6 +302,9 @@ void CollClient::retypesegment(const QString msg)
     unsigned int clienttype=headerlist[0].toUInt();
     int useridx=headerlist[1].toUInt();
     unsigned int newcolor=headerlist[2].toUInt();
+    unsigned int isMany=0;
+    if(headerlist.size()>=7)
+        isMany=headerlist[6].toUInt();
 
     QStringList pointlist=pointlistwithheader;
     pointlist.removeAt(0);
@@ -313,21 +312,23 @@ void CollClient::retypesegment(const QString msg)
         std::cerr<<"ERROR:pointlist.size=0\n";
     }
 
-    auto delnt=convertMsg2NT(pointlist,clienttype,useridx);
-    auto delseg=NeuronTree__2__V_NeuronSWC_list(delnt).seg[0];
+    auto retypent=convertMsg2NT(pointlist,clienttype,useridx,isMany);
+    auto retypesegs=NeuronTree__2__V_NeuronSWC_list(retypent).seg;
 
-    auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),delseg);
-    if(it==myServer->segments.seg.end()){
-        std::cerr<<"INFO:not find del seg ,"<<msg.toStdString()<<std::endl;
-        return;
+    for(int i=0;i<retypesegs.size();i++){
+        auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),retypesegs[i]);
+        if(it==myServer->segments.seg.end()){
+            std::cerr<<"INFO:not find del seg ,"<<msg.toStdString()<<std::endl;
+            return;
+        }
+        int now=QDateTime::currentMSecsSinceEpoch();
+        for(auto &unit:it->row){
+            unit.type=newcolor;
+            unit.level=now-unit.timestamp;
+            unit.creatmode=useridx*10+clienttype;
+        }
+        qDebug()<<"server retypesegment";
     }
-    int now=QDateTime::currentMSecsSinceEpoch();
-    for(auto &unit:it->row){
-        unit.type=newcolor;
-        unit.level=now-unit.timestamp;
-        unit.creatmode=useridx*10+clienttype;
-    }
-    qDebug()<<"server retypesegment";
 }
 
 void CollClient::sendmsgs(const QStringList &msgs)
@@ -379,7 +380,7 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
                 std::cerr<<"login in error:"<<msg.toStdString();
 //                this->disconnectFromHost();
 //                this->close();//关闭读
-                this->deleteLater();
+                emit exitNow();
                 return;
             }
             qDebug()<<"subThread:"<<QThread::currentThreadId();
@@ -429,12 +430,14 @@ void CollClient::onread()
                         this->write("Socket Receive ERROR!");
                         // 这里要进行相应处理后break吧
                         std::cerr<<username.toStdString()+" receive not match format\n";
+                        emit exitNow();
                     }
 
                     auto ps=msg.right(msg.size()-QString("DataTypeWithSize:").size()).split(' ');
                     if (ps[0].toInt()!=0){
                         this->write("Socket Receive ERROR!");
                         std::cerr<<username.toStdString()+" receive not match format\n";
+                        emit exitNow();
                     }
                     datatype.isFile=ps[0].toUInt();
                     datatype.datasize=ps[1].toUInt();

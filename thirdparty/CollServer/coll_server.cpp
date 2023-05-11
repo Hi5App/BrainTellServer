@@ -4,6 +4,12 @@
 #include <thread>
 #include <QThread>
 #include <chrono>
+#include <QNetworkRequest>
+#include <QEventLoop>
+#include <QNetworkReply>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
 extern QFile *logfile;
 
 CollServer* CollServer::curServer=nullptr;
@@ -28,6 +34,8 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
 {
     qDebug()<<"MainThread:"<<QThread::currentThreadId();
     curServer=this;
+    accessManager=new QNetworkAccessManager(this);
+    HostAddress=="http://114.117.165.134:26000/SuperUser";
 
     qRegisterMetaType<qintptr>("qintptr");
 
@@ -54,15 +62,15 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
         std::cerr<<AnoName.toStdString()+" server is released\n";
         exit(-1);
     }
-    QTimer::singleShot(24*60*60*1000,this,[this]{
-        setexpire(Port.toInt(),AnoName.toStdString().c_str(),5);
-        recoverPort(Port.toInt());
-        std::cerr<<AnoName.toStdString()+" server is released\n";
-        logfile->flush();
-        exit(0);
-    });
+//    QTimer::singleShot(24*60*60*1000,this,[this]{
+//        setexpire(Port.toInt(),AnoName.toStdString().c_str(),5);
+//        recoverPort(Port.toInt());
+//        std::cerr<<AnoName.toStdString()+" server is released\n";
+//        logfile->flush();
+//        exit(0);
+//    });
     connect(timerForAutoSave,&QTimer::timeout,this,&CollServer::autoSave);
-    connect(timerForDetection,&QTimer::timeout,this,&CollServer::autoDetectMulBifurcationAndLoop);
+    connect(timerForDetection,&QTimer::timeout,this,&CollServer::autoDetect);
     connect(timerForAutoExit,&QTimer::timeout,this,&CollServer::autoExit);
     connect(&CollClient::timerforupdatemsg,&QTimer::timeout,[]{
         for (auto iter=hashmap.begin();iter!=hashmap.end();iter++){
@@ -92,6 +100,7 @@ CollServer::~CollServer(){
         list_thread[0]->deleteLater();//释放
         list_thread.removeAt(0);
     }
+    accessManager->deleteLater();
 
     exit(0);
 }
@@ -116,6 +125,7 @@ void CollServer::incomingConnection(qintptr handle){
     connect(client,&QAbstractSocket::errorOccurred,client,&CollClient::onError);
     connect(client,&CollClient::noUsers,this,&CollServer::imediateSave);
     connect(client,&CollClient::removeList,this,&CollServer::RemoveList);
+    connect(client,&CollClient::exitNow,this,&CollServer::autoExit);
     connect(this,&CollServer::clientAddMarker,client,&CollClient::addmarkers);
     connect(this,&CollServer::clientSendMsgs,client,&CollClient::sendmsgs);
     connect(this,&CollServer::clientSendmsgs2client,client,&CollClient::sendmsgs2client);
@@ -177,6 +187,7 @@ void CollServer::autoExit(){
     emit clientDeleteLater();
     if(this->isListening())
         this->close();
+    logfile->flush();
     deleteLater();
 }
 
@@ -234,13 +245,14 @@ XYZ CollServer::getSomaCoordinate(QString apoPath){
     return coordinate;
 }
 
-vector<NeuronSWC> CollServer::mulBiAndLoopDetection(V_NeuronSWC_list inputSegList){
+vector<NeuronSWC> CollServer::specStructsDetection(V_NeuronSWC_list inputSegList, double dist_thresh){
 
     vector<NeuronSWC> outputErroneousPoints;
     outputErroneousPoints.clear();
 
     map<string, set<size_t> > wholeGrid2segIDmap;
     map<string, bool> isEndPointMap;
+    map<string, set<string>> parentMap;
 
     for(size_t i=0; i<inputSegList.seg.size(); ++i){
         V_NeuronSWC seg = inputSegList.seg[i];
@@ -251,11 +263,22 @@ vector<NeuronSWC> CollServer::mulBiAndLoopDetection(V_NeuronSWC_list inputSegLis
             QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
             string gridKey = gridKeyQ.toStdString();
             wholeGrid2segIDmap[gridKey].insert(size_t(i));
+
+            if(seg.row[j].parent!=-1){
+                float x2Label=seg.row[seg.row[j].parent].x;
+                float y2Label=seg.row[seg.row[j].parent].y;
+                float z2Label=seg.row[seg.row[j].parent].z;
+                QString parentKeyQ=QString::number(x2Label) + "_" + QString::number(y2Label) + "_" + QString::number(z2Label);
+                string parentKey=parentKeyQ.toStdString();
+                parentMap[gridKey].insert(parentKey);
+            }
+
             if(j == 0 || j == seg.row.size() - 1){
                 isEndPointMap[gridKey] = true;
             }
         }
     }
+
     for(map<string, set<size_t> >::iterator it = wholeGrid2segIDmap.begin(); it != wholeGrid2segIDmap.end(); ++it){
         if(it->second.size() > 5){
             qDebug()<<it->first.c_str()<<" "<<it->second.size();
@@ -333,23 +356,6 @@ vector<NeuronSWC> CollServer::mulBiAndLoopDetection(V_NeuronSWC_list inputSegLis
 
     qDebug()<<"link map end";
 
-    //    map<int, set<int>> segEndPointsMap;
-    //    for(int i=0; i<inputSegList.seg.size(); ++i){
-    //        set<int> tempSet;
-    //        V_NeuronSWC seg = inputSegList.seg[i];
-    //        for(int j=0; j<seg.row.size(); ++j){
-    //            if(j==0 || j==seg.row.size()-1){
-    //                float xLabel = seg.row[j].x;
-    //                float yLabel = seg.row[j].y;
-    //                float zLabel = seg.row[j].z;
-    //                QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
-    //                string gridKey = gridKeyQ.toStdString();
-    //                tempSet.insert(pointsIndexMap[gridKey]);
-    //            }
-    //        }
-    //        segEndPointsMap[i]=tempSet;
-    //    }
-
     for(size_t i=0; i<points.size(); ++i){
         if(linksIndex[i].size() > 3){
             qDebug()<<i<<" link size: "<<linksIndex[i].size();
@@ -398,136 +404,109 @@ vector<NeuronSWC> CollServer::mulBiAndLoopDetection(V_NeuronSWC_list inputSegLis
 
     qDebug()<<"loop end";
 
+    vector<string> newpoints;
+
     for(size_t i=0; i<points.size(); ++i){
-        /*if(newLinksIndexVec[i].size()>=2&&counts[i]>=3&&newLinksIndexVec[i].size()!=counts[i])*/
         if(newLinksIndexVec[i].size()>=2)
-        {
-            bool isRight=true;
-            //            for(set<size_t>::iterator j=wholeGrid2segIDmap[points[i]].begin();j!=wholeGrid2segIDmap[points[i]].end();j++)
-            //            {
-            //                if(inputSegList.seg[*j].row.size()<20)
-            //                {
-            //                    isRight=false;
-            //                    break;
-            //                }
-            //            }
-            //            for(int j=0;j<linksIndexVec[i].size();j++){
-            //                if(linksIndexVec[linksIndexVec[i][j]].size()<=1)
-            //                {
-            //                    isRight=false;
-            //                    break;
-            //                }
-            //            }
+            newpoints.push_back(points[i]);
+    }
 
-            if(newLinksIndexVec[i].size()==linksIndexVec[i].size()&&newLinksIndexVec[i].size()==2){
-                    NeuronSWC s;
-                    stringToXYZ(points[i],s.x,s.y,s.z);
-                    s.type = 1;
-                    outputErroneousPoints.push_back(s);
+    size_t start=0;
+    for(size_t i=0; i<newpoints.size(); ++i){
+        qDebug()<<QString::fromStdString(newpoints[i])<<" "<<parentMap[newpoints[i]].size();
+        /*if(newLinksIndexVec[i].size()>=2&&counts[i]>=3&&newLinksIndexVec[i].size()!=counts[i])*/
+        if(parentMap[newpoints[i]].size()>=2){
+            size_t interval=i-start;
+            int nums=interval/12;
+            for(int j=0;j<nums;j++){
+                NeuronSWC s;
+                stringToXYZ(newpoints[start+(j+1)*12],s.x,s.y,s.z);
+                s.type = 0;
+                outputErroneousPoints.push_back(s);
             }
 
-            if(newLinksIndexVec[i].size()>=3){
-                auto minSizeSegIditer=wholeGrid2segIDmap[points[i]].end();
-                size_t minSizeSegId=0;
-                int curSize=0;
-                for(auto iter=wholeGrid2segIDmap[points[i]].begin();iter!=wholeGrid2segIDmap[points[i]].end();iter++){
-                    int size=inputSegList.seg[*iter].row.size();
-                    int minSize=100;
-                    if(size>30)
-                        continue;
-                    else{
-                        if(size<minSize)
-                        {
-                            minSizeSegIditer=iter;
-                            minSizeSegId=*iter;
-                            minSize=size;
-                            curSize=size;
-                        }
-                    }
+            NeuronSWC s;
+            stringToXYZ(newpoints[i],s.x,s.y,s.z);
+            s.type = 0;
+            outputErroneousPoints.push_back(s);
 
-                }
+            start=i+1;
+            qDebug()<<"loop exists";
+        }
 
-                if(minSizeSegIditer!=wholeGrid2segIDmap[points[i]].end()){
-                    V_NeuronSWC_unit unit=inputSegList.seg[*minSizeSegIditer].row[0];
-                    float xLabel = unit.x;
-                    float yLabel = unit.y;
-                    float zLabel = unit.z;
-                    QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
-                    string gridKey = gridKeyQ.toStdString();
+    }
 
-                    if(points[i]==gridKey)
-                    {
-                        unit=inputSegList.seg[*minSizeSegIditer].row[inputSegList.seg[*minSizeSegIditer].row.size()-1];
-                        xLabel = unit.x;
-                        yLabel = unit.y;
-                        zLabel = unit.z;
-                        gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
-                        gridKey = gridKeyQ.toStdString();
-                    }
-
-                    if(isEndPointMap[gridKey]){
-                        isRight=false;
-                    }
-                    else if(wholeGrid2segIDmap[gridKey].size()==2){
-                        minSizeSegIditer=wholeGrid2segIDmap[gridKey].end();
-                        for(auto iter=wholeGrid2segIDmap[gridKey].begin();iter!=wholeGrid2segIDmap[gridKey].end();iter++){
-                            if(*iter==minSizeSegId)
-                                continue;
-                            int size=inputSegList.seg[*iter].row.size();
-                            curSize+=size;
-
-                            V_NeuronSWC_unit unit2=inputSegList.seg[*iter].row[0];
-                            float x2Label = unit2.x;
-                            float y2Label = unit2.y;
-                            float z2Label = unit2.z;
-                            QString gridKeyQ2 = QString::number(x2Label) + "_" + QString::number(y2Label) + "_" + QString::number(z2Label);
-                            string gridKey2 = gridKeyQ.toStdString();
-
-                            if(gridKey==gridKey2)
-                            {
-                                unit2=inputSegList.seg[*iter].row[inputSegList.seg[*iter].row.size()-1];
-                                x2Label = unit2.x;
-                                y2Label = unit2.y;
-                                z2Label = unit2.z;
-                                gridKeyQ2 = QString::number(x2Label) + "_" + QString::number(y2Label) + "_" + QString::number(z2Label);
-                                gridKey2 = gridKeyQ.toStdString();
-                            }
-
-                            if(isEndPointMap[gridKey2]){
-                                if(curSize<=30)
-                                    isRight=false;
-                            }
-
-                        }
-                    }
-
-                }
-
-                if(isRight){
-                    NeuronSWC s;
-                    stringToXYZ(points[i],s.x,s.y,s.z);
-                    s.type = 1;
-                    outputErroneousPoints.push_back(s);
-                }
-            }
-
-            qDebug()<<i<<" link index size: "<<linksIndex[i].size();
-            //            for(int j=0; j<linksIndex[i].size(); ++j){
-            //                qDebug()<<linksIndex[i][j];
-            //            }
+    if(start<newpoints.size()){
+        size_t interval=newpoints.size()-1-start;
+        int nums=interval/12;
+        for(int j=0;j<nums;j++){
+            NeuronSWC s;
+            stringToXYZ(newpoints[start+(j+1)*12],s.x,s.y,s.z);
+            s.type = 0;
+            outputErroneousPoints.push_back(s);
         }
     }
 
-    qDebug()<<"outputError loop size:"<<outputErroneousPoints.size();
+    vector<vector<size_t>> pairs;
+    set<size_t> pset;
 
+    size_t pre_tip_id=-1;
+    size_t cur_tip_id=-1;
+
+    double soma_radius=30;
+    for(size_t i=0; i<points.size(); i++){
+        if(linksIndex[i].size() == 3){
+            pre_tip_id=cur_tip_id;
+            cur_tip_id=i;
+            if(pre_tip_id!=-1){
+                NeuronSWC n1;
+                stringToXYZ(points[pre_tip_id],n1.x,n1.y,n1.z);
+                n1.type=6;
+                NeuronSWC n2;
+                stringToXYZ(points[cur_tip_id],n2.x,n2.y,n2.z);
+                n2.type=6;
+                if(isSomaExists){
+                    if(distance(n1.x,somaCoordinate.x,n1.y,somaCoordinate.y,n1.z,somaCoordinate.z)>soma_radius
+                        &&distance(n2.x,somaCoordinate.x,n2.y,somaCoordinate.y,n2.z,somaCoordinate.z)>soma_radius){
+                        double dist=distance(n1.x,n2.x,n1.y,n2.y,n1.z,n2.z);
+                        if(distance((n1.x+n2.x)/2,somaCoordinate.x,(n1.y+n2.y)/2,somaCoordinate.y,(n1.z+n2.z)/2,somaCoordinate.z)>1e-7&&dist<dist_thresh){
+                            vector<size_t> v={pre_tip_id,cur_tip_id};
+                            pairs.push_back(v);
+                            pset.insert(pre_tip_id);
+                            pset.insert(cur_tip_id);
+                        }
+                    }
+                }
+                else{
+                    double dist=distance(n1.x,n2.x,n1.y,n2.y,n1.z,n2.z);
+                    if(dist<dist_thresh){
+                        vector<size_t> v={pre_tip_id,cur_tip_id};
+                        pairs.push_back(v);
+                        pset.insert(pre_tip_id);
+                        pset.insert(cur_tip_id);
+                    }
+                }
+
+            }
+        }
+    }
+
+    qDebug()<<pairs;
+    //    qDebug()<<points;
+
+    for(auto it=pset.begin(); it!=pset.end(); it++){
+        qDebug()<<*it;
+        NeuronSWC n;
+        stringToXYZ(points[*it],n.x,n.y,n.z);
+        n.type=6;
+        outputErroneousPoints.push_back(n);
+    }
 
     return outputErroneousPoints;
 
 }
 
-void CollServer::autoDetectMulBifurcationAndLoop(){
-    int count=0;
-    vector<NeuronSWC> outputErroneousPoints = mulBiAndLoopDetection(segments);
+void CollServer::handleMulFurcation(vector<NeuronSWC>& outputErroneousPoints, int& count){
     for(int i=0;i<outputErroneousPoints.size();i++){
         if(isSomaExists)
         {
@@ -547,9 +526,9 @@ void CollServer::autoDetectMulBifurcationAndLoop(){
                 emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
                 qDebug()<<"Server finish /WARN_MulBifurcation";
 
-//                for(auto &socket:sockets){
-//                    socket->sendmsgs({msg});
-//                }
+                //                for(auto &socket:sockets){
+                //                    socket->sendmsgs({msg});
+                //                }
                 emit clientSendMsgs({msg});
             }
         }
@@ -564,37 +543,171 @@ void CollServer::autoDetectMulBifurcationAndLoop(){
                 QString msg=QString("/WARN_MulBifurcation:"+result.join(","));
                 //            const std::string data=msg.toStdString();
                 //            const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
-                auto sockets=hashmap.values();
+                //                auto sockets=hashmap.values();
                 emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
                 qDebug()<<"Server finish /WARN_MulBifurcation";
 
-//                for(auto &socket:sockets){
-//                    socket->sendmsgs({msg});
-//                }
+                //                for(auto &socket:sockets){
+                //                    socket->sendmsgs({msg});
+                //                }
                 emit clientSendMsgs({msg});
             }
         }
+    }
+}
 
-        if(outputErroneousPoints[i].type == 1){
+void CollServer::handleLoop(vector<NeuronSWC>& outputErroneousPoints, int& count){
+    for(int i=0;i<outputErroneousPoints.size();i++){
+        if(outputErroneousPoints[i].type == 0){
             count++;
             QStringList result;
             result.push_back(QString("%1 server").arg(0));
             result.push_back(QString("%1 %2 %3 %4").arg(outputErroneousPoints[i].type).arg(outputErroneousPoints[i].x).arg(outputErroneousPoints[i].y).arg(outputErroneousPoints[i].z));
             QString msg=QString("/WARN_Loop:"+result.join(","));
-            auto sockets=hashmap.values();
+            //            auto sockets=hashmap.values();
             emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_Loop:").size()));
             qDebug()<<"Server finish /WARN_Loop";
 
-//            for(auto &socket:sockets){
-//                socket->sendmsgs({msg});
-//            }
+            //            for(auto &socket:sockets){
+            //                socket->sendmsgs({msg});
+            //            }
             emit clientSendMsgs({msg});
         }
     }
+}
+
+void CollServer::handleCrossing(vector<NeuronSWC>& crossingPoints, int& count){
+    count+=crossingPoints.size();
+    for(int i=0;i<crossingPoints.size();i++){
+        QStringList result;
+        result.push_back(QString("%1 server").arg(0));
+        result.push_back(QString("%1 %2 %3 %4").arg(crossingPoints[i].type).arg(crossingPoints[i].x).arg(crossingPoints[i].y).arg(crossingPoints[i].z));
+        QString msg=QString("/WARN_Crossing:"+result.join(","));
+        //            const std::string data=msg.toStdString();
+        //            const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
+        //            auto sockets=hashmap.values();
+        emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_Crossing:").size()));
+        qDebug()<<"Server finish /WARN_Crossing";
+        //                for(auto &socket:sockets){
+        //                    socket->sendmsgs({msg});
+        //                }
+        emit clientSendMsgs({msg});
+    }
+
+    if(crossingPoints.size()!=0){
+        QNetworkRequest request;
+        request.setUrl(QUrl(HostAddress+"/detect/crossing"));
+        qDebug()<<HostAddress;
+        request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+        QJsonObject json;
+        QString emp="123";
+        json.insert("exmple", emp);
+
+        QJsonDocument document;
+        document.setObject(json);
+        QString str=QString(document.toJson());
+        QByteArray byteArray = str.toUtf8();
+
+        qDebug()<<byteArray;
+        QNetworkReply* reply = accessManager->post(request, byteArray);
+        if(!reply)
+            qDebug()<<"reply = nullptr";
+
+        QEventLoop eventLoop;
+        connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
+        eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+
+        int code=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug()<<"handleCrossing"<<code;
+        if(code==200)
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+
+}
+
+void CollServer::handleTip(vector<NeuronSWC>& tipPoints, int& count){
+    //TODO
+    count+=tipPoints.size();
+    for(int i=0;i<tipPoints.size();i++){
+        QStringList result;
+        result.push_back(QString("%1 server").arg(0));
+        result.push_back(QString("%1 %2 %3 %4").arg(tipPoints[i].type).arg(tipPoints[i].x).arg(tipPoints[i].y).arg(tipPoints[i].z));
+        QString msg=QString("/WARN_Tip:"+result.join(","));
+        //            const std::string data=msg.toStdString();
+        //            const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
+        //            auto sockets=hashmap.values();
+        emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_Tip:").size()));
+        qDebug()<<"Server finish /WARN_Tip";
+        //                for(auto &socket:sockets){
+        //                    socket->sendmsgs({msg});
+        //                }
+        emit clientSendMsgs({msg});
+    }
+
+    if(tipPoints.size()!=0){
+        QNetworkRequest request;
+        request.setUrl(QUrl(HostAddress+"/detect/missing"));
+        qDebug()<<HostAddress;
+        request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+        QJsonObject json;
+        QString emp="123";
+        json.insert("exmple", emp);
+
+        QJsonDocument document;
+        document.setObject(json);
+        QString str=QString(document.toJson());
+        QByteArray byteArray = str.toUtf8();
+
+        qDebug()<<byteArray;
+        QNetworkReply* reply = accessManager->post(request, byteArray);
+        if(!reply)
+            qDebug()<<"reply = nullptr";
+
+        QEventLoop eventLoop;
+        connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
+        eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+
+        int code=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug()<<"handleCrossing"<<code;
+        if(code==200)
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+}
+
+
+void CollServer::autoDetectSpecStructs(){
+    int count=0;
+    vector<NeuronSWC> outputErroneousPoints = specStructsDetection(segments);
+    vector<NeuronSWC> crossingPoints;
+    for(int i=0;i<outputErroneousPoints.size();i++){
+        if(outputErroneousPoints[i].type == 6){
+            crossingPoints.push_back(outputErroneousPoints[i]);
+        }
+    }
+
+    handleMulFurcation(outputErroneousPoints, count);
+    handleLoop(outputErroneousPoints, count);
+    handleCrossing(crossingPoints, count);
 
     if(count!=0){
         imediateSave();
     }
+}
+
+void CollServer::autoDetect(){
+    autoDetectSpecStructs();
 }
 
 void CollServer::RemoveList(QThread* thread){

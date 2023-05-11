@@ -41,9 +41,10 @@ void setexpire(const int port,const char *ano,const int expiretime);
 void recoverPort(const int port);
 
 vector<V_NeuronSWC>::iterator findseg(vector<V_NeuronSWC>::iterator begin,vector<V_NeuronSWC>::iterator end,const V_NeuronSWC seg);
-NeuronTree convertMsg2NT(QStringList pointlist,int client,int user,int mode=0);
+NeuronTree convertMsg2NT(QStringList pointlist,int client,int user, int isMany, int mode=0);
 
 double distance(const CellAPO &m1,const CellAPO &m2);
+double distance(const double x1, const double x2, const double y1, const double y2, const double z1, const double z2);
 int findnearest(const CellAPO &m,const QList<CellAPO> &markers);
 
 void init();

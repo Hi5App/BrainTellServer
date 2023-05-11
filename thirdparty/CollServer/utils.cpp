@@ -191,36 +191,72 @@ void recoverPort(int port)
         redisFree(c);
 }
 
-NeuronTree convertMsg2NT(QStringList pointlist,int client,int user,int mode)
+NeuronTree convertMsg2NT(QStringList pointlist,int client,int user, int isMany, int mode)
 {
     NeuronTree newTempNT;
     newTempNT.listNeuron.clear();
     newTempNT.hashNeuron.clear();
     int cnt=pointlist.size();
     int timestamp=QDateTime::currentMSecsSinceEpoch();
-    for(int i=0;i<cnt;i++)
-    {
-        NeuronSWC S;
-        QStringList nodelist=pointlist[i].split(' ',Qt::SkipEmptyParts);
-        if(nodelist.size()<4) return NeuronTree();
-        S.n=i+1;
-        S.type=nodelist[0].toUInt();
+    if(isMany==0){
+        for(int i=0;i<cnt;i++)
+        {
+            NeuronSWC S;
+            QStringList nodelist=pointlist[i].split(' ',Qt::SkipEmptyParts);
+            if(nodelist.size()<4) return NeuronTree();
+            S.n=i+1;
+            S.type=nodelist[0].toUInt();
 
-        S.x=nodelist[1].toFloat();
-        S.y=nodelist[2].toFloat();
-        S.z=nodelist[3].toFloat();
-        switch (mode) {
+            S.x=nodelist[1].toFloat();
+            S.y=nodelist[2].toFloat();
+            S.z=nodelist[3].toFloat();
+            switch (mode) {
             case 0:S.r=user*10+client;break;
             case 1:S.r=user;break;
             case 2:S.r=client;break;
-        }
+            }
 
-        if(i==0) S.pn=-1;
-        else S.pn=i;
-        S.timestamp=timestamp;
-        newTempNT.listNeuron.push_back(S);
-        newTempNT.hashNeuron.insert(S.n,newTempNT.listNeuron.size());
+            if(i==0) S.pn=-1;
+            else S.pn=i;
+            S.timestamp=timestamp;
+            newTempNT.listNeuron.push_back(S);
+            newTempNT.hashNeuron.insert(S.n,newTempNT.listNeuron.size());
+        }
     }
+    else if(isMany==1){
+        int index=0;
+        for(int i=0;i<cnt;i++)
+        {
+            if(pointlist[i]!="$"){
+                NeuronSWC S;
+                QStringList nodelist=pointlist[i].split(' ',Qt::SkipEmptyParts);
+                if(nodelist.size()<4) return NeuronTree();
+                S.n=i+1;
+                S.type=nodelist[0].toUInt();
+
+                S.x=nodelist[1].toFloat();
+                S.y=nodelist[2].toFloat();
+                S.z=nodelist[3].toFloat();
+                switch (mode) {
+                case 0:S.r=user*10+client;break;
+                case 1:S.r=user;break;
+                case 2:S.r=client;break;
+                }
+
+                if(index==0) S.pn=-1;
+                else S.pn=i;
+                S.timestamp=timestamp;
+                newTempNT.listNeuron.push_back(S);
+                newTempNT.hashNeuron.insert(S.n,newTempNT.listNeuron.size());
+                index++;
+            }
+            else{
+                index=0;
+            }
+
+        }
+    }
+
     return newTempNT;
 }
 
@@ -278,6 +314,14 @@ double distance(const CellAPO &m1,const CellAPO &m2)
                 (m1.y-m2.y)*(m1.y-m2.y)+
                 (m1.z-m2.z)*(m1.z-m2.z)
             );
+}
+
+double distance(const double x1, const double x2, const double y1, const double y2, const double z1, const double z2){
+    return sqrt(
+                (x1-x2)*(x1-x2)+
+                (y1-y2)*(y1-y2)+
+                (z1-z2)*(z1-z2)
+        );
 }
 
 int findnearest(const CellAPO &m,const QList<CellAPO> &markers)

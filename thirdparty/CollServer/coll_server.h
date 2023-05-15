@@ -21,8 +21,8 @@ public:
     void autoDetectSpecStructs();
     void handleMulFurcation(vector<NeuronSWC>& outputErroneousPoints, int& count);
     void handleLoop(vector<NeuronSWC>& outputErroneousPoints, int& count);
-    void handleCrossing(vector<NeuronSWC>& outputErroneousPoints, int& count);
-    void handleTip(vector<NeuronSWC>& outputErroneousPoints, int& count);
+    void handleCrossing(vector<NeuronSWC>& crossingPoints, int& count);
+    void handleTip(vector<NeuronSWC>& tipPoints, int& count);
 
     static CollServer* getInstance();
 

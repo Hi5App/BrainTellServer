@@ -16,6 +16,18 @@ class CollClient : public QTcpSocket
         qint64 datasize=0;
     };
 
+    struct segInfoUnit
+    {
+        segInfoUnit() { hierarchy = 0; }
+        long segID;
+        long head_tail;
+        long nodeCount;
+        bool refine;
+
+        int branchID, paBranchID;
+        int hierarchy;
+    };
+
 public:
     explicit CollClient(qintptr handle,CollServer* curServer,QObject *parent = nullptr);//初始化
 
@@ -31,6 +43,7 @@ public:
     void connectseg(const QString msg);//连线
     void retypesegment(const QString msg);//线改颜色
 
+    void simpleConnectExecutor(V_NeuronSWC_list& segments, vector<segInfoUnit>& segInfo);
     static QTimer timerforupdatemsg;//todo
 //    static QStringList msglist;
 //    static int processedmsgcnt;

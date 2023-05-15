@@ -158,7 +158,6 @@ void CollServer::autoSave()
         for (auto iter=hashmap.begin();iter!=hashmap.end();iter++){
             qDebug()<<"user:"<<iter.key()<<" state:"<<iter.value()->state();
         }
-        auto sockets=hashmap.values();
 //        for(auto &socket:sockets){
 //            socket->updatesendmsgcnt2processed();
 //        }

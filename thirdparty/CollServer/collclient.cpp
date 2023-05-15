@@ -76,8 +76,14 @@ void CollClient::addseg(const QString msg)
         std::cerr<<"ERROR:pointlist.size=0\n";
     }
     auto addnt=convertMsg2NT(pointlist,clienttype,useridx,0);
+
+    mutex.lock();
     myServer->segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
+    mutex.unlock();
     qDebug()<<"server addseg";
+    for(int i=0;i<myServer->segments.seg.size();i++){
+        myServer->segments.seg[i].printInfo();
+    }
 }
 
 void CollClient::delseg(const QString msg)
@@ -105,15 +111,23 @@ void CollClient::delseg(const QString msg)
     auto delnt=convertMsg2NT(pointlist,clienttype,useridx,isMany);
     auto delsegs=NeuronTree__2__V_NeuronSWC_list(delnt).seg;
 
+    int count=0;
+    mutex.lock();
     for(int i=0;i<delsegs.size();i++){
         auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),delsegs[i]);
         if(it!=myServer->segments.seg.end())
         {
             myServer->segments.seg.erase(it);
-            qDebug()<<"server delseg";
+            if(count<5)
+                qDebug()<<"server delseg";
+            count++;
         }
         else
             std::cerr<<"INFO:not find del seg ,"<<msg.toStdString()<<std::endl;
+    }
+    mutex.unlock();
+    for(int i=0;i<myServer->segments.seg.size();i++){
+        myServer->segments.seg[i].printInfo();
     }
 }
 
@@ -135,8 +149,124 @@ void CollClient::connectseg(const QString msg){
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
     }
-    auto addnt=convertMsg2NT(pointlist,clienttype,useridx,0);
-    myServer->segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
+
+    QStringList specPointsInfo1=pointlist[0].split(' ',Qt::SkipEmptyParts);
+    QStringList specPointsInfo2=pointlist[1].split(' ',Qt::SkipEmptyParts);
+    XYZ p1=XYZ(specPointsInfo1[0].toFloat(), specPointsInfo1[1].toFloat(), specPointsInfo1[2].toFloat());
+    XYZ p2=XYZ(specPointsInfo2[0].toFloat(), specPointsInfo2[1].toFloat(), specPointsInfo2[2].toFloat());
+    pointlist.removeAt(0);
+    pointlist.removeAt(0);
+
+    auto segnt=convertMsg2NT(pointlist,clienttype,useridx,1);
+    auto connectsegs=NeuronTree__2__V_NeuronSWC_list(segnt).seg;
+
+    vector<segInfoUnit> segInfo;
+
+    mutex.lock();
+    for(int i=0;i<connectsegs.size();i++){
+        auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),connectsegs[i]);
+        if(it!=myServer->segments.seg.end())
+        {
+            //父子关系逆序
+            if (it->row.begin()->data[6] != 2) // Sort the node numbers of involved segments
+            {
+                int nodeNo = 1;
+                for (vector<V_NeuronSWC_unit>::iterator it_unit = it->row.begin();
+                     it_unit != it->row.end(); it_unit++)
+                {
+                    it_unit->data[0] = nodeNo;
+                    it_unit->data[6] = nodeNo + 1;
+                    ++nodeNo;
+                }
+                (it->row.end() - 1)->data[6] = -1;
+            }
+
+            //构造segInfo
+            if(segInfo.size()==0){
+                for (vector<V_NeuronSWC_unit>::iterator it_unit = it->row.begin();
+                     it_unit != it->row.end(); it_unit++)
+                {
+                    if (p1.x == it_unit->data[2] && p1.y == it_unit->data[3] && p1.z == it_unit->data[4])
+                    {
+                        //---------------------- Get seg IDs
+                        //qDebug() << nodeOnStroke->at(j).seg_id << " " << nodeOnStroke->at(j).parent << " " << p.x() << " " << p.y();
+                        segInfoUnit curSeg;
+                        curSeg.head_tail = it_unit->data[6];
+                        curSeg.segID = it-myServer->segments.seg.begin();
+                        curSeg.nodeCount = it->row.size();
+                        curSeg.refine = false;
+                        curSeg.branchID = it->branchingProfile.ID;
+                        curSeg.paBranchID = it->branchingProfile.paID;
+                        curSeg.hierarchy = it->branchingProfile.hierarchy;
+                        segInfo.push_back(curSeg);
+                        break;
+                    }
+                }
+            }
+            else if(segInfo.size()==1){
+                for (vector<V_NeuronSWC_unit>::iterator it_unit = it->row.begin();
+                     it_unit != it->row.end(); it_unit++)
+                {
+                    if (p2.x == it_unit->data[2] && p2.y == it_unit->data[3] && p2.z == it_unit->data[4])
+                    {
+                        //---------------------- Get seg IDs
+                        //qDebug() << nodeOnStroke->at(j).seg_id << " " << nodeOnStroke->at(j).parent << " " << p.x() << " " << p.y();
+                        segInfoUnit curSeg;
+                        curSeg.head_tail = it_unit->data[6];
+                        curSeg.segID = it-myServer->segments.seg.begin();
+                        curSeg.nodeCount = it->row.size();
+                        curSeg.refine = false;
+                        curSeg.branchID = it->branchingProfile.ID;
+                        curSeg.paBranchID = it->branchingProfile.paID;
+                        curSeg.hierarchy = it->branchingProfile.hierarchy;
+                        segInfo.push_back(curSeg);
+                        break;
+                    }
+                }
+            }
+
+        }
+
+        else{
+            std::cerr<<"INFO:not find connect seg ,"<<msg.toStdString()<<std::endl;
+            return;
+        }
+    }
+
+    simpleConnectExecutor(myServer->segments, segInfo);
+
+    if (myServer->segments.seg[segInfo[0].segID].to_be_deleted)
+    {
+        qDebug()<<"enter tracedNeuron.seg[segInfo[0]]";
+        vector<V_NeuronSWC> connectedSegDecomposed = decompose_V_NeuronSWC(myServer->segments.seg[segInfo[1].segID]);
+        for (vector<V_NeuronSWC>::iterator addedIt = connectedSegDecomposed.begin(); addedIt != connectedSegDecomposed.end(); ++addedIt)
+            myServer->segments.seg.push_back(*addedIt);
+
+        myServer->segments.seg[segInfo[1].segID].to_be_deleted = true;
+        myServer->segments.seg[segInfo[1].segID].on = false;
+
+    }
+    else if (myServer->segments.seg[segInfo[1].segID].to_be_deleted)
+    {
+        qDebug()<<"enter tracedNeuron.seg[segInfo[1]]";
+        vector<V_NeuronSWC> connectedSegDecomposed = decompose_V_NeuronSWC(myServer->segments.seg[segInfo[0].segID]);
+        for (vector<V_NeuronSWC>::iterator addedIt = connectedSegDecomposed.begin(); addedIt != connectedSegDecomposed.end(); ++addedIt)
+            myServer->segments.seg.push_back(*addedIt);
+
+        myServer->segments.seg[segInfo[0].segID].to_be_deleted = true;
+        myServer->segments.seg[segInfo[0].segID].on = false;
+    }
+
+    std::vector<V_NeuronSWC>::iterator iter = myServer->segments.seg.begin();
+    while (iter != myServer->segments.seg.end())
+        if (iter->to_be_deleted)
+            iter = myServer->segments.seg.erase(iter);
+        else
+            ++iter;
+    mutex.unlock();
+
+//    auto addnt=convertMsg2NT(pointlist,clienttype,useridx,0);
+//    myServer->segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
     qDebug()<<"server connectseg";
 }
 
@@ -163,6 +293,8 @@ void CollClient::addmarkers(const QString msg)
     }
 
     CellAPO marker;
+
+    mutex.lock();
     for(auto &msg:pointlist){
         auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
         if(markerinfo.size()!=4) continue;
@@ -186,6 +318,7 @@ void CollClient::addmarkers(const QString msg)
         myServer->markers.append(marker);
         qDebug()<<"server addmarker";
     }
+    mutex.unlock();
 }
 
 void CollClient::delmarkers(const QString msg)
@@ -210,6 +343,8 @@ void CollClient::delmarkers(const QString msg)
     }
     CellAPO marker;
     int idx=-1;
+
+    mutex.lock();
     for(auto &msg:pointlist){
         auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
         if(markerinfo.size()!=4) continue;
@@ -235,6 +370,7 @@ void CollClient::delmarkers(const QString msg)
             std::cerr<<"find marker failed."+msg.toStdString()+"\n";
         }
     }
+    mutex.unlock();
 }
 
 void CollClient::retypemarker(const QString msg){
@@ -258,6 +394,8 @@ void CollClient::retypemarker(const QString msg){
     }
     CellAPO marker;
     int idx=-1;
+
+    mutex.lock();
     for(auto &msg:pointlist){
         auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
         if(markerinfo.size()!=6) continue;
@@ -285,6 +423,7 @@ void CollClient::retypemarker(const QString msg){
             std::cerr<<"find marker failed."+msg.toStdString()+"\n";
         }
     }
+    mutex.unlock();
 }
 
 void CollClient::retypesegment(const QString msg)
@@ -315,10 +454,13 @@ void CollClient::retypesegment(const QString msg)
     auto retypent=convertMsg2NT(pointlist,clienttype,useridx,isMany);
     auto retypesegs=NeuronTree__2__V_NeuronSWC_list(retypent).seg;
 
+    int count=0;
+
+    mutex.lock();
     for(int i=0;i<retypesegs.size();i++){
         auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),retypesegs[i]);
         if(it==myServer->segments.seg.end()){
-            std::cerr<<"INFO:not find del seg ,"<<msg.toStdString()<<std::endl;
+            std::cerr<<"INFO:not find retype seg ,"<<msg.toStdString()<<std::endl;
             return;
         }
         int now=QDateTime::currentMSecsSinceEpoch();
@@ -327,8 +469,11 @@ void CollClient::retypesegment(const QString msg)
             unit.level=now-unit.timestamp;
             unit.creatmode=useridx*10+clienttype;
         }
-        qDebug()<<"server retypesegment";
+        if(count<5)
+            qDebug()<<"server retypesegment";
+        count++;
     }
+    mutex.unlock();
 }
 
 void CollClient::sendmsgs(const QStringList &msgs)
@@ -339,13 +484,16 @@ void CollClient::sendmsgs(const QStringList &msgs)
 //        ondisconnect();
         return;
     }
-    qDebug()<<msgs<<"server send msgs:";
+    qDebug()<<"server send msgs";
 
     const std::string data=msgs.join(';').toStdString();
     const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
     // QString::fromStdString(header)将header转换为utf-8编码的字符串
     qDebug()<<"write to "<<username<<",headsize = "<<header.size()<<"，sendsize = "<<write(header.c_str(),header.size())<<","<<QString::fromStdString(header);
-    qDebug()<<"write to "<<username<<",datasize = "<<data.size()<<"，sendsize = "<<write(data.c_str(),data.size())<<","<<QString::fromStdString(data);
+    if(data.size()>256)
+        qDebug()<<"write to "<<username<<",datasize = "<<data.size()<<"，sendsize = "<<write(data.c_str(),data.size())<<","<<QString::fromStdString(data).left(256)<<"...";
+    else
+        qDebug()<<"write to "<<username<<",datasize = "<<data.size()<<"，sendsize = "<<write(data.c_str(),data.size())<<","<<QString::fromStdString(data);
     this->flush();
 }
 
@@ -404,12 +552,18 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
 
             mutex.lock();
             myServer->processedmsgcnt+=1;
-            mutex.unlock();
 
+            QString log;
             // QString::number按照第二个参数提供的转换进制将数字类型转换为QString
-            auto log=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss.zzz")+QString::number(myServer->processedmsgcnt+myServer->savedmsgcnt)+" "+msg+"\n";
+            if(msg.size()>128){
+                log=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss.zzz")+QString::number(myServer->processedmsgcnt+myServer->savedmsgcnt)+" "+msg.left(128)+"...\n";
+            }
+            else{
+                log=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss.zzz")+QString::number(myServer->processedmsgcnt+myServer->savedmsgcnt)+" "+msg+"\n";
+            }
             logfile->write(log.toStdString().c_str(),log.toStdString().size());
             myServer->msglist.append(msg);
+            mutex.unlock();
         }
     }
 
@@ -456,8 +610,15 @@ void CollClient::onread()
                     myServer->receivedcnt+=1;
                     mutex.unlock();
 
-                    std::cout<<QDateTime::currentDateTime().toString(" yyyy/MM/dd hh:mm:ss ").toStdString()<<myServer->receivedcnt<<" receive from "<<username.toStdString()<<" :"<<data<<std::endl;
-                    qDebug()<<QString("client read message %1, %2").arg(username).arg(data).toStdString().c_str();
+                    QString log;
+                    if(strlen(data)>128){
+                        log=QDateTime::currentDateTime().toString(" yyyy/MM/dd hh:mm:ss ") + QString::number(myServer->receivedcnt) + " receive from " + username + ":" + QString(data).left(128) + "...";
+                    }
+                    else{
+                        log=QDateTime::currentDateTime().toString(" yyyy/MM/dd hh:mm:ss ") + QString::number(myServer->receivedcnt) + " receive from " + username + ":" + QString(data);
+                    }
+                    qDebug()<<log;
+//                    qDebug()<<QString("client read message %1, %2").arg(username).arg(data).toStdString().c_str();
                     preprocessmsgs(QString(data).trimmed().split(';',Qt::SkipEmptyParts));
                     resetdatatype();
                     delete [] data;
@@ -515,21 +676,27 @@ void CollClient::onError(QAbstractSocket::SocketError socketError){
 void CollClient::receiveuser(const QString user)
 {
     username=user;
+    mutex.lock();
     if(myServer->hashmap.contains(user))
     {
         std::cerr<<"ERROR:"+user.toStdString()+" is duolicate,will remove the first\n";
 //        myServer->hashmap[user]->disconnectFromHost();
           emit myServer->clientDisconnectFromHost(myServer->hashmap[user]);
     }
-
     myServer->hashmap[user]=this;
+    mutex.unlock();
     updateuserlist();
+
+    myServer->imediateSave();
     //todo发送保存的文件
     sendfiles({
     myServer->anopath,myServer->apopath,myServer->swcpath
               });
+
+    mutex.lock();
     sendmsgcnt=myServer->savedmsgcnt;
     qDebug()<<"receive user init sendmsgcnt = "<<sendmsgcnt;
+    mutex.unlock();
     // 获取协同的ano文件名
     QString msg=QString("STARTCOLLABORATE:%1").arg(myServer->anopath.section('/',-1,-1));
     sendmsgs({msg});
@@ -551,7 +718,6 @@ void CollClient::updatesendmsgcnt2processed()
 
 void CollClient::sendmsgs2client(int maxsize)
 {
-    if(!this) return;
     if(myServer->msglist.size()<=sendmsgcnt){
         qDebug()<<"msglist.size="<<myServer->msglist.size()<<" sendmsgcnt="<<sendmsgcnt;
         return;
@@ -567,7 +733,6 @@ void CollClient::sendmsgs2client(int maxsize)
     //左闭右开
     sendmsgs(QStringList(myServer->msglist.begin()+this->sendmsgcnt,
                          myServer->msglist.begin()+end));
-
 //    this->sendmsgcnt+=maxsize;
     this->sendmsgcnt=end;
 }
@@ -586,4 +751,190 @@ void CollClient::disconnectByServer(CollClient* collclient){
     if(collclient==this){
         this->disconnectFromHost();
     }
+}
+
+void CollClient::simpleConnectExecutor(V_NeuronSWC_list& segments, vector<segInfoUnit>& segInfo)
+{
+
+    qDebug()<<"begin to simpleConnectExecutor";
+    // This method is the "executor" of Renderer_gl1::simpleConnect(), MK, May, 2018
+
+    //////////////////////////////////////////// HEAD TAIL CONNECTION ////////////////////////////////////////////
+    if ((segInfo.at(0).head_tail == -1 || segInfo.at(0).head_tail == 2) && (segInfo.at(1).head_tail == -1 || segInfo.at(1).head_tail == 2))
+    {
+        segInfoUnit mainSeg, branchSeg;
+        if (segInfo.at(0).nodeCount >= segInfo.at(1).nodeCount)
+        {
+            mainSeg = segInfo.at(0);
+            branchSeg = segInfo.at(1);
+            qDebug() << "primary seg length:" << mainSeg.nodeCount << "   primary seg orient:" << mainSeg.head_tail;
+            qDebug() << "secondary seg length:" << branchSeg.nodeCount << "   secondary seg orient:" << branchSeg.head_tail;
+        }
+        else
+        {
+            mainSeg = segInfo.at(1);
+            branchSeg = segInfo.at(0);
+            qDebug() << "primary seg length:" << mainSeg.nodeCount << "   primary seg orient:" << mainSeg.head_tail;
+            qDebug() << "secondary seg length:" << branchSeg.nodeCount << "   secondary seg orient:" << branchSeg.head_tail;
+        }
+
+        double assignedType;
+        assignedType = segments.seg[segInfo.at(0).segID].row[0].type;
+        segments.seg[mainSeg.segID].row[0].seg_id = mainSeg.segID;
+        //        qDebug()<<"zll___debug__mainSeg.head_tail"<<mainSeg.head_tail;
+        if (mainSeg.head_tail == -1)
+        {
+            //            qDebug()<<"(zll-debug)branchSeg.head_tail="<<branchSeg.head_tail;
+            if (branchSeg.head_tail == -1) // head to head
+            {
+                for (vector<V_NeuronSWC_unit>::iterator itNextSeg = segments.seg[branchSeg.segID].row.end() - 1;
+                     itNextSeg >= segments.seg[branchSeg.segID].row.begin(); --itNextSeg)
+                {
+                    itNextSeg->seg_id = branchSeg.segID;
+                    segments.seg[mainSeg.segID].row.push_back(*itNextSeg);
+                }
+            }
+            else if (branchSeg.head_tail == 2) // head to tail
+            {
+                for (vector<V_NeuronSWC_unit>::iterator itNextSeg = segments.seg[branchSeg.segID].row.begin();
+                     itNextSeg != segments.seg[branchSeg.segID].row.end(); ++itNextSeg)
+                {
+                    itNextSeg->seg_id = branchSeg.segID;
+                    segments.seg[mainSeg.segID].row.push_back(*itNextSeg);
+                }
+            }
+            segments.seg[branchSeg.segID].to_be_deleted = true;
+            segments.seg[branchSeg.segID].on = false;
+
+            // sorting the new segment here, and reassign the root node to the new tail
+            size_t nextSegNo = 1;
+            for (vector<V_NeuronSWC_unit>::iterator itSort = segments.seg[mainSeg.segID].row.begin();
+                 itSort != segments.seg[mainSeg.segID].row.end(); ++itSort)
+            {
+                itSort->data[0] = nextSegNo;
+                itSort->data[6] = itSort->data[0] + 1;
+                ++nextSegNo;
+            }
+            (segments.seg[mainSeg.segID].row.end() - 1)->data[6] = -1;
+        }
+        else if (mainSeg.head_tail == 2)
+        {
+            std::reverse(segments.seg[mainSeg.segID].row.begin(), segments.seg[mainSeg.segID].row.end());
+            //            qDebug()<<"zll___debug__2_branchSeg.head_tail"<<branchSeg.head_tail;
+            if (branchSeg.head_tail == -1) // tail to head
+            {
+                for (vector<V_NeuronSWC_unit>::iterator itNextSeg = segments.seg[branchSeg.segID].row.end() - 1;
+                     itNextSeg >= segments.seg[branchSeg.segID].row.begin(); itNextSeg--)
+                {
+                    itNextSeg->seg_id = branchSeg.segID;
+                    segments.seg[mainSeg.segID].row.push_back(*itNextSeg);
+                }
+            }
+            else if (branchSeg.head_tail == 2) // tail to tail
+            {
+                for (vector<V_NeuronSWC_unit>::iterator itNextSeg = segments.seg[branchSeg.segID].row.begin();
+                     itNextSeg != segments.seg[branchSeg.segID].row.end(); itNextSeg++)
+                {
+                    itNextSeg->seg_id = branchSeg.segID;
+                    segments.seg[mainSeg.segID].row.push_back(*itNextSeg);
+                }
+            }
+            segments.seg[branchSeg.segID].to_be_deleted = true;
+            segments.seg[branchSeg.segID].on = false;
+
+            // sorting the new segment here, and reassign the root node to the new tail
+            std::reverse(segments.seg[mainSeg.segID].row.begin(), segments.seg[mainSeg.segID].row.end());
+            size_t nextSegNo = 1;
+            for (vector<V_NeuronSWC_unit>::iterator itSort = segments.seg[mainSeg.segID].row.begin();
+                 itSort != segments.seg[mainSeg.segID].row.end(); itSort++)
+            {
+                itSort->data[0] = nextSegNo;
+                itSort->data[6] = itSort->data[0] + 1;
+                ++nextSegNo;
+            }
+            (segments.seg[mainSeg.segID].row.end() - 1)->data[6] = -1;
+        }
+
+        // correcting types, based on the main segment type
+        for (vector<V_NeuronSWC_unit>::iterator reID = segments.seg[mainSeg.segID].row.begin();
+             reID != segments.seg[mainSeg.segID].row.end(); ++reID)
+        {
+            reID->seg_id = mainSeg.segID;
+            reID->type = assignedType;
+            //            qDebug()<<"zll_debug"<<reID->type;
+        }
+    }
+    //////////////////////////////////////////// END of [HEAD TAIL CONNECTION] ////////////////////////////////////////////
+
+    //////////////////////////////////////////// BRANCHING CONNECTION ////////////////////////////////////////////
+    if ((segInfo.at(0).head_tail != -1 && segInfo.at(0).head_tail != 2) ^ (segInfo.at(1).head_tail != -1 && segInfo.at(1).head_tail != 2))
+    {
+        segInfoUnit mainSeg, branchSeg;
+        if (segInfo.at(0).head_tail == -1 || segInfo.at(0).head_tail == 2)
+        {
+            mainSeg = segInfo.at(1);
+            branchSeg = segInfo.at(0);
+            qDebug() << "primary seg length:" << mainSeg.nodeCount << "   primary seg orient:" << mainSeg.head_tail;
+            qDebug() << "secondary seg length:" << branchSeg.nodeCount << "   secondary seg orient:" << branchSeg.head_tail;
+        }
+        else
+        {
+            mainSeg = segInfo.at(0);
+            branchSeg = segInfo.at(1);
+            qDebug() << "primary seg length:" << mainSeg.nodeCount << "   primary seg orient:" << mainSeg.head_tail;
+            qDebug() << "secondary seg length:" << branchSeg.nodeCount << "   secondary seg orient:" << branchSeg.head_tail;
+        }
+
+        double assignedType;
+        assignedType = segments.seg[segInfo.at(0).segID].row[0].type;
+        segments.seg[mainSeg.segID].row[0].seg_id = mainSeg.segID;
+        if (branchSeg.head_tail == 2) // branch to tail
+        {
+            std::reverse(segments.seg[branchSeg.segID].row.begin(), segments.seg[branchSeg.segID].row.end());
+            size_t branchSegLength = segments.seg[branchSeg.segID].row.size();
+            size_t mainSegLength = segments.seg[mainSeg.segID].row.size();
+            segments.seg[mainSeg.segID].row.insert(segments.seg[mainSeg.segID].row.end(), segments.seg[branchSeg.segID].row.begin(), segments.seg[branchSeg.segID].row.end());
+            size_t branchN = mainSegLength + 1;
+            for (vector<V_NeuronSWC_unit>::iterator itNextSeg = segments.seg[mainSeg.segID].row.end() - 1;
+                 itNextSeg != segments.seg[mainSeg.segID].row.begin() + ptrdiff_t(mainSegLength - 1); --itNextSeg)
+            {
+                itNextSeg->n = branchN;
+                itNextSeg->seg_id = mainSeg.segID;
+                itNextSeg->parent = branchN - 1;
+                ++branchN;
+            }
+            (segments.seg[mainSeg.segID].row.end() - 1)->parent = (segments.seg[mainSeg.segID].row.begin() + ptrdiff_t(mainSeg.head_tail - 2))->n;
+            segments.seg[branchSeg.segID].to_be_deleted = true;
+            segments.seg[branchSeg.segID].on = false;
+        }
+        else if (branchSeg.head_tail == -1) // branch to head
+        {
+            size_t branchSegLength = segments.seg[branchSeg.segID].row.size();
+            size_t mainSegLength = segments.seg[mainSeg.segID].row.size();
+            segments.seg[mainSeg.segID].row.insert(segments.seg[mainSeg.segID].row.end(), segments.seg[branchSeg.segID].row.begin(), segments.seg[branchSeg.segID].row.end());
+            size_t branchN = mainSegLength + 1;
+            for (vector<V_NeuronSWC_unit>::iterator itNextSeg = segments.seg[mainSeg.segID].row.end() - 1;
+                 itNextSeg != segments.seg[mainSeg.segID].row.begin() + ptrdiff_t(mainSegLength - 1); --itNextSeg)
+            {
+                itNextSeg->n = branchN;
+                itNextSeg->seg_id = mainSeg.segID;
+                itNextSeg->parent = branchN - 1;
+                ++branchN;
+            }
+            (segments.seg[mainSeg.segID].row.end() - 1)->parent = (segments.seg[mainSeg.segID].row.begin() + ptrdiff_t(mainSeg.head_tail - 2))->n;
+            segments.seg[branchSeg.segID].to_be_deleted = true;
+            segments.seg[branchSeg.segID].on = false;
+        }
+
+        // correcting types, based on the main segment type
+        for (vector<V_NeuronSWC_unit>::iterator reID = segments.seg[mainSeg.segID].row.begin();
+             reID != segments.seg[mainSeg.segID].row.end(); ++reID)
+        {
+            reID->seg_id = mainSeg.segID;
+            reID->type = assignedType;
+        }
+    }
+    //////////////////////////////////////////// END of [BRANCHING CONNECTION] ////////////////////////////////////////////
+
+    return;
 }

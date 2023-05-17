@@ -19,11 +19,12 @@ public:
     XYZ getSomaCoordinate(QString apoPath);
     vector<NeuronSWC> specStructsDetection(V_NeuronSWC_list inputSegList, double dist_thresh=3);
     void autoDetectSpecStructs();
-    void handleMulFurcation(vector<NeuronSWC>& outputErroneousPoints, int& count);
-    void handleLoop(vector<NeuronSWC>& outputErroneousPoints, int& count);
+    void handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, int& count);
+    void handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleCrossing(vector<NeuronSWC>& crossingPoints, int& count);
     void handleTip(vector<NeuronSWC>& tipPoints, int& count);
 
+    void addmarkers(const QString msg);
     static CollServer* getInstance();
 
     static QStringList msglist;
@@ -40,6 +41,8 @@ public:
     static QString swcpath;
     static QString apopath;
     static QString anopath;
+
+    static QMutex mutex;
 
 signals:
     void clientAddMarker(QString);

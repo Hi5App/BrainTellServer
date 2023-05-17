@@ -74,7 +74,6 @@ public slots:
 private:
     CollServer* myServer;
 //    SocketHelper* sockethelper;
-    QMutex mutex;
 
     void sendfiles(const QStringList &filenames);//发送文件
     void preprocessmsgs(const QStringList &msgs);//处理消息

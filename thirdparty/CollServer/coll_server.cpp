@@ -10,6 +10,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <algorithm>
 extern QFile *logfile;
 
 CollServer* CollServer::curServer=nullptr;
@@ -27,6 +28,7 @@ QList<CellAPO> CollServer::markers;
 QString CollServer::swcpath;
 QString CollServer::apopath;
 QString CollServer::anopath;
+QMutex CollServer::mutex;
 
 CollServer::CollServer(QString port,QString image,QString neuron,QString anoname,QString prefix,QObject *parent)
     :QTcpServer(parent),Port(port),Image(image),Neuron(neuron),AnoName(anoname),Prefix(prefix+"/data/"+image+"/"+neuron+"/"+anoname)
@@ -36,6 +38,7 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     curServer=this;
     accessManager=new QNetworkAccessManager(this);
     HostAddress=="http://114.117.165.134:26000/SuperUser";
+
 
     qRegisterMetaType<qintptr>("qintptr");
 
@@ -137,7 +140,9 @@ void CollServer::incomingConnection(qintptr handle){
 }
 
 void CollServer::imediateSave(){
+    mutex.lock();
     savedmsgcnt=processedmsgcnt;
+    mutex.unlock();
     writeESWC_file(Prefix+"/"+AnoName+".ano.eswc",V_NeuronSWC_list__2__NeuronTree(segments));
     writeAPO_file(Prefix+"/"+AnoName+".ano.apo",markers);
 }
@@ -246,15 +251,24 @@ XYZ CollServer::getSomaCoordinate(QString apoPath){
 
 vector<NeuronSWC> CollServer::specStructsDetection(V_NeuronSWC_list inputSegList, double dist_thresh){
 
-    vector<NeuronSWC> outputErroneousPoints;
-    outputErroneousPoints.clear();
+    vector<NeuronSWC> outputSpecialPoints;
+    outputSpecialPoints.clear();
 
     map<string, set<size_t> > wholeGrid2segIDmap;
     map<string, bool> isEndPointMap;
     map<string, set<string>> parentMap;
 
+    set<string> allPoints;
+    map<string, set<string>> childMap;
+
     for(size_t i=0; i<inputSegList.seg.size(); ++i){
         V_NeuronSWC seg = inputSegList.seg[i];
+        vector<int> rowN2Index(seg.row.size()+1);
+
+        for(size_t j=0; j<seg.row.size(); ++j){
+            rowN2Index[seg.row[j].n]=j;
+        }
+
         for(size_t j=0; j<seg.row.size(); ++j){
             float xLabel = seg.row[j].x;
             float yLabel = seg.row[j].y;
@@ -262,14 +276,16 @@ vector<NeuronSWC> CollServer::specStructsDetection(V_NeuronSWC_list inputSegList
             QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
             string gridKey = gridKeyQ.toStdString();
             wholeGrid2segIDmap[gridKey].insert(size_t(i));
+            allPoints.insert(gridKey);
 
             if(seg.row[j].parent!=-1){
-                float x2Label=seg.row[seg.row[j].parent].x;
-                float y2Label=seg.row[seg.row[j].parent].y;
-                float z2Label=seg.row[seg.row[j].parent].z;
+                float x2Label=seg.row[rowN2Index[seg.row[j].parent]].x;
+                float y2Label=seg.row[rowN2Index[seg.row[j].parent]].y;
+                float z2Label=seg.row[rowN2Index[seg.row[j].parent]].z;
                 QString parentKeyQ=QString::number(x2Label) + "_" + QString::number(y2Label) + "_" + QString::number(z2Label);
                 string parentKey=parentKeyQ.toStdString();
                 parentMap[gridKey].insert(parentKey);
+                childMap[parentKey].insert(gridKey);
             }
 
             if(j == 0 || j == seg.row.size() - 1){
@@ -284,7 +300,23 @@ vector<NeuronSWC> CollServer::specStructsDetection(V_NeuronSWC_list inputSegList
         }
 
     }
+
     qDebug()<<"whole end";
+
+    set<string> childMapKeys;
+    set<string> tips;
+    //detect tips
+    for(auto it=childMap.begin();it!=childMap.end();it++){
+//        qDebug()<<QString::fromStdString(it->first);
+        childMapKeys.insert(it->first);
+    }
+    set_difference(allPoints.begin(),allPoints.end(),childMapKeys.begin(),childMapKeys.end(),inserter(tips, tips.begin()));
+    for(auto it=tips.begin();it!=tips.end();it++){
+        NeuronSWC s;
+        stringToXYZ(*it,s.x,s.y,s.z);
+        s.type = 10;
+        outputSpecialPoints.push_back(s);
+    }
 
     vector<string> points;
     vector<set<int>> linksIndex;
@@ -361,7 +393,7 @@ vector<NeuronSWC> CollServer::specStructsDetection(V_NeuronSWC_list inputSegList
             NeuronSWC s;
             stringToXYZ(points[i],s.x,s.y,s.z);
             s.type = 8;
-            outputErroneousPoints.push_back(s);
+            outputSpecialPoints.push_back(s);
         }
     }
 
@@ -370,7 +402,7 @@ vector<NeuronSWC> CollServer::specStructsDetection(V_NeuronSWC_list inputSegList
         counts.push_back(linksIndexVec[i].size());
     }
 
-    qDebug()<<"outputError size:"<<outputErroneousPoints.size();
+    qDebug()<<"outputError size:"<<outputSpecialPoints.size();
 
     //    map<string, set<size_t> > wholeGrid2segIDmap2;
     //    for(auto it : wholeGrid2segIDmap){
@@ -421,13 +453,13 @@ vector<NeuronSWC> CollServer::specStructsDetection(V_NeuronSWC_list inputSegList
                 NeuronSWC s;
                 stringToXYZ(newpoints[start+(j+1)*12],s.x,s.y,s.z);
                 s.type = 0;
-                outputErroneousPoints.push_back(s);
+                outputSpecialPoints.push_back(s);
             }
 
             NeuronSWC s;
             stringToXYZ(newpoints[i],s.x,s.y,s.z);
             s.type = 0;
-            outputErroneousPoints.push_back(s);
+            outputSpecialPoints.push_back(s);
 
             start=i+1;
             qDebug()<<"loop exists";
@@ -442,7 +474,7 @@ vector<NeuronSWC> CollServer::specStructsDetection(V_NeuronSWC_list inputSegList
             NeuronSWC s;
             stringToXYZ(newpoints[start+(j+1)*12],s.x,s.y,s.z);
             s.type = 0;
-            outputErroneousPoints.push_back(s);
+            outputSpecialPoints.push_back(s);
         }
     }
 
@@ -498,31 +530,31 @@ vector<NeuronSWC> CollServer::specStructsDetection(V_NeuronSWC_list inputSegList
         NeuronSWC n;
         stringToXYZ(points[*it],n.x,n.y,n.z);
         n.type=6;
-        outputErroneousPoints.push_back(n);
+        outputSpecialPoints.push_back(n);
     }
 
-    return outputErroneousPoints;
+    return outputSpecialPoints;
 
 }
 
-void CollServer::handleMulFurcation(vector<NeuronSWC>& outputErroneousPoints, int& count){
-    for(int i=0;i<outputErroneousPoints.size();i++){
+void CollServer::handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, int& count){
+    for(int i=0;i<outputSpecialPoints.size();i++){
         if(isSomaExists)
         {
-            if(outputErroneousPoints[i].type == 8
-                && (abs(outputErroneousPoints[i].x - somaCoordinate.x) > 5 ||
-                    abs(outputErroneousPoints[i].y - somaCoordinate.y) > 5  ||
-                    abs(outputErroneousPoints[i].z - somaCoordinate.z) > 5 ))
+            if((abs(outputSpecialPoints[i].x - somaCoordinate.x) > 5 ||
+                    abs(outputSpecialPoints[i].y - somaCoordinate.y) > 5  ||
+                    abs(outputSpecialPoints[i].z - somaCoordinate.z) > 5 ))
             {
                 count++;
                 QStringList result;
                 result.push_back(QString("%1 server").arg(0));
-                result.push_back(QString("%1 %2 %3 %4").arg(outputErroneousPoints[i].type).arg(outputErroneousPoints[i].x).arg(outputErroneousPoints[i].y).arg(outputErroneousPoints[i].z));
+                result.push_back(QString("%1 %2 %3 %4").arg(outputSpecialPoints[i].type).arg(outputSpecialPoints[i].x).arg(outputSpecialPoints[i].y).arg(outputSpecialPoints[i].z));
                 QString msg=QString("/WARN_MulBifurcation:"+result.join(","));
                 //            const std::string data=msg.toStdString();
                 //            const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
-                auto sockets=hashmap.values();
-                emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
+
+                //emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size());
+                addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
                 qDebug()<<"Server finish /WARN_MulBifurcation";
 
                 //                for(auto &socket:sockets){
@@ -533,45 +565,42 @@ void CollServer::handleMulFurcation(vector<NeuronSWC>& outputErroneousPoints, in
         }
 
         else{
-            if(outputErroneousPoints[i].type == 8)
-            {
-                count++;
-                QStringList result;
-                result.push_back(QString("%1 server").arg(0));
-                result.push_back(QString("%1 %2 %3 %4").arg(outputErroneousPoints[i].type).arg(outputErroneousPoints[i].x).arg(outputErroneousPoints[i].y).arg(outputErroneousPoints[i].z));
-                QString msg=QString("/WARN_MulBifurcation:"+result.join(","));
-                //            const std::string data=msg.toStdString();
-                //            const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
-                //                auto sockets=hashmap.values();
-                emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
-                qDebug()<<"Server finish /WARN_MulBifurcation";
+            count++;
+            QStringList result;
+            result.push_back(QString("%1 server").arg(0));
+            result.push_back(QString("%1 %2 %3 %4").arg(outputSpecialPoints[i].type).arg(outputSpecialPoints[i].x).arg(outputSpecialPoints[i].y).arg(outputSpecialPoints[i].z));
+            QString msg=QString("/WARN_MulBifurcation:"+result.join(","));
+            //            const std::string data=msg.toStdString();
+            //            const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
+            //                auto sockets=hashmap.values();
+//                emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
+            addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
+            qDebug()<<"Server finish /WARN_MulBifurcation";
 
-                //                for(auto &socket:sockets){
-                //                    socket->sendmsgs({msg});
-                //                }
-                emit clientSendMsgs({msg});
-            }
+            //                for(auto &socket:sockets){
+            //                    socket->sendmsgs({msg});
+            //                }
+            emit clientSendMsgs({msg});
         }
     }
 }
 
-void CollServer::handleLoop(vector<NeuronSWC>& outputErroneousPoints, int& count){
-    for(int i=0;i<outputErroneousPoints.size();i++){
-        if(outputErroneousPoints[i].type == 0){
-            count++;
-            QStringList result;
-            result.push_back(QString("%1 server").arg(0));
-            result.push_back(QString("%1 %2 %3 %4").arg(outputErroneousPoints[i].type).arg(outputErroneousPoints[i].x).arg(outputErroneousPoints[i].y).arg(outputErroneousPoints[i].z));
-            QString msg=QString("/WARN_Loop:"+result.join(","));
-            //            auto sockets=hashmap.values();
-            emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_Loop:").size()));
-            qDebug()<<"Server finish /WARN_Loop";
+void CollServer::handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& count){
+    for(int i=0;i<outputSpecialPoints.size();i++){
+        count++;
+        QStringList result;
+        result.push_back(QString("%1 server").arg(0));
+        result.push_back(QString("%1 %2 %3 %4").arg(outputSpecialPoints[i].type).arg(outputSpecialPoints[i].x).arg(outputSpecialPoints[i].y).arg(outputSpecialPoints[i].z));
+        QString msg=QString("/WARN_Loop:"+result.join(","));
+        //            auto sockets=hashmap.values();
+//            emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_Loop:").size()));
+        addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_Loop:").size()));
+        qDebug()<<"Server finish /WARN_Loop";
 
-            //            for(auto &socket:sockets){
-            //                socket->sendmsgs({msg});
-            //            }
-            emit clientSendMsgs({msg});
-        }
+        //            for(auto &socket:sockets){
+        //                socket->sendmsgs({msg});
+        //            }
+        emit clientSendMsgs({msg});
     }
 }
 
@@ -585,7 +614,8 @@ void CollServer::handleCrossing(vector<NeuronSWC>& crossingPoints, int& count){
         //            const std::string data=msg.toStdString();
         //            const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
         //            auto sockets=hashmap.values();
-        emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_Crossing:").size()));
+//        emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_Crossing:").size()));
+        addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_Crossing:").size()));
         qDebug()<<"Server finish /WARN_Crossing";
         //                for(auto &socket:sockets){
         //                    socket->sendmsgs({msg});
@@ -593,40 +623,40 @@ void CollServer::handleCrossing(vector<NeuronSWC>& crossingPoints, int& count){
         emit clientSendMsgs({msg});
     }
 
-    if(crossingPoints.size()!=0){
-        QNetworkRequest request;
-        request.setUrl(QUrl(HostAddress+"/detect/crossing"));
-        qDebug()<<HostAddress;
-        request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-        QJsonObject json;
-        QString emp="123";
-        json.insert("exmple", emp);
+//    if(crossingPoints.size()!=0){
+//        QNetworkRequest request;
+//        request.setUrl(QUrl(HostAddress+"/detect/crossing"));
+//        qDebug()<<HostAddress;
+//        request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+//        QJsonObject json;
+//        QString emp="123";
+//        json.insert("exmple", emp);
 
-        QJsonDocument document;
-        document.setObject(json);
-        QString str=QString(document.toJson());
-        QByteArray byteArray = str.toUtf8();
+//        QJsonDocument document;
+//        document.setObject(json);
+//        QString str=QString(document.toJson());
+//        QByteArray byteArray = str.toUtf8();
 
-        qDebug()<<byteArray;
-        QNetworkReply* reply = accessManager->post(request, byteArray);
-        if(!reply)
-            qDebug()<<"reply = nullptr";
+//        qDebug()<<byteArray;
+//        QNetworkReply* reply = accessManager->post(request, byteArray);
+//        if(!reply)
+//            qDebug()<<"reply = nullptr";
 
-        QEventLoop eventLoop;
-        connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
-        eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+//        QEventLoop eventLoop;
+//        connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
+//        eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
 
-        int code=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        qDebug()<<"handleCrossing"<<code;
-        if(code==200)
-        {
+//        int code=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+//        qDebug()<<"handleCrossing"<<code;
+//        if(code==200)
+//        {
 
-        }
-        else
-        {
+//        }
+//        else
+//        {
 
-        }
-    }
+//        }
+//    }
 
 }
 
@@ -641,7 +671,8 @@ void CollServer::handleTip(vector<NeuronSWC>& tipPoints, int& count){
         //            const std::string data=msg.toStdString();
         //            const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
         //            auto sockets=hashmap.values();
-        emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_Tip:").size()));
+//        emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_Tip:").size()));
+        addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_Tip:").size()));
         qDebug()<<"Server finish /WARN_Tip";
         //                for(auto &socket:sockets){
         //                    socket->sendmsgs({msg});
@@ -649,56 +680,65 @@ void CollServer::handleTip(vector<NeuronSWC>& tipPoints, int& count){
         emit clientSendMsgs({msg});
     }
 
-    if(tipPoints.size()!=0){
-        QNetworkRequest request;
-        request.setUrl(QUrl(HostAddress+"/detect/missing"));
-        qDebug()<<HostAddress;
-        request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-        QJsonObject json;
-        QString emp="123";
-        json.insert("exmple", emp);
+//    if(tipPoints.size()!=0){
+//        QNetworkRequest request;
+//        request.setUrl(QUrl(HostAddress+"/detect/missing"));
+//        qDebug()<<HostAddress;
+//        request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+//        QJsonObject json;
+//        QString emp="123";
+//        json.insert("exmple", emp);
 
-        QJsonDocument document;
-        document.setObject(json);
-        QString str=QString(document.toJson());
-        QByteArray byteArray = str.toUtf8();
+//        QJsonDocument document;
+//        document.setObject(json);
+//        QString str=QString(document.toJson());
+//        QByteArray byteArray = str.toUtf8();
 
-        qDebug()<<byteArray;
-        QNetworkReply* reply = accessManager->post(request, byteArray);
-        if(!reply)
-            qDebug()<<"reply = nullptr";
+//        qDebug()<<byteArray;
+//        QNetworkReply* reply = accessManager->post(request, byteArray);
+//        if(!reply)
+//            qDebug()<<"reply = nullptr";
 
-        QEventLoop eventLoop;
-        connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
-        eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+//        QEventLoop eventLoop;
+//        connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
+//        eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
 
-        int code=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        qDebug()<<"handleCrossing"<<code;
-        if(code==200)
-        {
+//        int code=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+//        qDebug()<<"handleCrossing"<<code;
+//        if(code==200)
+//        {
 
-        }
-        else
-        {
+//        }
+//        else
+//        {
 
-        }
-    }
+//        }
+//    }
 }
 
 
 void CollServer::autoDetectSpecStructs(){
     int count=0;
-    vector<NeuronSWC> outputErroneousPoints = specStructsDetection(segments);
+    vector<NeuronSWC> outputSpecialPoints = specStructsDetection(segments);
     vector<NeuronSWC> crossingPoints;
-    for(int i=0;i<outputErroneousPoints.size();i++){
-        if(outputErroneousPoints[i].type == 6){
-            crossingPoints.push_back(outputErroneousPoints[i]);
-        }
+    vector<NeuronSWC> tipPoints;
+    vector<NeuronSWC> mulfurPoints;
+    vector<NeuronSWC> loopPoints;
+    for(int i=0;i<outputSpecialPoints.size();i++){
+        if(outputSpecialPoints[i].type == 6)
+            crossingPoints.push_back(outputSpecialPoints[i]);
+        else if(outputSpecialPoints[i].type == 10)
+            tipPoints.push_back(outputSpecialPoints[i]);
+        else if(outputSpecialPoints[i].type == 0)
+            loopPoints.push_back(outputSpecialPoints[i]);
+        else if(outputSpecialPoints[i].type == 8)
+            mulfurPoints.push_back(outputSpecialPoints[i]);
     }
 
-    handleMulFurcation(outputErroneousPoints, count);
-    handleLoop(outputErroneousPoints, count);
+    handleMulFurcation(mulfurPoints, count);
+    handleLoop(loopPoints, count);
     handleCrossing(crossingPoints, count);
+//    handleTip(tipPoints, count);
 
     if(count!=0){
         imediateSave();
@@ -723,6 +763,54 @@ void CollServer::RemoveList(QThread* thread){
                 break;
             }
         }
+    }
+}
+
+void CollServer::addmarkers(const QString msg){
+    qDebug()<<msg;
+    QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
+    if(pointlistwithheader.size()<1){
+        std::cerr<<"ERROR:pointlistwithheader.size<1\n";
+    }
+
+    QStringList headerlist=pointlistwithheader[0].split(' ',Qt::SkipEmptyParts);
+    if(headerlist.size()<2) {
+        std::cerr<<"ERROR:headerlist.size<1\n";
+    }
+
+    unsigned int clienttype=headerlist[0].toUInt();
+    int useridx=headerlist[1].toUInt();
+
+    QStringList pointlist=pointlistwithheader;
+    pointlist.removeAt(0);
+    if(pointlist.size()==0){
+        std::cerr<<"ERROR:pointlist.size=0\n";
+    }
+
+    CellAPO marker;
+
+    for(auto &msg:pointlist){
+        auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
+        if(markerinfo.size()!=4) continue;
+        marker.color.r=neuron_type_color[markerinfo[0].toUInt()][0];
+        marker.color.g=neuron_type_color[markerinfo[0].toUInt()][1];
+        marker.color.b=neuron_type_color[markerinfo[0].toUInt()][2];
+        marker.x=markerinfo[1].toDouble();
+        marker.y=markerinfo[2].toDouble();
+        marker.z=markerinfo[3].toDouble();
+
+        for(auto it=markers.begin();it!=markers.end(); ++it)
+        {
+            if(it->color.r==marker.color.r&&it->color.g==marker.color.g&&it->color.b==marker.color.b
+                &&abs(it->x-marker.x)<1&&abs(it->y-marker.y)<1&&abs(it->z-marker.z)<1)
+            {
+                qDebug()<<"the marker has already existed";
+                return;
+            }
+        }
+
+        markers.append(marker);
+        qDebug()<<"server addmarker";
     }
 }
 

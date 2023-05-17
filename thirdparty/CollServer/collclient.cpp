@@ -77,13 +77,13 @@ void CollClient::addseg(const QString msg)
     }
     auto addnt=convertMsg2NT(pointlist,clienttype,useridx,0);
 
-    mutex.lock();
+    myServer->mutex.lock();
     myServer->segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
-    mutex.unlock();
+    myServer->mutex.unlock();
     qDebug()<<"server addseg";
-    for(int i=0;i<myServer->segments.seg.size();i++){
-        myServer->segments.seg[i].printInfo();
-    }
+//    for(int i=0;i<myServer->segments.seg.size();i++){
+//        myServer->segments.seg[i].printInfo();
+//    }
 }
 
 void CollClient::delseg(const QString msg)
@@ -112,7 +112,7 @@ void CollClient::delseg(const QString msg)
     auto delsegs=NeuronTree__2__V_NeuronSWC_list(delnt).seg;
 
     int count=0;
-    mutex.lock();
+    myServer->mutex.lock();
     for(int i=0;i<delsegs.size();i++){
         auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),delsegs[i]);
         if(it!=myServer->segments.seg.end())
@@ -125,10 +125,10 @@ void CollClient::delseg(const QString msg)
         else
             std::cerr<<"INFO:not find del seg ,"<<msg.toStdString()<<std::endl;
     }
-    mutex.unlock();
-    for(int i=0;i<myServer->segments.seg.size();i++){
-        myServer->segments.seg[i].printInfo();
-    }
+    myServer->mutex.unlock();
+//    for(int i=0;i<myServer->segments.seg.size();i++){
+//        myServer->segments.seg[i].printInfo();
+//    }
 }
 
 void CollClient::connectseg(const QString msg){
@@ -162,7 +162,7 @@ void CollClient::connectseg(const QString msg){
 
     vector<segInfoUnit> segInfo;
 
-    mutex.lock();
+    QMutexLocker locker(&myServer->mutex);
     for(int i=0;i<connectsegs.size();i++){
         auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),connectsegs[i]);
         if(it!=myServer->segments.seg.end())
@@ -229,6 +229,7 @@ void CollClient::connectseg(const QString msg){
 
         else{
             std::cerr<<"INFO:not find connect seg ,"<<msg.toStdString()<<std::endl;
+//            myServer->mutex.unlock();
             return;
         }
     }
@@ -263,7 +264,6 @@ void CollClient::connectseg(const QString msg){
             iter = myServer->segments.seg.erase(iter);
         else
             ++iter;
-    mutex.unlock();
 
 //    auto addnt=convertMsg2NT(pointlist,clienttype,useridx,0);
 //    myServer->segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
@@ -294,7 +294,7 @@ void CollClient::addmarkers(const QString msg)
 
     CellAPO marker;
 
-    mutex.lock();
+    QMutexLocker locker(&myServer->mutex);
     for(auto &msg:pointlist){
         auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
         if(markerinfo.size()!=4) continue;
@@ -311,6 +311,7 @@ void CollClient::addmarkers(const QString msg)
                 &&abs(it->x-marker.x)<1&&abs(it->y-marker.y)<1&&abs(it->z-marker.z)<1)
             {
                 qDebug()<<"the marker has already existed";
+//                myServer->mutex.unlock();
                 return;
             }
         }
@@ -318,7 +319,6 @@ void CollClient::addmarkers(const QString msg)
         myServer->markers.append(marker);
         qDebug()<<"server addmarker";
     }
-    mutex.unlock();
 }
 
 void CollClient::delmarkers(const QString msg)
@@ -344,7 +344,7 @@ void CollClient::delmarkers(const QString msg)
     CellAPO marker;
     int idx=-1;
 
-    mutex.lock();
+    QMutexLocker locker(&myServer->mutex);
     for(auto &msg:pointlist){
         auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
         if(markerinfo.size()!=4) continue;
@@ -359,6 +359,7 @@ void CollClient::delmarkers(const QString msg)
                  (marker.z-myServer->somaCoordinate.z)*(marker.z-myServer->somaCoordinate.z))<1)
         {
             qDebug()<<"cannot delete the soma marker";
+//            myServer->mutex.unlock();
             return;
         }
         idx=findnearest(marker,myServer->markers);
@@ -370,7 +371,6 @@ void CollClient::delmarkers(const QString msg)
             std::cerr<<"find marker failed."+msg.toStdString()+"\n";
         }
     }
-    mutex.unlock();
 }
 
 void CollClient::retypemarker(const QString msg){
@@ -395,7 +395,7 @@ void CollClient::retypemarker(const QString msg){
     CellAPO marker;
     int idx=-1;
 
-    mutex.lock();
+    QMutexLocker locker(&myServer->mutex);
     for(auto &msg:pointlist){
         auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
         if(markerinfo.size()!=6) continue;
@@ -423,7 +423,6 @@ void CollClient::retypemarker(const QString msg){
             std::cerr<<"find marker failed."+msg.toStdString()+"\n";
         }
     }
-    mutex.unlock();
 }
 
 void CollClient::retypesegment(const QString msg)
@@ -456,11 +455,12 @@ void CollClient::retypesegment(const QString msg)
 
     int count=0;
 
-    mutex.lock();
+    QMutexLocker locker(&myServer->mutex);
     for(int i=0;i<retypesegs.size();i++){
         auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),retypesegs[i]);
         if(it==myServer->segments.seg.end()){
             std::cerr<<"INFO:not find retype seg ,"<<msg.toStdString()<<std::endl;
+//            myServer->mutex.unlock();
             return;
         }
         int now=QDateTime::currentMSecsSinceEpoch();
@@ -473,7 +473,6 @@ void CollClient::retypesegment(const QString msg)
             qDebug()<<"server retypesegment";
         count++;
     }
-    mutex.unlock();
 }
 
 void CollClient::sendmsgs(const QStringList &msgs)
@@ -550,7 +549,7 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
                 retypesegment(msg.right(msg.size()-QString("/retypeline_norm:").size()));
             }
 
-            mutex.lock();
+            myServer->mutex.lock();
             myServer->processedmsgcnt+=1;
 
             QString log;
@@ -563,7 +562,7 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
             }
             logfile->write(log.toStdString().c_str(),log.toStdString().size());
             myServer->msglist.append(msg);
-            mutex.unlock();
+            myServer->mutex.unlock();
         }
     }
 
@@ -606,9 +605,9 @@ void CollClient::onread()
                     this->read(data,datatype.datasize);
                     data[datatype.datasize]='\0';
 
-                    mutex.lock();
+                    myServer->mutex.lock();
                     myServer->receivedcnt+=1;
-                    mutex.unlock();
+                    myServer->mutex.unlock();
 
                     QString log;
                     if(strlen(data)>128){
@@ -676,7 +675,7 @@ void CollClient::onError(QAbstractSocket::SocketError socketError){
 void CollClient::receiveuser(const QString user)
 {
     username=user;
-    mutex.lock();
+    myServer->mutex.lock();
     if(myServer->hashmap.contains(user))
     {
         std::cerr<<"ERROR:"+user.toStdString()+" is duolicate,will remove the first\n";
@@ -684,7 +683,7 @@ void CollClient::receiveuser(const QString user)
           emit myServer->clientDisconnectFromHost(myServer->hashmap[user]);
     }
     myServer->hashmap[user]=this;
-    mutex.unlock();
+    myServer->mutex.unlock();
     updateuserlist();
 
     myServer->imediateSave();
@@ -693,10 +692,10 @@ void CollClient::receiveuser(const QString user)
     myServer->anopath,myServer->apopath,myServer->swcpath
               });
 
-    mutex.lock();
+    myServer->mutex.lock();
     sendmsgcnt=myServer->savedmsgcnt;
     qDebug()<<"receive user init sendmsgcnt = "<<sendmsgcnt;
-    mutex.unlock();
+    myServer->mutex.unlock();
     // 获取协同的ano文件名
     QString msg=QString("STARTCOLLABORATE:%1").arg(myServer->anopath.section('/',-1,-1));
     sendmsgs({msg});

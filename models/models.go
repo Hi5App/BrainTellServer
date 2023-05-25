@@ -110,14 +110,13 @@ type TSomainfo struct {
 }
 
 type TUserinfo struct {
-	Id       int    `xorm:"not null pk autoincr INT"`
-	Name     string `xorm:"not null unique VARCHAR(100)"`
-	Email    string `xorm:"not null unique VARCHAR(100)"`
-	Nickname string `xorm:"not null VARCHAR(100)"`
-	Passwd   string `xorm:"not null VARCHAR(100)"`
-	Score    int    `xorm:"not null default 0 index INT"`
-	Appkey   string `xorm:"not null default '' comment('网易云信appkey
-') VARCHAR(100)"`
+	Id        int       `xorm:"not null pk autoincr INT"`
+	Name      string    `xorm:"not null unique VARCHAR(100)"`
+	Email     string    `xorm:"not null unique VARCHAR(100)"`
+	Nickname  string    `xorm:"not null VARCHAR(100)"`
+	Passwd    string    `xorm:"not null VARCHAR(100)"`
+	Score     int       `xorm:"not null default 0 index INT"`
+	Appkey    string    `xorm:"not null default '' comment('网易云信appkey') VARCHAR(100)"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
 	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
 	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
@@ -146,4 +145,43 @@ type TGameRecord struct {
 	Isdeleted int       `xorm:"not null default 0 INT"`
 	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('创建时间') TIMESTAMP created"`
 	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('更新时间') TIMESTAMP updated"`
+}
+
+// bouton 检查相关的数据结构
+type TArborBouton struct {
+	Id        int       `xorm:"not null pk autoincr INT"`
+	Name      string    `xorm:"not null unique VARCHAR(100)"`
+	Somaid    string    `xorm:"not null unique(t_arbor_bouton_SomaId_X_Y_Z_uindex) VARCHAR(100)"`
+	Image     string    `xorm:"not null index VARCHAR(100)"`
+	X         string    `xorm:"not null unique(t_arbor_bouton_SomaId_X_Y_Z_uindex) DECIMAL(10,3)"`
+	Y         string    `xorm:"not null unique(t_arbor_bouton_SomaId_X_Y_Z_uindex) DECIMAL(10,3)"`
+	Z         string    `xorm:"not null unique(t_arbor_bouton_SomaId_X_Y_Z_uindex) DECIMAL(10)"`
+	Status    int       `xorm:"not null default 0 index(t_arbor_bouton_Is_deleted_Status_index) INT"`
+	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	Isdeleted int       `xorm:"not null default 0 index(t_arbor_bouton_Is_deleted_Status_index) INT"`
+}
+
+type TArbordetailBouton struct {
+	Id        int       `xorm:"not null pk autoincr INT"`
+	Arborid   int       `xorm:"not null index(t_arbordetail_bouton_ArborId_Isdeleted_index) unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) INT"`
+	X         string    `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) DECIMAL(10,3)"`
+	Y         string    `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) DECIMAL(10,3)"`
+	Z         string    `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) DECIMAL(10,3)"`
+	Type      int       `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) INT"`
+	Owner     string    `xorm:"not null index VARCHAR(200)"`
+	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	Isdeleted int       `xorm:"not null default 0 index(t_arbordetail_bouton_ArborId_Isdeleted_index) INT"`
+}
+
+type TArborresultBouton struct {
+	Id        int       `xorm:"not null pk autoincr INT"`
+	Arborid   int       `xorm:"not null index(t_arborresult_bouton_ArborId_Iddeleted_index) unique(t_arborresult_bouton_ArborId_Owner_uindex) INT"`
+	Result    int       `xorm:"not null comment('用户判断的结果') INT"`
+	Form      int       `xorm:"not null comment('用户从什么方式获得数据') index INT"`
+	Owner     string    `xorm:"not null unique(t_arborresult_bouton_ArborId_Owner_uindex) index VARCHAR(200)"`
+	Isdeleted int       `xorm:"not null default 0 index(t_arborresult_bouton_ArborId_Iddeleted_index) INT"`
+	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
 }

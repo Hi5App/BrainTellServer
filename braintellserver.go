@@ -43,6 +43,15 @@ func main() {
 	//查一个
 	http.HandleFunc("/dynamic/arbordetail/query", services.QueryArborDetail)
 
+	//// bouton check service
+	//http.HandleFunc("/dynamic/arbor/getboutonarbor", services.GetBoutonArbor)
+	//http.HandleFunc("/dynamic/arbor/updateboutonarborresult", services.UpdateBoutonArborResult)
+	//http.HandleFunc("/dynamic/arbor/queryboutonarborresult", services.QueryBoutonArborResult)
+	//// bouton detail的相关操作
+	//http.HandleFunc("/dynamic/boutonarbordetail/insert", services.InsertBoutonArborDetail)
+	//http.HandleFunc("/dynamic/boutonarbordetail/delete", services.DeleteBoutonArbordetail)
+	//http.HandleFunc("/dynamic/boutonarbordetail/query", services.QueryBoutonArborDetail)
+
 	//collaborate service
 	http.HandleFunc("/dynamic/collaborate/getanoimage", services.GetAnoImage)
 	http.HandleFunc("/dynamic/collaborate/getanoneuron", services.GetAnoNeuron)

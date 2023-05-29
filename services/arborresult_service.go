@@ -133,3 +133,89 @@ func QueryArborResult(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.EncodeToHttp(w, 200, string(str))
 }
+
+// bouton相关的操作
+func UpdateBoutonArborResult(w http.ResponseWriter, r *http.Request) {
+	var p UpdateArborResultParam
+	param, err := utils.DecodeFromHttp(r, &p)
+	if err != nil {
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	_, ok := param.(*UpdateArborResultParam)
+	if !ok {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "param.(*do.UserInfo) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	if _, err := ao.Login(&do.UserInfo{
+		Name:   p.User.Name,
+		Passwd: p.User.Passwd,
+	}); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "param.(*do.UserInfo) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 401, err.Error())
+		return
+	}
+
+	for _, pv := range p.Pa.Insertlist {
+		pv.Owner = p.User.Name
+	}
+
+	err = ao.UpdateBoutonArborResult(&p.Pa)
+	if err != nil {
+		utils.EncodeToHttp(w, 501, err.Error())
+		return
+	}
+	utils.EncodeToHttp(w, 200, "")
+}
+
+func QueryBoutonArborResult(w http.ResponseWriter, r *http.Request) {
+	var p QueryArborResultParam
+	param, err := utils.DecodeFromHttp(r, &p)
+	if err != nil {
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	_, ok := param.(*QueryArborResultParam)
+	if !ok {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "param.(*do.UserInfo) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	if _, err := ao.Login(&do.UserInfo{
+		Name:   p.User.Name,
+		Passwd: p.User.Passwd,
+	}); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "param.(*do.UserInfo) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 401, err.Error())
+		return
+	}
+
+	res, err := ao.QueryBoutonArborResult(p.ArborId)
+	if err != nil {
+		utils.EncodeToHttp(w, 501, err.Error())
+		return
+	}
+	str, err := json.Marshal(res)
+	if err != nil {
+		utils.EncodeToHttp(w, 502, err.Error())
+		return
+	}
+	utils.EncodeToHttp(w, 200, string(str))
+}

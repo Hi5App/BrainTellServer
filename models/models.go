@@ -165,9 +165,9 @@ type TArborBouton struct {
 type TArbordetailBouton struct {
 	Id        int       `xorm:"not null pk autoincr INT"`
 	Arborid   int       `xorm:"not null index(t_arbordetail_bouton_ArborId_Isdeleted_index) unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) INT"`
-	X         string    `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) DECIMAL(10,3)"`
-	Y         string    `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) DECIMAL(10,3)"`
-	Z         string    `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) DECIMAL(10,3)"`
+	X         float64   `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) DECIMAL(10,3)"`
+	Y         float64   `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) DECIMAL(10,3)"`
+	Z         float64   `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) DECIMAL(10,3)"`
 	Type      int       `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) INT"`
 	Owner     string    `xorm:"not null index VARCHAR(200)"`
 	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`

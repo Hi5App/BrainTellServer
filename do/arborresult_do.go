@@ -128,3 +128,82 @@ func QueryArborGroupByUser(isToday bool) (map[string]int64, error) {
 	}
 	return res, err
 }
+
+// bouton相关操作
+func InsertBoutonArborResult(pa []*models.TArborresultBouton) (int64, error) {
+	jsonpa, _ := jsoniter.MarshalToString(pa)
+	// 判断record arborID Owner是否存在
+
+	fmt.Println("insert-bouton-arbor-result,len of pa:", len(pa))
+	var totalAffected = int64(0)
+
+	for i := 0; i < len(pa); i++ {
+		arborResult := &models.TArborresultBouton{
+			Arborid: pa[i].Arborid,
+			Owner:   pa[i].Owner,
+		}
+		fmt.Printf("insert-arbor-result, arbor result before:%v\n", arborResult)
+		has, err := utils.DB.Where("Isdeleted = ?", 0).Get(arborResult)
+		fmt.Println("insert-arbor-result, result exist:", has)
+		fmt.Printf("insert-arbor-result, arbor result after:%v\n", arborResult)
+
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event": "Insert Bouton ArborResult Get",
+				"pa":    jsonpa,
+				"err":   err,
+			}).Infof("Failed")
+			return 0, err
+		}
+
+		if has == true {
+			// exist update 覆盖之前的result
+			arborResult.Result = pa[i].Result
+			affected, err := utils.DB.ID(arborResult.Id).Update(arborResult)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"event": "Insert Cover bouton ArborResult",
+					"pa":    jsonpa,
+					"err":   err,
+				}).Infof("Failed")
+				return 0, err
+			}
+			fmt.Printf("insert-arbor-result, update affected:%v\n", affected)
+			totalAffected += affected
+		} else {
+			// not exist insert
+			affected, err := utils.DB.Insert(pa[i])
+			if err != nil {
+				log.WithFields(log.Fields{
+					"event": "Insert Bouton ArborResult",
+					"pa":    jsonpa,
+					"err":   err,
+				}).Infof("Failed")
+				return 0, err
+			}
+			fmt.Printf("insert-arbor-result, insert affected:%v\n", affected)
+			totalAffected += affected
+		}
+	}
+
+	return totalAffected, nil
+}
+
+func QueryBoutonArborResult(pa *models.TArborresultBouton) ([]*ArborResult, error) {
+	session := utils.DB.NewSession().Where("Isdeleted = ?", 0).And("ArborId = ?", pa.Arborid)
+	rows := make([]*models.TArborresultBouton, 0)
+	err := session.Find(&rows)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*ArborResult, 0)
+	for _, v := range rows {
+		res = append(res, &ArborResult{
+			ArborId: v.Arborid,
+			Result:  v.Result,
+			Form:    v.Form,
+			Owner:   v.Owner,
+		})
+	}
+	return res, nil
+}

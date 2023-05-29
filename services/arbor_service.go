@@ -82,3 +82,57 @@ func GetArbor(w http.ResponseWriter, r *http.Request) {
 
 	utils.EncodeToHttp(w, 200, string(jsonstr))
 }
+
+// GetBoutonArbor bouton arbor
+func GetBoutonArbor(w http.ResponseWriter, r *http.Request) {
+	var p GetArborParam
+	param, err := utils.DecodeFromHttp(r, &p)
+	if err != nil {
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	_, ok := param.(*GetArborParam)
+	if !ok {
+		log.WithFields(log.Fields{
+			"event": "GetBoutonArbor",
+			"desc":  "param.(*do.GetBoutonArbor) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	if len(p.User.Passwd) == 0 || (len(p.User.Name) == 0 && len(p.User.Email) == 0) {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "Bad Param",
+		}).Errorf("%s\n", p)
+		utils.EncodeToHttp(w, 400, "Bad Request")
+		return
+	}
+
+	if _, err := ao.Login(&do.UserInfo{
+		Name:   p.User.Name,
+		Passwd: p.User.Passwd,
+	}); err != nil {
+		utils.EncodeToHttp(w, 401, err.Error())
+		return
+	}
+
+	locations, err := ao.GetBoutonArbors(p.User.Name, p.MaxId)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Get Bouton Arbors",
+			"desc":  "Query MySQL failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 501, err.Error())
+		return
+	}
+	jsonstr, err := json.Marshal(locations)
+	if err != nil {
+		utils.EncodeToHttp(w, 502, err.Error())
+		return
+	}
+
+	utils.EncodeToHttp(w, 200, string(jsonstr))
+}

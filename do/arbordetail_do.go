@@ -88,3 +88,76 @@ func QueryArborDetail(pa *models.TArbordetail) ([]*ArborDetail, error) {
 	}
 	return res, nil
 }
+
+// bouton相关操作
+func InsetBoutonArborDetail(pa []*models.TArbordetailBouton) (int, error) {
+	jsonpa, _ := jsoniter.MarshalToString(pa)
+
+	affected, err := utils.DB.NewSession().Insert(pa)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Insert bouton arbordetail failed",
+			"pa":    jsonpa,
+		}).Warnf("%v\n", err)
+		return 0, err
+	}
+	log.WithFields(log.Fields{
+		"event": "Insert bouton arbordetail success",
+		"pa":    jsonpa,
+	}).Warnf("%v\n", err)
+	return int(affected), nil
+}
+
+func DeleteBoutonArbordetail(pa []*models.TArbordetailBouton) (int, error) {
+	jsonpa, _ := jsoniter.MarshalToString(pa)
+	idList := make([]int, 0)
+	for _, v := range pa {
+		idList = append(idList, v.Id)
+	}
+
+	affected, err := utils.DB.NewSession().In("Id", idList).Update(&models.TArbordetailBouton{
+		Isdeleted: 1,
+	})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "delete bouton arbordetail failed",
+			"pa":    jsonpa,
+		}).Warnf("%v\n", err)
+		return 0, err
+	}
+
+	log.WithFields(log.Fields{
+		"event": "delete bouton arbordetail success",
+		"pa":    jsonpa,
+	}).Warnf("%v\n", err)
+	return int(affected), nil
+
+}
+
+func QueryBoutonArborDetail(pa *models.TArbordetailBouton) ([]*ArborDetail, error) {
+	jsonpa, _ := jsoniter.MarshalToString(pa)
+	res := make([]*ArborDetail, 0)
+	rows := make([]*models.TArbordetailBouton, 0)
+	err := utils.DB.NewSession().Where("Isdeleted = ?", 0).Find(&rows, pa)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "query bouton arbordetail failed",
+			"pa":    jsonpa,
+		}).Warnf("%v\n", err)
+		return nil, err
+	}
+	for _, v := range rows {
+		res = append(res, &ArborDetail{
+			Id:      v.Id,
+			ArborId: v.Arborid,
+			Loc: utils.XYZ{
+				X: v.X,
+				Y: v.Y,
+				Z: v.Z,
+			},
+			Type:  v.Type,
+			Owner: v.Owner,
+		})
+	}
+	return res, nil
+}

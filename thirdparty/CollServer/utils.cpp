@@ -263,7 +263,7 @@ NeuronTree convertMsg2NT(QStringList pointlist,int client,int user, int isMany, 
 vector<V_NeuronSWC>::iterator findseg(vector<V_NeuronSWC>::iterator begin,vector<V_NeuronSWC>::iterator end,const V_NeuronSWC seg)
 {
     vector<V_NeuronSWC>::iterator result=end;
-    double mindist=0.2;
+    double mindist=0.6;
     const std::vector<V_NeuronSWC_unit>::size_type cnt=seg.row.size();
 
     while(begin!=end)

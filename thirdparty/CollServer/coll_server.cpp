@@ -83,7 +83,8 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
 //        for(auto &socket:sockets){
 //            socket->sendmsgs2client(10);
 //        }
-        emit curServer->clientSendmsgs2client(10);
+        if(hashmap.size()!=0)
+            emit curServer->clientSendmsgs2client(10);
     });
 //    setredis(Port.toInt(),anoname.toStdString().c_str());
 }
@@ -140,6 +141,7 @@ void CollServer::incomingConnection(qintptr handle){
 }
 
 void CollServer::imediateSave(){
+    qDebug()<<"imediateSave";
     mutex.lock();
     savedmsgcnt=processedmsgcnt;
     mutex.unlock();
@@ -166,7 +168,8 @@ void CollServer::autoSave()
 //        for(auto &socket:sockets){
 //            socket->updatesendmsgcnt2processed();
 //        }
-        emit clientUpdatesendmsgcnt();
+        if(hashmap.size()!=0)
+            emit clientUpdatesendmsgcnt();
 
         //        msglist.erase(msglist.begin(),msglist.begin()+processedmsgcnt);
         //        msglist.reserve(5000);
@@ -294,12 +297,12 @@ vector<NeuronSWC> CollServer::specStructsDetection(V_NeuronSWC_list inputSegList
         }
     }
 
-    for(map<string, set<size_t> >::iterator it = wholeGrid2segIDmap.begin(); it != wholeGrid2segIDmap.end(); ++it){
-        if(it->second.size() > 5){
-            qDebug()<<it->first.c_str()<<" "<<it->second.size();
-        }
+//    for(map<string, set<size_t> >::iterator it = wholeGrid2segIDmap.begin(); it != wholeGrid2segIDmap.end(); ++it){
+//        if(it->second.size() > 5){
+//            qDebug()<<it->first.c_str()<<" "<<it->second.size();
+//        }
 
-    }
+//    }
 
     qDebug()<<"whole end";
 
@@ -801,8 +804,7 @@ void CollServer::addmarkers(const QString msg){
 
         for(auto it=markers.begin();it!=markers.end(); ++it)
         {
-            if(it->color.r==marker.color.r&&it->color.g==marker.color.g&&it->color.b==marker.color.b
-                &&abs(it->x-marker.x)<1&&abs(it->y-marker.y)<1&&abs(it->z-marker.z)<1)
+            if(abs(it->x-marker.x)<1&&abs(it->y-marker.y)<1&&abs(it->z-marker.z)<1)
             {
                 qDebug()<<"the marker has already existed";
                 return;

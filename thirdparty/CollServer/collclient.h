@@ -42,6 +42,7 @@ public:
     void retypemarker(const QString msg);//marker改颜色
     void connectseg(const QString msg);//连线
     void retypesegment(const QString msg);//线改颜色
+    void splitseg(const QString msg);//break seg
 
     void simpleConnectExecutor(V_NeuronSWC_list& segments, vector<segInfoUnit>& segInfo);
     static QTimer timerforupdatemsg;//todo

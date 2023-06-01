@@ -176,7 +176,7 @@ type DeleteArborDetailParam struct {
 	User UserVerifyParam `json:"user"`
 }
 
-//只需要pa.Id
+// 只需要pa.Id
 func (pa *DeleteArborDetailParam) String() string {
 	jsonres, err := json.Marshal(pa)
 	if err != nil {
@@ -245,5 +245,180 @@ func DeleteArbordetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.EncodeToHttp(w, 200, "")
+	return
+}
+
+// bouton 相关操作
+func InsertBoutonArborDetail(w http.ResponseWriter, r *http.Request) {
+	var p InsertArborDetailParam
+	param, err := utils.DecodeFromHttp(r, &p)
+	if err != nil {
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	_, ok := param.(*InsertArborDetailParam)
+	if !ok {
+		log.WithFields(log.Fields{
+			"event": "InsertBoutonArborDetail",
+			"desc":  "param.(*do.InsertBoutonArborDetailParam) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	if len(p.User.Passwd) == 0 || (len(p.User.Name) == 0 && len(p.User.Email) == 0) {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "Bad Param",
+		}).Errorf("%s\n", p)
+		utils.EncodeToHttp(w, 400, "Bad Request")
+		return
+	}
+
+	if _, err := ao.Login(&do.UserInfo{
+		Name:   p.User.Name,
+		Passwd: p.User.Passwd,
+	}); err != nil {
+		utils.EncodeToHttp(w, 401, err.Error())
+		return
+	}
+
+	pp := make([]*models.TArbordetailBouton, 0)
+	for _, v := range p.Pa {
+		pp = append(pp, &models.TArbordetailBouton{
+			Arborid: v.ArborId,
+			X:       v.Loc.X,
+			Y:       v.Loc.Y,
+			Z:       v.Loc.Z,
+			Type:    v.Type,
+			Owner:   p.User.Name,
+		})
+	}
+	_, err = ao.InsertBoutonArborDetail(pp)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "InsertArborDetail  Locations",
+			"desc":  "Insert MySQL failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 501, err.Error())
+		return
+	}
+
+	utils.EncodeToHttp(w, 200, "")
+	return
+}
+
+func DeleteBoutonArbordetail(w http.ResponseWriter, r *http.Request) {
+	var p DeleteArborDetailParam
+	param, err := utils.DecodeFromHttp(r, &p)
+	if err != nil {
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	_, ok := param.(*DeleteArborDetailParam)
+	if !ok {
+		log.WithFields(log.Fields{
+			"event": "DeleteBoutonArbordetail",
+			"desc":  "param.(*do.DeleteBoutonArbordetail) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	if len(p.User.Passwd) == 0 || (len(p.User.Name) == 0 && len(p.User.Email) == 0) {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "Bad Param",
+		}).Errorf("%s\n", p)
+		utils.EncodeToHttp(w, 400, "Bad Request")
+		return
+	}
+
+	if _, err := ao.Login(&do.UserInfo{
+		Name:   p.User.Name,
+		Passwd: p.User.Passwd,
+	}); err != nil {
+		utils.EncodeToHttp(w, 401, err.Error())
+		return
+	}
+
+	pp := make([]*models.TArbordetailBouton, 0)
+	for _, v := range p.Pa {
+		pp = append(pp, &models.TArbordetailBouton{
+			Id: v,
+		})
+	}
+	_, err = ao.DeleteBoutonArbordetail(pp)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "DeleteArbordetail ",
+			"desc":  "Query MySQL failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 501, err.Error())
+		return
+	}
+
+	utils.EncodeToHttp(w, 200, "")
+	return
+}
+
+func QueryBoutonArborDetail(w http.ResponseWriter, r *http.Request) {
+	var p QueryArborDetailParam
+	param, err := utils.DecodeFromHttp(r, &p)
+	if err != nil {
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	_, ok := param.(*QueryArborDetailParam)
+	if !ok {
+		log.WithFields(log.Fields{
+			"event": "QueryBoutonArborDetail",
+			"desc":  "param.(*do.QueryBoutonArborDetail) failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 500, err.Error())
+		return
+	}
+
+	if len(p.User.Passwd) == 0 || (len(p.User.Name) == 0 && len(p.User.Email) == 0) {
+		log.WithFields(log.Fields{
+			"event": "Login",
+			"desc":  "Bad Param",
+		}).Errorf("%s\n", p)
+		utils.EncodeToHttp(w, 400, "Bad Request")
+		return
+	}
+
+	if _, err := ao.Login(&do.UserInfo{
+		Name:   p.User.Name,
+		Passwd: p.User.Passwd,
+	}); err != nil {
+		utils.EncodeToHttp(w, 401, err.Error())
+		return
+	}
+
+	res, err := ao.QueryBoutonArborDetail(&models.TArbordetailBouton{
+		Arborid: p.Pa.ArborId,
+	})
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Query Bouton ArborDetail  Locations",
+			"desc":  "Query MySQL failed",
+		}).Warnf("%v\n", err)
+		utils.EncodeToHttp(w, 501, err.Error())
+		return
+	}
+	jsonstr, err := json.Marshal(res)
+	if err != nil {
+		utils.EncodeToHttp(w, 502, err.Error())
+		return
+	}
+
+	utils.EncodeToHttp(w, 200, string(jsonstr))
 	return
 }

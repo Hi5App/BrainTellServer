@@ -28,3 +28,28 @@ func DeleteArbordetail(pa []*models.TArbordetail) (int, error) {
 	}
 	return affected, nil
 }
+
+// bouton相关
+func InsertBoutonArborDetail(pa []*models.TArbordetailBouton) (int, error) {
+	affected, err := do.InsetBoutonArborDetail(pa)
+	if err != nil {
+		return 0, err
+	}
+	return affected, nil
+}
+
+func DeleteBoutonArbordetail(pa []*models.TArbordetailBouton) (int, error) {
+	affected, err := do.DeleteBoutonArbordetail(pa)
+	if err != nil {
+		return 0, err
+	}
+	return affected, nil
+}
+
+func QueryBoutonArborDetail(pa *models.TArbordetailBouton) ([]*do.ArborDetail, error) {
+	res, err := do.QueryBoutonArborDetail(pa)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}

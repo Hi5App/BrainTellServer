@@ -425,6 +425,10 @@ void CollClient::splitseg(const QString msg){
 
     auto tempnt=convertMsg2NT(pointlist,clienttype,useridx,1);
     auto segs=NeuronTree__2__V_NeuronSWC_list(tempnt).seg;
+
+    if(segs.size()<=2)
+        return;
+
     XYZ point1,point2;
 
     QMutexLocker locker(&myServer->mutex);
@@ -455,6 +459,19 @@ void CollClient::splitseg(const QString msg){
             segs[i].row[0].x=point2.x;
             segs[i].row[0].y=point2.y;
             segs[i].row[0].z=point2.z;
+            if(segs[i].row[0].parent!=-1){
+                reverse(segs[i].row.begin(),segs[i].row.end());
+                //父子关系逆序
+                int nodeNo = 1;
+                for (vector<V_NeuronSWC_unit>::iterator it_unit = segs[i].row.begin();
+                     it_unit != segs[i].row.end(); it_unit++)
+                {
+                    it_unit->data[0] = nodeNo;
+                    it_unit->data[6] = nodeNo + 1;
+                    ++nodeNo;
+                }
+                (segs[i].row.end() - 1)->data[6] = -1;
+            }
         }
         if(distance(segs[i].row[segs[i].row.size()-1].x,point2.x,segs[i].row[segs[i].row.size()-1].y,point2.y,segs[i].row[segs[i].row.size()-1].z,point2.z)<0.3){
             segs[i].row[segs[i].row.size()-1].x=point2.x;
@@ -465,6 +482,19 @@ void CollClient::splitseg(const QString msg){
             segs[i].row[segs[i].row.size()-1].x=point1.x;
             segs[i].row[segs[i].row.size()-1].y=point1.y;
             segs[i].row[segs[i].row.size()-1].z=point1.z;
+            if(segs[i].row[0].parent!=-1){
+                reverse(segs[i].row.begin(),segs[i].row.end());
+                //父子关系逆序
+                int nodeNo = 1;
+                for (vector<V_NeuronSWC_unit>::iterator it_unit = segs[i].row.begin();
+                     it_unit != segs[i].row.end(); it_unit++)
+                {
+                    it_unit->data[0] = nodeNo;
+                    it_unit->data[6] = nodeNo + 1;
+                    ++nodeNo;
+                }
+                (segs[i].row.end() - 1)->data[6] = -1;
+            }
         }
         myServer->segments.append(segs[i]);
     }
@@ -828,8 +858,13 @@ void CollClient::ondisconnect()
     qDebug()<<errorString();
     qDebug()<<username<<QString(" client disconnect").toStdString().c_str();
     this->flush();
-    while(this->bytesAvailable())
+    int count=0;
+    while(this->bytesAvailable()){
+        count++;
+        if(count>10)
+            break;
         onread();
+    }
     this->close();//关闭读
     if(myServer->hashmap.contains(username)&&myServer->hashmap[username]==this)
         myServer->hashmap.remove(username);
@@ -871,8 +906,8 @@ void CollClient::receiveuser(const QString user)
     {
         std::cerr<<"ERROR:"+user.toStdString()+" is duolicate,will remove the first\n";
 //        myServer->hashmap[user]->disconnectFromHost();
-//        emit myServer->clientDisconnectFromHost(myServer->hashmap[user]);
-        myServer->hashmap[user]->ondisconnect();
+        emit myServer->clientDisconnectFromHost(myServer->hashmap[user]);
+//        myServer->hashmap[user]->ondisconnect();
     }
     myServer->hashmap[user]=this;
     myServer->mutex.unlock();

@@ -1,4 +1,4 @@
-#include <QCoreApplication>
+﻿#include <QCoreApplication>
 #include "coll_server.h"
 #include <stdio.h>
 #include "utils.h"

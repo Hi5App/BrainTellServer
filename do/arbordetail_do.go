@@ -159,5 +159,6 @@ func QueryBoutonArborDetail(pa *models.TArbordetailBouton) ([]*ArborDetail, erro
 			Owner: v.Owner,
 		})
 	}
+
 	return res, nil
 }

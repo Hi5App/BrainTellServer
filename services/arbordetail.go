@@ -419,6 +419,11 @@ func QueryBoutonArborDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.WithFields(log.Fields{
+		"event": "Query Bouton Arbor Detail",
+		"RES":   jsonstr,
+	}).Infof("Success")
+
 	utils.EncodeToHttp(w, 200, string(jsonstr))
 	return
 }

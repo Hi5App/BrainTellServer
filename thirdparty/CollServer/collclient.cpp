@@ -75,10 +75,133 @@ void CollClient::addseg(const QString msg)
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
     }
-    auto addnt=convertMsg2NT(pointlist,clienttype,useridx,0);
+    XYZ point1,point2;
+
+    QStringList pointlist_1=pointlist[0].split(' ',Qt::SkipEmptyParts);
+    point1.x=pointlist_1[1].toFloat();
+    point1.y=pointlist_1[2].toFloat();
+    point1.z=pointlist_1[3].toFloat();
+    for(int i=0;i<pointlist.size();i++)
+    {
+        if(pointlist[i]=="$"){
+            QStringList pointlist_2=pointlist[i-1].split(' ',Qt::SkipEmptyParts);
+            point2.x=pointlist_2[1].toFloat();
+            point2.y=pointlist_2[2].toFloat();
+            point2.z=pointlist_2[3].toFloat();
+            break;
+        }
+    }
+
+    auto addnt=convertMsg2NT(pointlist,clienttype,useridx,1);
+    auto segs=NeuronTree__2__V_NeuronSWC_list(addnt).seg;
+//    segs[0].printInfo();
+
+    bool flag;
+    if(point1.x==segs[0].row[0].x&&point1.y==segs[0].row[0].y&&point1.z==segs[0].row[0].z)
+        flag=true;
+    else
+        flag=false;
 
     myServer->mutex.lock();
-    myServer->segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
+//    myServer->segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
+    if(segs.size()==2){
+        auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),segs[1]);
+//        it->printInfo();
+        if(it!=myServer->segments.seg.end())
+        {
+            for(int i=0;i<it->row.size();i++){
+                if(flag){
+                    if(distance(segs[0].row[0].x,it->row[i].x,segs[0].row[0].y,it->row[i].y,segs[0].row[0].z,it->row[i].z)<0.3)
+                    {
+                        segs[0].row[0].x=it->row[i].x;
+                        segs[0].row[0].y=it->row[i].y;
+                        segs[0].row[0].z=it->row[i].z;
+                        qDebug()<<"firstSeg success";
+                        break;
+                    }
+                }else{
+                    if(distance(segs[0].row[segs[0].row.size()-1].x,it->row[i].x,segs[0].row[segs[0].row.size()-1].y,it->row[i].y,segs[0].row[segs[0].row.size()-1].z,it->row[i].z)<0.3)
+                    {
+                        segs[0].row[segs[0].row.size()-1].x=it->row[i].x;
+                        segs[0].row[segs[0].row.size()-1].y=it->row[i].y;
+                        segs[0].row[segs[0].row.size()-1].z=it->row[i].z;
+                        qDebug()<<"firstSeg success";
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            std::cerr<<"INFO:not find connected seg ,"<<msg.toStdString()<<std::endl;
+        }
+    }
+
+    if(segs.size()==3){
+        auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),segs[1]);
+//        it->printInfo();
+        if(it!=myServer->segments.seg.end())
+        {
+            for(int i=0;i<it->row.size();i++){
+                if(flag){
+                    if(distance(segs[0].row[0].x,it->row[i].x,segs[0].row[0].y,it->row[i].y,segs[0].row[0].z,it->row[i].z)<0.3)
+                    {
+                        segs[0].row[0].x=it->row[i].x;
+                        segs[0].row[0].y=it->row[i].y;
+                        segs[0].row[0].z=it->row[i].z;
+                        qDebug()<<"firstSeg success";
+                        break;
+                    }
+                }else{
+                    if(distance(segs[0].row[segs[0].row.size()-1].x,it->row[i].x,segs[0].row[segs[0].row.size()-1].y,it->row[i].y,segs[0].row[segs[0].row.size()-1].z,it->row[i].z)<0.3)
+                    {
+                        segs[0].row[segs[0].row.size()-1].x=it->row[i].x;
+                        segs[0].row[segs[0].row.size()-1].y=it->row[i].y;
+                        segs[0].row[segs[0].row.size()-1].z=it->row[i].z;
+                        qDebug()<<"firstSeg success";
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            std::cerr<<"INFO:not find connected seg ,"<<msg.toStdString()<<std::endl;
+        }
+
+        it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),segs[2]);
+//        it->printInfo();
+        if(it!=myServer->segments.seg.end())
+        {
+            for(int i=0;i<it->row.size();i++){
+                if(!flag){
+                    if(distance(segs[0].row[0].x,it->row[i].x,segs[0].row[0].y,it->row[i].y,segs[0].row[0].z,it->row[i].z)<0.3)
+                    {
+                        segs[0].row[0].x=it->row[i].x;
+                        segs[0].row[0].y=it->row[i].y;
+                        segs[0].row[0].z=it->row[i].z;
+                        qDebug()<<"secondSeg success";
+                        break;
+                    }
+                }else{
+                    if(distance(segs[0].row[segs[0].row.size()-1].x,it->row[i].x,segs[0].row[segs[0].row.size()-1].y,it->row[i].y,segs[0].row[segs[0].row.size()-1].z,it->row[i].z)<0.3)
+                    {
+                        segs[0].row[segs[0].row.size()-1].x=it->row[i].x;
+                        segs[0].row[segs[0].row.size()-1].y=it->row[i].y;
+                        segs[0].row[segs[0].row.size()-1].z=it->row[i].z;
+                        qDebug()<<"secondSeg success";
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            std::cerr<<"INFO:not find connected seg ,"<<msg.toStdString()<<std::endl;
+        }
+    }
+    myServer->segments.append(segs[0]);
+
     myServer->mutex.unlock();
     qDebug()<<"server addseg";
 //    for(int i=0;i<myServer->segments.seg.size();i++){
@@ -132,6 +255,7 @@ void CollClient::delseg(const QString msg)
 }
 
 void CollClient::connectseg(const QString msg){
+    qDebug()<<msg;
     QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
     if(pointlistwithheader.size()<1){
         std::cerr<<"ERROR:pointlistwithheader.size<1\n";
@@ -159,6 +283,9 @@ void CollClient::connectseg(const QString msg){
 
     auto segnt=convertMsg2NT(pointlist,clienttype,useridx,1);
     auto connectsegs=NeuronTree__2__V_NeuronSWC_list(segnt).seg;
+//    for(int i=0;i<connectsegs.size();i++){
+//        connectsegs[i].printInfo();
+//    }
 
     vector<segInfoUnit> segInfo;
 
@@ -186,10 +313,13 @@ void CollClient::connectseg(const QString msg){
                 for (vector<V_NeuronSWC_unit>::iterator it_unit = it->row.begin();
                      it_unit != it->row.end(); it_unit++)
                 {
-                    if (p1.x == it_unit->data[2] && p1.y == it_unit->data[3] && p1.z == it_unit->data[4])
+                    //if (p1.x == it_unit->data[2] && p1.y == it_unit->data[3] && p1.z == it_unit->data[4])
+                    if(distance(p1.x,it_unit->data[2],p1.y,it_unit->data[3],p1.z,it_unit->data[4])<0.3)
                     {
                         //---------------------- Get seg IDs
                         //qDebug() << nodeOnStroke->at(j).seg_id << " " << nodeOnStroke->at(j).parent << " " << p.x() << " " << p.y();
+                        qDebug()<<p1.x<<" "<<p1.y<<" "<<p1.z;
+                        qDebug()<<it_unit->data[2]<<" "<<it_unit->data[3]<<" "<<it_unit->data[4];
                         segInfoUnit curSeg;
                         curSeg.head_tail = it_unit->data[6];
                         curSeg.segID = it-myServer->segments.seg.begin();
@@ -199,6 +329,7 @@ void CollClient::connectseg(const QString msg){
                         curSeg.paBranchID = it->branchingProfile.paID;
                         curSeg.hierarchy = it->branchingProfile.hierarchy;
                         segInfo.push_back(curSeg);
+                        qDebug()<<"first connect seg found";
                         break;
                     }
                 }
@@ -207,10 +338,12 @@ void CollClient::connectseg(const QString msg){
                 for (vector<V_NeuronSWC_unit>::iterator it_unit = it->row.begin();
                      it_unit != it->row.end(); it_unit++)
                 {
-                    if (p2.x == it_unit->data[2] && p2.y == it_unit->data[3] && p2.z == it_unit->data[4])
+                    if(distance(p2.x,it_unit->data[2],p2.y,it_unit->data[3],p2.z,it_unit->data[4])<0.3)
                     {
                         //---------------------- Get seg IDs
                         //qDebug() << nodeOnStroke->at(j).seg_id << " " << nodeOnStroke->at(j).parent << " " << p.x() << " " << p.y();
+                        qDebug()<<p2.x<<" "<<p2.y<<" "<<p2.z;
+                        qDebug()<<it_unit->data[2]<<" "<<it_unit->data[3]<<" "<<it_unit->data[4];
                         segInfoUnit curSeg;
                         curSeg.head_tail = it_unit->data[6];
                         curSeg.segID = it-myServer->segments.seg.begin();
@@ -220,6 +353,7 @@ void CollClient::connectseg(const QString msg){
                         curSeg.paBranchID = it->branchingProfile.paID;
                         curSeg.hierarchy = it->branchingProfile.hierarchy;
                         segInfo.push_back(curSeg);
+                        qDebug()<<"second connect seg found";
                         break;
                     }
                 }
@@ -270,6 +404,103 @@ void CollClient::connectseg(const QString msg){
     qDebug()<<"server connectseg";
 }
 
+void CollClient::splitseg(const QString msg){
+    QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
+    if(pointlistwithheader.size()<1){
+        std::cerr<<"ERROR:pointlistwithheader.size<1\n";
+    }
+
+    QStringList headerlist=pointlistwithheader[0].split(' ',Qt::SkipEmptyParts);
+    if(headerlist.size()<2) {
+        std::cerr<<"ERROR:headerlist.size<1\n";
+    }
+    int useridx=headerlist[1].toUInt();
+    unsigned int clienttype=headerlist[0].toUInt();
+
+    QStringList pointlist=pointlistwithheader;
+    pointlist.removeAt(0);
+    if(pointlist.size()==0){
+        std::cerr<<"ERROR:pointlist.size=0\n";
+    }
+
+    auto tempnt=convertMsg2NT(pointlist,clienttype,useridx,1);
+    auto segs=NeuronTree__2__V_NeuronSWC_list(tempnt).seg;
+
+    if(segs.size()<=2)
+        return;
+
+    XYZ point1,point2;
+
+    QMutexLocker locker(&myServer->mutex);
+    auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),segs[0]);
+    if(it!=myServer->segments.seg.end())
+    {
+        point1.x=it->row[0].x;
+        point1.y=it->row[0].y;
+        point1.z=it->row[0].z;
+        point2.x=it->row[it->row.size()-1].x;
+        point2.y=it->row[it->row.size()-1].y;
+        point2.z=it->row[it->row.size()-1].z;
+        myServer->segments.seg.erase(it);
+    }
+    else
+    {
+        std::cerr<<"INFO:not find del seg ,"<<msg.toStdString()<<std::endl;
+        return;
+    }
+
+    for(int i=1;i<segs.size();i++){
+        if(distance(segs[i].row[0].x,point1.x,segs[i].row[0].y,point1.y,segs[i].row[0].z,point1.z)<0.3){
+            segs[i].row[0].x=point1.x;
+            segs[i].row[0].y=point1.y;
+            segs[i].row[0].z=point1.z;
+        }
+        if(distance(segs[i].row[0].x,point2.x,segs[i].row[0].y,point2.y,segs[i].row[0].z,point2.z)<0.3){
+            segs[i].row[0].x=point2.x;
+            segs[i].row[0].y=point2.y;
+            segs[i].row[0].z=point2.z;
+            if(segs[i].row[0].parent!=-1){
+                reverse(segs[i].row.begin(),segs[i].row.end());
+                //父子关系逆序
+                int nodeNo = 1;
+                for (vector<V_NeuronSWC_unit>::iterator it_unit = segs[i].row.begin();
+                     it_unit != segs[i].row.end(); it_unit++)
+                {
+                    it_unit->data[0] = nodeNo;
+                    it_unit->data[6] = nodeNo + 1;
+                    ++nodeNo;
+                }
+                (segs[i].row.end() - 1)->data[6] = -1;
+            }
+        }
+        if(distance(segs[i].row[segs[i].row.size()-1].x,point2.x,segs[i].row[segs[i].row.size()-1].y,point2.y,segs[i].row[segs[i].row.size()-1].z,point2.z)<0.3){
+            segs[i].row[segs[i].row.size()-1].x=point2.x;
+            segs[i].row[segs[i].row.size()-1].y=point2.y;
+            segs[i].row[segs[i].row.size()-1].z=point2.z;
+        }
+        if(distance(segs[i].row[segs[i].row.size()-1].x,point1.x,segs[i].row[segs[i].row.size()-1].y,point1.y,segs[i].row[segs[i].row.size()-1].z,point1.z)<0.3){
+            segs[i].row[segs[i].row.size()-1].x=point1.x;
+            segs[i].row[segs[i].row.size()-1].y=point1.y;
+            segs[i].row[segs[i].row.size()-1].z=point1.z;
+            if(segs[i].row[0].parent!=-1){
+                reverse(segs[i].row.begin(),segs[i].row.end());
+                //父子关系逆序
+                int nodeNo = 1;
+                for (vector<V_NeuronSWC_unit>::iterator it_unit = segs[i].row.begin();
+                     it_unit != segs[i].row.end(); it_unit++)
+                {
+                    it_unit->data[0] = nodeNo;
+                    it_unit->data[6] = nodeNo + 1;
+                    ++nodeNo;
+                }
+                (segs[i].row.end() - 1)->data[6] = -1;
+            }
+        }
+        myServer->segments.append(segs[i]);
+    }
+    qDebug()<<"server splitseg";
+}
+
 void CollClient::addmarkers(const QString msg)
 {
     qDebug()<<msg;
@@ -307,8 +538,7 @@ void CollClient::addmarkers(const QString msg)
 
         for(auto it=myServer->markers.begin();it!=myServer->markers.end(); ++it)
         {
-            if(it->color.r==marker.color.r&&it->color.g==marker.color.g&&it->color.b==marker.color.b
-                &&abs(it->x-marker.x)<1&&abs(it->y-marker.y)<1&&abs(it->z-marker.z)<1)
+            if(abs(it->x-marker.x)<1&&abs(it->y-marker.y)<1&&abs(it->z-marker.z)<1)
             {
                 qDebug()<<"the marker has already existed";
 //                myServer->mutex.unlock();
@@ -489,10 +719,7 @@ void CollClient::sendmsgs(const QStringList &msgs)
     const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
     // QString::fromStdString(header)将header转换为utf-8编码的字符串
     qDebug()<<"write to "<<username<<",headsize = "<<header.size()<<"，sendsize = "<<write(header.c_str(),header.size())<<","<<QString::fromStdString(header);
-    if(data.size()>256)
-        qDebug()<<"write to "<<username<<",datasize = "<<data.size()<<"，sendsize = "<<write(data.c_str(),data.size())<<","<<QString::fromStdString(data).left(256)<<"...";
-    else
-        qDebug()<<"write to "<<username<<",datasize = "<<data.size()<<"，sendsize = "<<write(data.c_str(),data.size())<<","<<QString::fromStdString(data);
+    qDebug()<<"write to "<<username<<",datasize = "<<data.size()<<"，sendsize = "<<write(data.c_str(),data.size())<<","<<QString::fromStdString(data);
     this->flush();
 }
 
@@ -522,7 +749,7 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
         auto msg=msgs[i];
         if(msg.contains("/login:"))
         {
-            auto ps=msg.right(msg.size()-QString("/Login:").size()).split(' ',Qt::SkipEmptyParts);
+            auto ps=msg.right(msg.size()-QString("/login:").size()).split(' ',Qt::SkipEmptyParts);
             if (ps.size()!=2){
                 std::cerr<<"login in error:"<<msg.toStdString();
 //                this->disconnectFromHost();
@@ -547,6 +774,8 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
                 connectseg(msg.right(msg.size()-QString("/connectline_norm:").size()));
             }else if(msg.startsWith("/retypeline_norm:")||msg.startsWith("/retypeline_undo:")||msg.startsWith("/retypeline_redo:")){
                 retypesegment(msg.right(msg.size()-QString("/retypeline_norm:").size()));
+            }else if(msg.startsWith("/splitline_norm:")||msg.startsWith("/splitline_undo:")||msg.startsWith("/splitline_redo:")){
+                splitseg(msg.right(msg.size()-QString("/splitline_norm:").size()));
             }
 
             myServer->mutex.lock();
@@ -554,12 +783,8 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
 
             QString log;
             // QString::number按照第二个参数提供的转换进制将数字类型转换为QString
-            if(msg.size()>128){
-                log=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss.zzz")+QString::number(myServer->processedmsgcnt+myServer->savedmsgcnt)+" "+msg.left(128)+"...\n";
-            }
-            else{
-                log=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss.zzz")+QString::number(myServer->processedmsgcnt+myServer->savedmsgcnt)+" "+msg+"\n";
-            }
+            log=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss.zzz")+QString::number(myServer->processedmsgcnt+myServer->savedmsgcnt)+" "+msg+"\n";
+
             logfile->write(log.toStdString().c_str(),log.toStdString().size());
             myServer->msglist.append(msg);
             myServer->mutex.unlock();
@@ -610,12 +835,8 @@ void CollClient::onread()
                     myServer->mutex.unlock();
 
                     QString log;
-                    if(strlen(data)>128){
-                        log=QDateTime::currentDateTime().toString(" yyyy/MM/dd hh:mm:ss ") + QString::number(myServer->receivedcnt) + " receive from " + username + ":" + QString(data).left(128) + "...";
-                    }
-                    else{
-                        log=QDateTime::currentDateTime().toString(" yyyy/MM/dd hh:mm:ss ") + QString::number(myServer->receivedcnt) + " receive from " + username + ":" + QString(data);
-                    }
+                    log=QDateTime::currentDateTime().toString(" yyyy/MM/dd hh:mm:ss ") + QString::number(myServer->receivedcnt) + " receive from " + username + ":" + QString(data);
+
                     qDebug()<<log;
 //                    qDebug()<<QString("client read message %1, %2").arg(username).arg(data).toStdString().c_str();
                     preprocessmsgs(QString(data).trimmed().split(';',Qt::SkipEmptyParts));
@@ -637,8 +858,13 @@ void CollClient::ondisconnect()
     qDebug()<<errorString();
     qDebug()<<username<<QString(" client disconnect").toStdString().c_str();
     this->flush();
-    while(this->bytesAvailable())
+    int count=0;
+    while(this->bytesAvailable()){
+        count++;
+        if(count>10)
+            break;
         onread();
+    }
     this->close();//关闭读
     if(myServer->hashmap.contains(username)&&myServer->hashmap[username]==this)
         myServer->hashmap.remove(username);
@@ -680,7 +906,8 @@ void CollClient::receiveuser(const QString user)
     {
         std::cerr<<"ERROR:"+user.toStdString()+" is duolicate,will remove the first\n";
 //        myServer->hashmap[user]->disconnectFromHost();
-          emit myServer->clientDisconnectFromHost(myServer->hashmap[user]);
+        emit myServer->clientDisconnectFromHost(myServer->hashmap[user]);
+//        myServer->hashmap[user]->ondisconnect();
     }
     myServer->hashmap[user]=this;
     myServer->mutex.unlock();
@@ -748,6 +975,7 @@ void CollClient::quit(){
 
 void CollClient::disconnectByServer(CollClient* collclient){
     if(collclient==this){
+        qDebug()<<"client will disconnectFromHost";
         this->disconnectFromHost();
     }
 }

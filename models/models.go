@@ -129,8 +129,8 @@ type TGameUserinfo struct {
 	Passwd    string    `xorm:"not null VARCHAR(100)"`
 	Score     int       `xorm:"not null default 0 comment('玩家练习模式最高分') INT"`
 	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' comment('创建时间') TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' comment('更新时间') TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' comment('创建时间') TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' comment('更新时间') TIMESTAMP updated"`
 }
 
 // correctbp, wrongbp, missedbp为什么是string类型
@@ -157,8 +157,8 @@ type TArborBouton struct {
 	Y         string    `xorm:"not null unique(t_arbor_bouton_SomaId_X_Y_Z_uindex) DECIMAL(10,3)"`
 	Z         string    `xorm:"not null unique(t_arbor_bouton_SomaId_X_Y_Z_uindex) DECIMAL(10)"`
 	Status    int       `xorm:"not null default 0 index(t_arbor_bouton_Is_deleted_Status_index) INT"`
-	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP updated"`
 	Isdeleted int       `xorm:"not null default 0 index(t_arbor_bouton_Is_deleted_Status_index) INT"`
 }
 
@@ -170,8 +170,8 @@ type TArbordetailBouton struct {
 	Z         float64   `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) DECIMAL(10,3)"`
 	Type      int       `xorm:"not null unique(t_arbordetail_bouton_ArborId_X_Y_Z_Type_uindex) INT"`
 	Owner     string    `xorm:"not null index VARCHAR(200)"`
-	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP updated"`
 	Isdeleted int       `xorm:"not null default 0 index(t_arbordetail_bouton_ArborId_Isdeleted_index) INT"`
 }
 
@@ -182,6 +182,6 @@ type TArborresultBouton struct {
 	Form      int       `xorm:"not null comment('用户从什么方式获得数据') index INT"`
 	Owner     string    `xorm:"not null unique(t_arborresult_bouton_ArborId_Owner_uindex) index VARCHAR(200)"`
 	Isdeleted int       `xorm:"not null default 0 index(t_arborresult_bouton_ArborId_Iddeleted_index) INT"`
-	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
-	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	Ctime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP updated"`
 }

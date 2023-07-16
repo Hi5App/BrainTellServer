@@ -6,6 +6,7 @@ import (
 	"BrainTellServer/models"
 	"BrainTellServer/utils"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -401,9 +402,13 @@ func QueryBoutonArborDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("query bouton arbor detail, input parameter:", p.Pa.ArborId)
+
 	res, err := ao.QueryBoutonArborDetail(&models.TArbordetailBouton{
 		Arborid: p.Pa.ArborId,
 	})
+
+	fmt.Println("query bouton arbor detail, result:", res)
 
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -418,6 +423,11 @@ func QueryBoutonArborDetail(w http.ResponseWriter, r *http.Request) {
 		utils.EncodeToHttp(w, 502, err.Error())
 		return
 	}
+
+	log.WithFields(log.Fields{
+		"event": "Query Bouton Arbor Detail",
+		"RES":   jsonstr,
+	}).Infof("Success")
 
 	utils.EncodeToHttp(w, 200, string(jsonstr))
 	return

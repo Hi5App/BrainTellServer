@@ -18,11 +18,13 @@ public:
     void incomingConnection(qintptr handle);
     XYZ getSomaCoordinate(QString apoPath);
     vector<NeuronSWC> specStructsDetection(V_NeuronSWC_list inputSegList, double dist_thresh=3);
-    void autoDetectSpecStructs();
+    vector<NeuronSWC> tipDetection(V_NeuronSWC_list inputSegList, double dist_thresh=20);
+    vector<NeuronSWC> crossingDetection(V_NeuronSWC_list inputSegList);
     void handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& count);
-    void handleCrossing(vector<NeuronSWC>& crossingPoints, int& count);
-    void handleTip(vector<NeuronSWC>& tipPoints, int& count);
+    void handleNearBifurcation(vector<NeuronSWC>& bifurPoints, int& count);
+    void handleTip(vector<NeuronSWC>& tipPoints);
+    void handleCrossing(vector<NeuronSWC>& crossingPoints);
 
     void addmarkers(const QString msg);
     static CollServer* getInstance();
@@ -43,6 +45,7 @@ public:
     static QString anopath;
 
     static QMutex mutex;
+    static QString RES;
 
 signals:
     void clientAddMarker(QString);
@@ -53,9 +56,11 @@ signals:
     void clientDisconnectFromHost(CollClient*);
 
 public slots:
-    void autoSave();
+    void detectOthers();
+    void detectTips();
+    void detectCrossings();
     void imediateSave();
-    void autoDetect();
+    void autoSave();
     void autoExit();
 
     void RemoveList(QThread* thread);
@@ -68,7 +73,9 @@ private:
     QString Prefix;
 
     QTimer *timerForAutoSave;
-    QTimer *timerForDetection;
+    QTimer *timerForDetectOthers;
+    QTimer *timerForDetectTip;
+    QTimer *timerForDetectCrossing;
     QTimer *timerForAutoExit;
     static CollServer* curServer;
     QList<CollThread*> list_thread;

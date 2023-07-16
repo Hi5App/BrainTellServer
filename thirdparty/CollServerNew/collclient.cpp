@@ -74,6 +74,7 @@ void CollClient::addseg(const QString msg)
     pointlist.removeAt(0);
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
+        return;
     }
     XYZ point1,point2;
 
@@ -230,6 +231,7 @@ void CollClient::delseg(const QString msg)
     pointlist.removeAt(0);
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
+        return;
     }
     auto delnt=convertMsg2NT(pointlist,clienttype,useridx,isMany);
     auto delsegs=NeuronTree__2__V_NeuronSWC_list(delnt).seg;
@@ -272,6 +274,7 @@ void CollClient::connectseg(const QString msg){
     pointlist.removeAt(0);
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
+        return;
     }
 
     QStringList specPointsInfo1=pointlist[0].split(' ',Qt::SkipEmptyParts);
@@ -421,6 +424,7 @@ void CollClient::splitseg(const QString msg){
     pointlist.removeAt(0);
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
+        return;
     }
 
     auto tempnt=convertMsg2NT(pointlist,clienttype,useridx,1);
@@ -521,6 +525,7 @@ void CollClient::addmarkers(const QString msg)
     pointlist.removeAt(0);
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
+        return;
     }
 
     CellAPO marker;
@@ -570,6 +575,7 @@ void CollClient::delmarkers(const QString msg)
     pointlist.removeAt(0);
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
+        return;
     }
     CellAPO marker;
     int idx=-1;
@@ -621,6 +627,7 @@ void CollClient::retypemarker(const QString msg){
     pointlist.removeAt(0);
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
+        return;
     }
     CellAPO marker;
     int idx=-1;
@@ -678,6 +685,7 @@ void CollClient::retypesegment(const QString msg)
     pointlist.removeAt(0);
     if(pointlist.size()==0){
         std::cerr<<"ERROR:pointlist.size=0\n";
+        return;
     }
 
     auto retypent=convertMsg2NT(pointlist,clienttype,useridx,isMany);
@@ -750,7 +758,7 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
         if(msg.contains("/login:"))
         {
             auto ps=msg.right(msg.size()-QString("/login:").size()).split(' ',Qt::SkipEmptyParts);
-            if (ps.size()!=2){
+            if (ps.size()!=3){
                 std::cerr<<"login in error:"<<msg.toStdString();
 //                this->disconnectFromHost();
 //                this->close();//关闭读
@@ -758,7 +766,7 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
                 return;
             }
             qDebug()<<"subThread:"<<QThread::currentThreadId();
-            receiveuser(ps[0]);
+            receiveuser(ps[0], ps[1]);
         }else{
             if(msg.startsWith("/drawline_norm:")||msg.startsWith("/drawline_undo:")||msg.startsWith("/drawline_redo:")){
                 addseg(msg.right(msg.size()-QString("/drawline_norm:").size()));
@@ -898,7 +906,7 @@ void CollClient::onError(QAbstractSocket::SocketError socketError){
 //    this->deleteLater();
 }
 
-void CollClient::receiveuser(const QString user)
+void CollClient::receiveuser(const QString user, QString RES)
 {
     username=user;
     myServer->mutex.lock();
@@ -910,6 +918,7 @@ void CollClient::receiveuser(const QString user)
 //        myServer->hashmap[user]->ondisconnect();
     }
     myServer->hashmap[user]=this;
+    myServer->RES=RES;
     myServer->mutex.unlock();
     updateuserlist();
 

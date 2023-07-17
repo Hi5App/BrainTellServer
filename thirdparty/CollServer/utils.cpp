@@ -263,7 +263,7 @@ NeuronTree convertMsg2NT(QStringList pointlist,int client,int user, int isMany, 
 vector<V_NeuronSWC>::iterator findseg(vector<V_NeuronSWC>::iterator begin,vector<V_NeuronSWC>::iterator end,const V_NeuronSWC seg)
 {
     vector<V_NeuronSWC>::iterator result=end;
-    double mindist=3;
+    double mindist=100;
     const std::vector<V_NeuronSWC_unit>::size_type cnt=seg.row.size();
 
     while(begin!=end)
@@ -322,6 +322,16 @@ double distance(const double x1, const double x2, const double y1, const double 
                 (y1-y2)*(y1-y2)+
                 (z1-z2)*(z1-z2)
         );
+}
+
+double getSegLength(V_NeuronSWC &seg){
+    int size=seg.row.size();
+    double sum=0;
+    for(int i=0;i<size-1;i++)
+    {
+        sum+=distance(seg.row[i].x,seg.row[i+1].x,seg.row[i].y,seg.row[i+1].y,seg.row[i].z,seg.row[i+1].z);
+    }
+    return sum;
 }
 
 int findnearest(const CellAPO &m,const QList<CellAPO> &markers)

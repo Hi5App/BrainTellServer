@@ -8,6 +8,7 @@
 #include "collclient.h"
 #include "collthread.h"
 #include <QNetworkAccessManager>
+#include "colldetection.h"
 
 class CollServer:public QTcpServer
 {
@@ -16,17 +17,9 @@ public:
     CollServer(QString port,QString image,QString neuron,QString ananame,QString prefix,QObject *parent=nullptr);
     virtual ~CollServer();
     void incomingConnection(qintptr handle);
-    XYZ getSomaCoordinate(QString apoPath);
-    vector<NeuronSWC> specStructsDetection(V_NeuronSWC_list inputSegList, double dist_thresh=3);
-    vector<NeuronSWC> tipDetection(V_NeuronSWC_list inputSegList, double dist_thresh=20);
-    vector<NeuronSWC> crossingDetection(V_NeuronSWC_list inputSegList);
-    void handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, int& count);
-    void handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& count);
-    void handleNearBifurcation(vector<NeuronSWC>& bifurPoints, int& count);
-    void handleTip(vector<NeuronSWC>& tipPoints);
-    void handleCrossing(vector<NeuronSWC>& crossingPoints);
 
     void addmarkers(const QString msg);
+    CollDetection* detectUtil;
     static CollServer* getInstance();
 
     static QStringList msglist;
@@ -36,8 +29,7 @@ public:
 
     static QMap<QString,CollClient*> hashmap;//user->client
     static V_NeuronSWC_list segments;
-    static bool isSomaExists;
-    static XYZ somaCoordinate;
+
     static QList<CellAPO> markers;
 
     static QString swcpath;
@@ -56,9 +48,6 @@ signals:
     void clientDisconnectFromHost(CollClient*);
 
 public slots:
-    void detectOthers();
-    void detectTips();
-    void detectCrossings();
     void imediateSave();
     void autoSave();
     void autoExit();
@@ -79,8 +68,10 @@ private:
     QTimer *timerForAutoExit;
     static CollServer* curServer;
     QList<CollThread*> list_thread;
-    QNetworkAccessManager* accessManager;
-    QString HostAddress;
+
+public:
+    QString getAnoName();
+    QString getImage();
 };
 
 #endif // COLL_SERVER_H

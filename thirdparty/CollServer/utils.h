@@ -45,6 +45,7 @@ NeuronTree convertMsg2NT(QStringList pointlist,int client,int user, int isMany, 
 
 double distance(const CellAPO &m1,const CellAPO &m2);
 double distance(const double x1, const double x2, const double y1, const double y2, const double z1, const double z2);
+double getSegLength(V_NeuronSWC &seg);
 int findnearest(const CellAPO &m,const QList<CellAPO> &markers);
 
 void init();

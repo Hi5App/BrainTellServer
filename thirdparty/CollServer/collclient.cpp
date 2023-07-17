@@ -590,9 +590,9 @@ void CollClient::delmarkers(const QString msg)
         marker.x=markerinfo[1].toDouble();
         marker.y=markerinfo[2].toDouble();
         marker.z=markerinfo[3].toDouble();
-        if(myServer->isSomaExists&&sqrt((marker.x-myServer->somaCoordinate.x)*(marker.x-myServer->somaCoordinate.x)+
-                (marker.y-myServer->somaCoordinate.y)*(marker.y-myServer->somaCoordinate.y)+
-                 (marker.z-myServer->somaCoordinate.z)*(marker.z-myServer->somaCoordinate.z))<1)
+        if(myServer->detectUtil->isSomaExists&&sqrt((marker.x-myServer->detectUtil->somaCoordinate.x)*(marker.x-myServer->detectUtil->somaCoordinate.x)+
+                (marker.y-myServer->detectUtil->somaCoordinate.y)*(marker.y-myServer->detectUtil->somaCoordinate.y)+
+                 (marker.z-myServer->detectUtil->somaCoordinate.z)*(marker.z-myServer->detectUtil->somaCoordinate.z))<1)
         {
             qDebug()<<"cannot delete the soma marker";
 //            myServer->mutex.unlock();

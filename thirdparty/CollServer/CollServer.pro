@@ -12,6 +12,7 @@ SOURCES += \
         basic_c_fun/v3d_message.cpp \
         coll_server.cpp \
         collclient.cpp \
+        colldetection.cpp \
         collthread.cpp \
         main.cpp \
         neuron_editing/apo_xforms.cpp \
@@ -35,6 +36,7 @@ HEADERS += \
     basic_c_fun/v_neuronswc.h \
     coll_server.h \
     collclient.h \
+    colldetection.h \
     collthread.h \
     neuron_editing/apo_xforms.h \
     neuron_editing/global_feature_compute.h \

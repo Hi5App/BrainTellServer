@@ -39,7 +39,6 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     qDebug()<<"MainThread:"<<QThread::currentThreadId();
     curServer=this;
     detectUtil=new CollDetection(this,this);
-    detectUtil->getSomaCoordinate(anopath);
 
     qRegisterMetaType<qintptr>("qintptr");
 
@@ -50,6 +49,7 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     apopath=Prefix+"/"+AnoName+".ano.apo";
     anopath=Prefix+"/"+AnoName+".ano";
 
+    CollDetection::somaCoordinate=detectUtil->getSomaCoordinate(apopath);
     // 3分钟执行一次
     timerForAutoSave->start(3*60*1000);
     timerForDetectTip->start(24*60*60*1000);

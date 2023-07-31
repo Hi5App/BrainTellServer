@@ -43,6 +43,7 @@ HEADERS += \
     neuron_editing/neuron_format_converter.h \
     neuron_editing/neuron_xforms.h \
     neuron_editing/v_neuronswc.h \
+    sort_swc.h \
     utils.h
 
 HEADERS += $$PWD/include/hiredis/hiredis.h

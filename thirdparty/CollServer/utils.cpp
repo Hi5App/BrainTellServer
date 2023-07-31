@@ -136,9 +136,9 @@ void setredis(int port,const char *ano)
     redisReply *reply = (redisReply *)redisCommand(c, "SELECT 0");
     freeReplyObject(reply);
     // Redis PERSIST 命令用于移除给定 key 的过期时间，使得 key 永不过期。
-    qDebug()<<QString("EXPIRE Ano+Port:%1;%2 %3").arg(ano).arg(port).arg(5*60*60).toStdString().c_str();
+    qDebug()<<QString("EXPIRE Ano+Port:%1;%2 %3").arg(ano).arg(port).arg(24*60*60).toStdString().c_str();
     // reply=(redisReply *)redisCommand(c, QString("PERSIST Ano+Port:%1;%2").arg(ano).arg(port).toStdString().c_str());
-    reply=(redisReply *)redisCommand(c, QString("EXPIRE Ano+Port:%1;%2 %3").arg(ano).arg(port).arg(5*60*60).toStdString().c_str());
+    reply=(redisReply *)redisCommand(c, QString("EXPIRE Ano+Port:%1;%2 %3").arg(ano).arg(port).arg(24*60*60).toStdString().c_str());
     if(reply->integer!=1){
         exit(-1);
     }

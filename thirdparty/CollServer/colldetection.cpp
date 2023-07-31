@@ -1,5 +1,6 @@
 ﻿#include "colldetection.h"
 #include "coll_server.h"
+#include "sort_swc.h"
 
 XYZ CollDetection::somaCoordinate;
 bool CollDetection::isSomaExists;
@@ -65,13 +66,17 @@ XYZ CollDetection::getSomaCoordinate(QString apoPath){
 }
 
 void CollDetection::detectTips(){
-    vector<NeuronSWC> tipPoints=tipDetection(myServer->segments,20);
+    vector<NeuronSWC> tipPoints=tipDetection(myServer->segments,30);
+    myServer->imediateSave();
     handleTip(tipPoints);
 }
 
 void CollDetection::detectCrossings(){
-    vector<NeuronSWC> crossingPoints=crossingDetection(myServer->segments);
-    handleCrossing(crossingPoints);
+    map<string, vector<string>> parentsDict;
+    map<string, vector<string>> offspringsDict;
+    vector<vector<NeuronSWC>> crossingPoints=crossingDetection(myServer->segments, parentsDict, offspringsDict);
+    myServer->imediateSave();
+    handleCrossing(crossingPoints, parentsDict, offspringsDict);
 }
 
 void CollDetection::detectOthers(){
@@ -508,11 +513,15 @@ vector<NeuronSWC> CollDetection::tipDetection(V_NeuronSWC_list inputSegList, dou
         string gridKey2 = gridKeyQ2.toStdString();
         if(wholeGrid2segIDmap[gridKey1].size()==1&&wholeGrid2segIDmap[gridKey2].size()>1)
         {
-            tips.insert(gridKey1);
+            if(isSomaExists&&sqrt((xLabel1-somaCoordinate.x)*(xLabel1-somaCoordinate.x)+
+                (yLabel1-somaCoordinate.y)*(yLabel1-somaCoordinate.y)+(zLabel1-somaCoordinate.z)*(zLabel1-somaCoordinate.z))>50)
+                tips.insert(gridKey1);
         }
         if(wholeGrid2segIDmap[gridKey2].size()==1&&wholeGrid2segIDmap[gridKey1].size()>1)
         {
-            tips.insert(gridKey2);
+            if(isSomaExists&&sqrt((xLabel2-somaCoordinate.x)*(xLabel2-somaCoordinate.x)+
+                                     (yLabel2-somaCoordinate.y)*(yLabel2-somaCoordinate.y)+(zLabel2-somaCoordinate.z)*(zLabel2-somaCoordinate.z))>50)
+                tips.insert(gridKey2);
         }
     }
 
@@ -618,8 +627,185 @@ vector<NeuronSWC> CollDetection::tipDetection(V_NeuronSWC_list inputSegList, dou
     return outputSpecialPoints;
 }
 
-vector<NeuronSWC> CollDetection::crossingDetection(V_NeuronSWC_list inputSegList){
-    vector<NeuronSWC> outputSpecialPoints;
+vector<vector<NeuronSWC>> CollDetection::crossingDetection(V_NeuronSWC_list inputSegList, map<string, vector<string>> &parentsDict, map<string, vector<string>> &offspringsDict){
+    vector<vector<NeuronSWC>> outputSpecialPoints;
+    map<string, set<string>> parentMap;
+
+    set<string> allPoints;
+    map<string, set<string>> childMap;
+
+    for(size_t i=0; i<inputSegList.seg.size(); ++i){
+        V_NeuronSWC seg = inputSegList.seg[i];
+        vector<int> rowN2Index(seg.row.size()+1);
+
+        for(size_t j=0; j<seg.row.size(); ++j){
+            rowN2Index[seg.row[j].n]=j;
+        }
+
+        for(size_t j=0; j<seg.row.size(); ++j){
+            float xLabel = seg.row[j].x;
+            float yLabel = seg.row[j].y;
+            float zLabel = seg.row[j].z;
+            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+            string gridKey = gridKeyQ.toStdString();
+            allPoints.insert(gridKey);
+
+            if(seg.row[j].parent!=-1){
+                float x2Label=seg.row[rowN2Index[seg.row[j].parent]].x;
+                float y2Label=seg.row[rowN2Index[seg.row[j].parent]].y;
+                float z2Label=seg.row[rowN2Index[seg.row[j].parent]].z;
+                QString parentKeyQ=QString::number(x2Label) + "_" + QString::number(y2Label) + "_" + QString::number(z2Label);
+                string parentKey=parentKeyQ.toStdString();
+                parentMap[gridKey].insert(parentKey);
+                childMap[parentKey].insert(gridKey);
+            }
+
+        }
+    }
+
+    //get_soma_nearby_points
+    double ignore_radius_from_soma = 50;
+    set<string> remain_pts;
+    for(auto it=allPoints.begin();it!=allPoints.end();it++){
+        NeuronSWC s;
+        stringToXYZ(*it,s.x,s.y,s.z);
+        if(distance(s.x,somaCoordinate.x,s.y,somaCoordinate.y,s.z,somaCoordinate.z)>ignore_radius_from_soma)
+            remain_pts.insert(*it);
+    }
+
+    //get_linkages_with_thresh
+    int offspring_thresh=10;
+    for(auto it=allPoints.begin();it!=allPoints.end();it++){
+        string gridKey=*it;
+        int os_id=0;
+        set<string> cur_set;
+        vector<string> cur_vector;
+        while(os_id<offspring_thresh){
+            if(parentMap.find(gridKey)==parentMap.end()){
+                break;
+            }
+            if(parentMap[gridKey].size()==1){
+                bool result=cur_set.insert(*parentMap[gridKey].begin()).second;
+                if(!result)
+                    break;
+                cur_vector.push_back(*parentMap[gridKey].begin());
+                gridKey=*parentMap[gridKey].begin();
+                os_id+=1;
+            }
+            if(parentMap[gridKey].size()>=2){
+                cur_set.clear();
+                cur_vector.clear();
+                break;
+            }
+        }
+        parentsDict[*it]=cur_vector;
+        gridKey=*it;
+        os_id=0;
+        cur_set.clear();
+        cur_vector.clear();
+        while(os_id<offspring_thresh){
+            if(childMap.find(gridKey)==childMap.end()){
+                break;
+            }
+            if(childMap[gridKey].size()==1){
+                bool result=cur_set.insert(*childMap[gridKey].begin()).second;
+                if(!result)
+                    break;
+                cur_vector.push_back(*childMap[gridKey].begin());
+                gridKey=*childMap[gridKey].begin();
+                os_id+=1;
+            }
+            if(childMap[gridKey].size()>=2){
+                cur_set.clear();
+                cur_vector.clear();
+                break;
+            }
+        }
+        offspringsDict[*it]=cur_vector;
+    }
+//    for(auto it : parentsDict){
+//        for(auto p_coor: it.second){
+//            if(offspringsDict.find(p_coor)==offspringsDict.end()){
+//                offspringsDict[p_coor]=set<string>();
+//                offspringsDict[p_coor].insert(it.first);
+//            }
+//            else{
+//                offspringsDict[p_coor].insert(it.first);
+//            }
+//        }
+//    }
+
+    //calc_pairwise_dist
+    set<string> d1_coord_set;
+    set<set<string>> dmin_coord_listAll ;
+    for(auto it=remain_pts.begin();it!=remain_pts.end();it++){
+        NeuronSWC s;
+        stringToXYZ(*it,s.x,s.y,s.z);
+        set<string> cur_set(parentsDict[*it].begin(),parentsDict[*it].end());
+        if(cur_set.size()<5)
+            continue;
+        cur_set.insert(*it);
+        if(offspringsDict.find(*it)!=offspringsDict.end()){
+            if(offspringsDict[*it].size()<5)
+                continue;
+            set<string> offSet(offspringsDict[*it].begin(),offspringsDict[*it].end());
+            set_union(cur_set.begin(), cur_set.end(), offSet.begin(), offSet.end(), inserter(cur_set,cur_set.begin()));
+            set<string> pts;
+            set_difference(allPoints.begin(),allPoints.end(),cur_set.begin(),cur_set.end(), inserter(pts, pts.begin()));
+            set<string> nearPoints;
+            for(auto coorIt=pts.begin();coorIt!=pts.end();coorIt++){
+                NeuronSWC tmp;
+                stringToXYZ(*coorIt,tmp.x,tmp.y,tmp.z);
+                if(fabs(s.x-tmp.x)<5&&fabs(s.y-tmp.y)&&fabs(s.z-tmp.z)<5){
+                    nearPoints.insert(*coorIt);
+                }
+            }
+            double cur_dmin=2;
+            string targetCoor="";
+            for(auto coorIt=nearPoints.begin();coorIt!=nearPoints.end();coorIt++){
+                NeuronSWC tmp;
+                stringToXYZ(*coorIt,tmp.x,tmp.y,tmp.z);
+                double dist=distance(s.x,tmp.x,s.y,tmp.y,s.z,tmp.z);
+                if(dist<=cur_dmin){
+                    bool hasCommonParents=false;
+                    for(auto pr0=parentsDict[*it].begin();pr0!=parentsDict[*it].end();pr0++){
+                        for(auto pr1=parentsDict[*coorIt].begin();pr1!=parentsDict[*coorIt].end();pr1++){
+                            if(*pr0==*pr1){
+                                hasCommonParents=true;
+                                break;
+                            }
+                        }
+                        if(hasCommonParents==true)
+                            break;
+                    }
+                    if(!hasCommonParents){
+                        cur_dmin=dist;
+                        targetCoor=*coorIt;
+                    }
+                }
+            }
+            if(targetCoor!=""){
+                d1_coord_set.insert(targetCoor);
+                d1_coord_set.insert(*it);
+                dmin_coord_listAll.insert(d1_coord_set);
+                d1_coord_set.clear();
+            }
+        }else {
+            continue;
+        }
+    }
+
+    for(auto it=dmin_coord_listAll.begin();it!=dmin_coord_listAll.end();it++)
+    {
+        vector<NeuronSWC> tmpVec;
+        NeuronSWC s;
+        s.type=15;
+        for(auto coorIt=(*it).begin();coorIt!=(*it).end();coorIt++){
+            stringToXYZ(*coorIt,s.x,s.y,s.z);
+            tmpVec.push_back(s);
+        }
+        outputSpecialPoints.push_back(tmpVec);
+    }
     return outputSpecialPoints;
 }
 
@@ -712,32 +898,37 @@ void CollDetection::handleNearBifurcation(vector<NeuronSWC>& bifurPoints, int& c
 }
 
 void CollDetection::handleTip(vector<NeuronSWC>& tipPoints){
-    for(int i=0;i<tipPoints.size();i++){
-        QStringList result;
-        result.push_back(QString("%1 server").arg(0));
-        result.push_back(QString("%1 %2 %3 %4").arg(tipPoints[i].type).arg(tipPoints[i].x).arg(tipPoints[i].y).arg(tipPoints[i].z));
-        QString msg=QString("/WARN_Tip:"+result.join(","));
-        myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_Tip:").size()));
-        qDebug()<<"Server finish /WARN_Tip";
-        emit myServer->clientSendMsgs({msg});
-    }
+//    for(int i=0;i<tipPoints.size();i++){
+//        QStringList result;
+//        result.push_back(QString("%1 server").arg(0));
+//        result.push_back(QString("%1 %2 %3 %4").arg(tipPoints[i].type).arg(tipPoints[i].x).arg(tipPoints[i].y).arg(tipPoints[i].z));
+//        QString msg=QString("/WARN_Tip:"+result.join(","));
+//        myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_Tip:").size()));
+//        qDebug()<<"Server finish /WARN_Tip";
+//        emit myServer->clientSendMsgs({msg});
+//    }
 
     if(tipPoints.size()!=0){
-
-        // 创建一个QFile对象，用于读取要上传的文件
-        QFile *file = new QFile(myServer->swcpath);
-        file->open(QIODevice::ReadOnly | QIODevice::Text);
-
         QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
         QHttpPart filePart;
         QString swcFileName=myServer->getAnoName()+".ano.eswc";
+        QString fileSaveName=myServer->swcpath.left(myServer->swcpath.size()-QString(".ano.eswc").size())+"_sorted.ano.eswc";
+
+        sortSWC(myServer->swcpath,fileSaveName,0);
+
+        // 创建一个QFile对象，用于读取要上传的文件
+        QFile *file = new QFile(fileSaveName);
+        file->open(QIODevice::Text|QIODevice::ReadWrite);
+        file->setPermissions(QFileDevice::ReadOwner|QFileDevice::WriteOwner);
+        setSWCRadius(fileSaveName,1);
+
         filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("text/plain"));
         filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"swcFile\"; filename=\""+ swcFileName + "\"")); // file为后端定义的key，filename即为excel文件名
         filePart.setBodyDevice(file);
         file->setParent(multiPart); // 文件将由multiPart对象进行管理
 
         multiPart->append(filePart);
-        QNetworkRequest fileRequest(QUrl(HostAddress+"/detect/file"));
+        QNetworkRequest fileRequest(QUrl(HostAddress+"/detect/file/for-missing"));
         // 发送HTTP POST请求
         QNetworkReply* fileReply = accessManager->post(fileRequest, multiPart);
         multiPart->setParent(fileReply); // reply对象将负责删除multiPart对象
@@ -753,10 +944,9 @@ void CollDetection::handleTip(vector<NeuronSWC>& tipPoints){
         int fileResCode=fileReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qDebug()<<"sendFile"<<fileResCode;
         //清理资源
-        fileReply->deleteLater();
+        QFile::remove(fileSaveName);
         file->close();
-        file->deleteLater();
-
+        fileReply->deleteLater();
 
         QJsonObject json;
         QString obj=myServer->getImage();
@@ -888,10 +1078,9 @@ void CollDetection::handleTip(vector<NeuronSWC>& tipPoints){
                                         }
                                     }
                                     if (info.contains("y_pred")) {
-                                        QJsonValue predValue = obj.value("y_pred");
-                                        if (predValue.isDouble()) {
-                                            y_pred = predValue.toInt();
-                                        }
+                                        QJsonValue predValue = info.value("y_pred");
+                                        y_pred = predValue.toInt();
+                                        qDebug()<<i<<": "<<y_pred;
                                     }
                                     if(y_pred==1){
                                         NeuronSWC s;
@@ -926,64 +1115,148 @@ void CollDetection::handleTip(vector<NeuronSWC>& tipPoints){
             myServer->imediateSave();
 
         //清理资源
-        reply->deleteLater();
+        reply->deleteLater();     
     }
 }
 
-void CollDetection::handleCrossing(vector<NeuronSWC>& crossingPoints){
+void CollDetection::handleCrossing(vector<vector<NeuronSWC>>& crossingPoints, map<string, vector<string>> &parentsDict, map<string, vector<string>> &offspringsDict){
     for(int i=0;i<crossingPoints.size();i++){
-        QStringList result;
-        result.push_back(QString("%1 server").arg(0));
-        result.push_back(QString("%1 %2 %3 %4").arg(crossingPoints[i].type).arg(crossingPoints[i].x).arg(crossingPoints[i].y).arg(crossingPoints[i].z));
-        QString msg=QString("/WARN_Crossing:"+result.join(","));
-        myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_Crossing:").size()));
-        qDebug()<<"Server finish /WARN_Crossing";
-        emit myServer->clientSendMsgs({msg});
+        for(auto it=crossingPoints[i].begin();it!=crossingPoints[i].end();it++){
+            QStringList result;
+            result.push_back(QString("%1 server").arg(0));
+            result.push_back(QString("%1 %2 %3 %4").arg(it->type).arg(it->x).arg(it->y).arg(it->z));
+            QString msg=QString("/WARN_Crossing:"+result.join(","));
+            myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_Crossing:").size()));
+            qDebug()<<"Server finish /WARN_Crossing";
+            emit myServer->clientSendMsgs({msg});
+        }
     }
 
     if(crossingPoints.size()!=0){
-        QJsonObject json;
-        QString obj=myServer->getImage();
-        json.insert("obj",obj);
-        json.insert("res", myServer->RES);
-        QJsonArray coorList;
-        for(int i=0; i<crossingPoints.size();i++){
-            QJsonObject coor;
-            coor.insert("x", crossingPoints[i].x);
-            coor.insert("y", crossingPoints[i].y);
-            coor.insert("z", crossingPoints[i].z);
-            coorList.append(coor);
-        }
-        json.insert("coors",coorList);
-
-        // 创建一个QHttpMultiPart对象，用于构建multipart/form-data请求
         QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-
-        // 创建一个QFile对象，用于读取要上传的文件
-        QFile *file = new QFile(myServer->swcpath);
-        file->open(QIODevice::ReadOnly);
-
-        // 将文件添加到multipart请求中
         QHttpPart filePart;
         QString swcFileName=myServer->getAnoName()+".ano.eswc";
-        filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant(QString("form-data; name=\"swcFile\"; filename=\"%1\"").arg(swcFileName)));
+        QString fileSaveName=myServer->swcpath.left(myServer->swcpath.size()-QString(".ano.eswc").size())+"_sorted.ano.eswc";
+        sortSWC(myServer->swcpath,fileSaveName,0);
+
+        // 创建一个QFile对象，用于读取要上传的文件
+        QFile *file = new QFile(fileSaveName);
+        file->open(QIODevice::Text);
+        file->setPermissions(QFileDevice::ReadOwner|QFileDevice::WriteOwner);
+        setSWCRadius(fileSaveName,1);
+
+        filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("text/plain"));
+        filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"swcFile\"; filename=\""+ swcFileName + "\"")); // file为后端定义的key，filename即为excel文件名
         filePart.setBodyDevice(file);
         file->setParent(multiPart); // 文件将由multiPart对象进行管理
 
         multiPart->append(filePart);
-        QHttpPart jsonPart;
-        jsonPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"info\""));
-        jsonPart.setBody(QJsonDocument(json).toJson());
+        QNetworkRequest fileRequest(QUrl(HostAddress+"/detect/file/for-crossing"));
+        // 发送HTTP POST请求
+        QNetworkReply* fileReply = accessManager->post(fileRequest, multiPart);
+        multiPart->setParent(fileReply); // reply对象将负责删除multiPart对象
+        QEventLoop tmpeventLoop;
+        connect(fileReply, &QNetworkReply::finished, &tmpeventLoop, &QEventLoop::quit);
+        tmpeventLoop.exec(QEventLoop::ExcludeUserInputEvents);
 
-        multiPart->append(jsonPart);
+        if(fileReply->error())
+        {
+            qDebug() << "SENDFILEERROR!";
+            qDebug() << fileReply->errorString();
+        }
+        int fileResCode=fileReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug()<<"sendFile"<<fileResCode;
+        //清理资源
+        QFile::remove(fileSaveName);
+        file->close();
+        file->deleteLater();
+
+
+        QJsonObject json;
+        QString obj=myServer->getImage();
+        json.insert("obj",obj);
+        json.insert("res", myServer->RES);
+        QJsonArray infos;
+        for(int i=0; i<crossingPoints.size();i++){
+            QJsonArray info;
+            for(auto it=crossingPoints[i].begin();it!=crossingPoints[i].end();it++){
+                QString gridKeyQ = QString::number(it->x) + "_" + QString::number(it->y) + "_" + QString::number(it->z);
+                string gridKey = gridKeyQ.toStdString();
+                QJsonObject point;
+                point.insert("x", it->x);
+                point.insert("y", it->y);
+                point.insert("z", it->z);
+                QJsonArray parentsCoors;
+                QJsonArray offspringsCoors;
+                for(int j=0;j<parentsDict[gridKey].size();j++){
+                    QJsonObject everyParent;
+                    XYZ coor;
+                    stringToXYZ(parentsDict[gridKey][j],coor.x,coor.y,coor.z);
+                    everyParent.insert("x", coor.x);
+                    everyParent.insert("y", coor.y);
+                    everyParent.insert("z", coor.z);
+                    parentsCoors.append(everyParent);
+                }
+                for(int j=0;j<offspringsDict[gridKey].size();j++){
+                    QJsonObject everyOffSpring;
+                    XYZ coor;
+                    stringToXYZ(offspringsDict[gridKey][j],coor.x,coor.y,coor.z);
+                    everyOffSpring.insert("x", coor.x);
+                    everyOffSpring.insert("y", coor.y);
+                    everyOffSpring.insert("z", coor.z);
+                    offspringsCoors.append(everyOffSpring);
+                }
+                point.insert("parentsCoors",parentsCoors);
+                point.insert("offspringsCoors",offspringsCoors);
+                info.append(point);
+            }
+            infos.append(info);
+        }
+        json.insert("infos",infos);
+
+        //        QFile *file = new QFile(swcpath);
+        //        file->open(QIODevice::ReadOnly | QIODevice::Text);
+        //        QString content = file->readAll();
+        //        QJsonDocument jsonDocument = QJsonDocument::fromJson(content.toUtf8());
+        //        QJsonObject fileObject = jsonDocument.object();
+        //        json.insert("swcFile",fileObject);
+
+        // 创建一个QHttpMultiPart对象，用于构建multipart/form-data请求
+        //        QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+        // 创建一个QFile对象，用于读取要上传的文件
+        //        QFile *file = new QFile(swcpath);
+        //        file->open(QIODevice::ReadOnly | QIODevice::Text);
+
+
+        // 将文件添加到multipart请求中
+        //        QHttpPart filePart;
+        //        QString swcFileName=AnoName+".ano.eswc";
+        //        filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant(QString("form-data; name=\"swcFile\"; filename=\"%1\"").arg(swcFileName)));
+        //        filePart.setBodyDevice(file);
+        //        file->setParent(multiPart); // 文件将由multiPart对象进行管理
+
+        //        multiPart->append(filePart);
+        //        QHttpPart jsonPart;
+        //        jsonPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"info\""));
+        //        jsonPart.setBody(QJsonDocument(json).toJson());
+
+        //        multiPart->append(jsonPart);
+
+        QJsonDocument document;
+        document.setObject(json);
+        QString str=QString(document.toJson());
+        QByteArray byteArray=str.toUtf8();
 
         // 创建一个QNetworkRequest对象，设置URL和请求方法
-        QNetworkRequest request(QUrl(HostAddress+"/detect/missing"));
-        request.setRawHeader("Content-Type", "multipart/form-data; boundary=" + multiPart->boundary());
+        QNetworkRequest request(QUrl(HostAddress+"/detect/crossing"));
+        request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+        //        request.setRawHeader("Content-Type", "multipart/form-data; boundary=" + multiPart->boundary());
 
         // 发送HTTP POST请求
-        QNetworkReply *reply = accessManager->post(request, multiPart);
-        multiPart->setParent(reply); // reply对象将负责删除multiPart对象
+        QNetworkReply* reply = accessManager->post(request, byteArray);
+        //        QNetworkReply *reply = accessManager->post(request, multiPart);
+        //        multiPart->setParent(reply); // reply对象将负责删除multiPart对象
 
         ////        QJsonDocument document;
         ////        document.setObject(json);
@@ -999,6 +1272,11 @@ void CollDetection::handleCrossing(vector<NeuronSWC>& crossingPoints){
         connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
         eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
 
+        if(reply->error())
+        {
+            qDebug() << "ERROR!";
+            qDebug() << reply->errorString();
+        }
         int code=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qDebug()<<"handleCrossing"<<code;
         QByteArray responseData = reply->readAll();
@@ -1093,5 +1371,58 @@ void CollDetection::handleCrossing(vector<NeuronSWC>& crossingPoints){
         reply->deleteLater();
         file->close();
         file->deleteLater();
+    }
+}
+
+void CollDetection::sortSWC(QString fileOpenName, QString fileSaveName, double thres, V3DLONG rootid){
+    QList<NeuronSWC> neuron, result;
+    if (fileOpenName.endsWith(".swc") || fileOpenName.endsWith(".SWC") || fileOpenName.endsWith(".eswc") || fileOpenName.endsWith(".ESWC"))
+        neuron = readSWC_file(fileOpenName).listNeuron;
+    if (!SortSWC(neuron, result , rootid, thres))
+    {
+        cout<<"Error in sorting swc"<<endl;
+    }
+    if (!export_list2file(result, fileSaveName, fileOpenName))
+    {
+        cout<<"Error in writing swc to file"<<endl;
+    }
+}
+
+void CollDetection::setSWCRadius(QString filePath, int r){
+    if (filePath.endsWith(".swc") || filePath.endsWith(".SWC") || filePath.endsWith(".eswc") || filePath.endsWith(".ESWC"))
+    {
+        QFile qf(filePath);
+        QString arryRead;
+        if(!qf.open(QIODevice::ReadOnly|QIODevice::Text)){
+            return;
+        }
+        arryRead=qf.readAll();
+
+        qf.close();
+
+        QStringList arryListWrite= arryRead.split("\n");
+//        for(int i=0;i<arryListWrite.size();i++){
+//            qDebug()<<arryListWrite.at(i);
+//        }
+
+        // QIODevice::Text:以文本方式打开文件，读取时“\n”被自动翻译为换行符，写入时字符串结束符会自动翻译为系统平台的编码，如 Windows 平台下是“\r\n”
+        if (!qf.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            qDebug()<<"swcfile cannot be opened!";
+            return;
+        }
+        QTextStream streamWrite(&qf);
+        for(int i=0;i<arryListWrite.size()-1;i++){      //这里到arryListWrite.size()-1是因为arryListWrite数组按照\n分 段时，最后一行尾部有个\n，所以数组最后一个值为空，需要将它去掉
+            if(arryListWrite.at(i).contains("#")){
+                streamWrite<<arryListWrite.at(i)<<"\n";
+            }else{
+                QString contentWrite= arryListWrite.at(i);
+                QStringList swcInfo=contentWrite.split(' ',Qt::SkipEmptyParts);
+                swcInfo[5]=QString::number(r);
+                contentWrite=swcInfo.join(' ');
+                streamWrite<<contentWrite<<"\n";
+            }
+        }
+        qf.close();
     }
 }

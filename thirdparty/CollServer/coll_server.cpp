@@ -52,9 +52,11 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     CollDetection::somaCoordinate=detectUtil->getSomaCoordinate(apopath);
     // 3分钟执行一次
     timerForAutoSave->start(3*60*1000);
+//    timerForDetectTip->setSingleShot(true);
     timerForDetectTip->start(24*60*60*1000);
-    timerForDetectCrossing->start(24*60*60*1000);
-    timerForDetectOthers->start(60*1000);
+    timerForDetectCrossing->setSingleShot(true);
+    timerForDetectCrossing->start(60*1000);
+    timerForDetectOthers->start(24*60*60*1000);
     timerForAutoExit->start(24*60*60*1000);
     CollClient::timerforupdatemsg.start(1000);
     // 为msglist这个列表分配内存

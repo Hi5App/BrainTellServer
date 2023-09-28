@@ -173,7 +173,7 @@ func QueryBoutonArbors(owner string, maxId int64) ([]*Arbor, error) {
 func GetBoutonArborImagePath(arborId string) (string, error) {
 	fmt.Println("query bouton arbor image, arbor id" + arborId)
 
-	arborImageFilePath := "/home/BrainTellServer/boutonImage" + arborId + ".v3dpbd"
+	arborImageFilePath := "/home/BrainTellServer/boutonImage/" + arborId + ".v3dpbd"
 	fmt.Println("query bouton arbor image, arbor image path" + arborImageFilePath)
 
 	return arborImageFilePath, nil

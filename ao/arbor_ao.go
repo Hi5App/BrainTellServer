@@ -2,6 +2,7 @@ package ao
 
 import (
 	"BrainTellServer/do"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -38,6 +39,8 @@ func GetBoutonArborImage(arborId string) (string, error) {
 		"desc":  "arbor Id" + arborId,
 	}).Infof("")
 
+	fmt.Printf("----------Get Bouton Arbor Image, GetBoutonArborImage func enter: -------------------\n")
+
 	imagePath, err := do.GetBoutonArborImagePath(arborId)
 
 	log.WithFields(log.Fields{
@@ -52,5 +55,7 @@ func GetBoutonArborImage(arborId string) (string, error) {
 		}).Warnf("%v\n", err)
 		return "", err
 	}
+
+	fmt.Printf("----------Get Bouton Arbor Image, return image path: %v-------------------\n", imagePath)
 	return imagePath, nil
 }

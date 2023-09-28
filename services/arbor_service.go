@@ -5,6 +5,7 @@ import (
 	"BrainTellServer/do"
 	"BrainTellServer/utils"
 	"encoding/json"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -21,7 +22,7 @@ type GetArborImageParam struct {
 	ArborId string          `json:"arborId"`
 }
 
-func (pa GetArborImageParam) String() string {
+func (pa *GetArborImageParam) String() string {
 	jsonres, err := json.Marshal(pa)
 	if err != nil {
 		return ""
@@ -29,7 +30,7 @@ func (pa GetArborImageParam) String() string {
 	return string(jsonres)
 }
 
-func (pa GetArborImageParam) FromJsonString(jsonstr string) (utils.RequestParam, error) {
+func (pa *GetArborImageParam) FromJsonString(jsonstr string) (utils.RequestParam, error) {
 	if err := json.Unmarshal([]byte(jsonstr), pa); err != nil {
 		return nil, err
 	}
@@ -168,6 +169,8 @@ func GetBoutonArborImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("----------Get Bouton Arbor Image: step1 get request-------------------\n")
+
 	_, ok := param.(*GetArborImageParam)
 	if !ok {
 		log.WithFields(log.Fields{
@@ -195,6 +198,7 @@ func GetBoutonArborImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("----------Get Bouton Arbor Image, arbor id: %v-------------------\n", p.ArborId)
 	imagePath, err := ao.GetBoutonArborImage(p.ArborId)
 
 	if err != nil {

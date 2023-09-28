@@ -32,7 +32,18 @@ func GetBoutonArbors(owner string, maxId int64) ([]*do.Arbor, error) {
 }
 
 func GetBoutonArborImage(arborId string) (string, error) {
+
+	log.WithFields(log.Fields{
+		"event": "GetBoutonArborImage",
+		"desc":  "arbor Id" + arborId,
+	}).Infof("")
+
 	imagePath, err := do.GetBoutonArborImagePath(arborId)
+
+	log.WithFields(log.Fields{
+		"event": "GetBoutonArborImage",
+		"desc":  "image path" + imagePath,
+	}).Infof("")
 
 	if err != nil {
 		log.WithFields(log.Fields{

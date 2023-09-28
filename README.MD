@@ -1,29 +1,35 @@
-# BrainTell后台服务说明
-1. 服务采用分层架构
-   1. service层为服务层，被HTTP直接调用，负责转换用户请求中的参数，并返回响应
-   2. ao数据聚合层，负责聚合多个do层返回数据
-   3. do数据层，直接负责数据库的相关调用
-   4. models是数据库协议
-   5. utils包含一些通用的接口，包括编解码、切图像、切SWC的函数
-   6. thirdparty第三方模块源码
-      1. CollServer实时协同服务代码
-      2. cropswc切SWC程序的源码
-   7. 本项目使用Go语言开发，
-2. 项目中涉及的工具，请先了解相关工具
-   1. Go语言
+# BrainTell Backend Service Explanation
+1. The service adopts a layered architecture:
+
+   1. The service layer (service) is directly called by HTTP, responsible for transforming user request parameters and returning responses.
+   2. The aggregation layer (ao) aggregates data returned from multiple data layers (do).
+   3. The data layer (do) is directly responsible for database-related operations.
+   4. Models (models) represent the database protocols.
+   5. Utils (utils) includes some commonly used interfaces, such as encoding/decoding, image cropping, and SWC file cropping functions.
+   6. Third-party (thirdparty) contains source code for third-party modules:
+      1. CollServer is the real-time collaboration service code.
+      2. cropswc is the source code for the SWC file cropping program.
+   7. This project is developed using the Go programming language.
+
+2. Familiarize yourself with the following tools used in the project:
+
+   1. Go language
    2. XORM
    3. Redis
    4. HTTP
-3. 项目使用config文件配置
-   1. mysql配置
-   2. redis配置
-   3. aeskey:aes加密字符串（未使用）
-   4. mainpath:主文件夹路径
-   5. cropprocess:cropswc和cropimage的并发数
-   6. emails:日报发送对象
-4. 项目使用Docker容器化
-   1. Nginx容器
-   2. MySQL容器
-   3. Redis容器
-   4. Web服务容器
-5. 
+
+3. The project uses a configuration file (config) to manage settings:
+
+   1. MySQL configuration
+   2. Redis configuration
+   3. aeskey: AES encryption string (not used)
+   4. mainpath: main folder path
+   5. cropprocess: concurrency level for cropswc and cropimage
+   6. emails: recipients for daily reports
+
+4. The project is containerized using Docker:
+
+   1. Nginx container
+   2. MySQL container
+   3. Redis container
+   4. Web service container

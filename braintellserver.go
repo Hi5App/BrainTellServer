@@ -45,8 +45,10 @@ func main() {
 
 	//// bouton check service
 	http.HandleFunc("/dynamic/arbor/getboutonarbor", services.GetBoutonArbor)
+	http.HandleFunc("/dynamic/arbor/getboutonarborimage", services.GetBoutonArborImage) // 临时的bouton获取服务，直接获取bouton的image文件
 	http.HandleFunc("/dynamic/arbor/updateboutonarborresult", services.UpdateBoutonArborResult)
 	http.HandleFunc("/dynamic/arbor/queryboutonarborresult", services.QueryBoutonArborResult)
+
 	//// bouton detail的相关操作
 	http.HandleFunc("/dynamic/boutonarbordetail/insert", services.InsertBoutonArborDetail)
 	http.HandleFunc("/dynamic/boutonarbordetail/delete", services.DeleteBoutonArbordetail)

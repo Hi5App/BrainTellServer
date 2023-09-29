@@ -69,11 +69,22 @@ func EncodeToHttp(w http.ResponseWriter, status int, pa string) {
 }
 
 func SendFile(w http.ResponseWriter, status int, pa string) {
+	log.WithFields(log.Fields{
+		"event": "Try SendFile",
+		"desc":  "send file path",
+	}).Infof("%v\n", pa)
+
 	f, err := os.Open(pa)
 	defer f.Close()
 
 	if err != nil {
 		w.WriteHeader(502)
+
+		log.WithFields(log.Fields{
+			"event": "Try SendFile",
+			"desc":  "fail to open file:",
+		}).Errorf("%v\n", pa)
+
 		return
 	}
 	w.WriteHeader(200)

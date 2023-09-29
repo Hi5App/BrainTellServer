@@ -36,7 +36,7 @@ func GetBoutonArborImage(arborId string) (string, error) {
 
 	log.WithFields(log.Fields{
 		"event": "GetBoutonArborImage",
-		"desc":  "arbor Id" + arborId,
+		"desc":  "arbor Id:" + arborId,
 	}).Infof("")
 
 	fmt.Printf("----------Get Bouton Arbor Image, GetBoutonArborImage func enter: -------------------\n")
@@ -45,7 +45,7 @@ func GetBoutonArborImage(arborId string) (string, error) {
 
 	log.WithFields(log.Fields{
 		"event": "GetBoutonArborImage",
-		"desc":  "image path" + imagePath,
+		"desc":  "image path:" + imagePath,
 	}).Infof("")
 
 	if err != nil {

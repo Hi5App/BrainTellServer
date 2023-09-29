@@ -93,6 +93,30 @@ func SendFile(w http.ResponseWriter, status int, pa string) {
 	os.Remove(pa)
 }
 
+func SendFileNoDelete(w http.ResponseWriter, status int, pa string) {
+	log.WithFields(log.Fields{
+		"event": "Try SendFile",
+		"desc":  "send file path",
+	}).Infof("%v\n", pa)
+
+	f, err := os.Open(pa)
+	defer f.Close()
+
+	if err != nil {
+		w.WriteHeader(502)
+
+		log.WithFields(log.Fields{
+			"event": "Try SendFile",
+			"desc":  "fail to open file:",
+		}).Errorf("%v\n", pa)
+
+		return
+	}
+	w.WriteHeader(200)
+	w.Header().Set("Content-Disposition", pa)
+	io.Copy(w, f)
+}
+
 func In(haystack interface{}, needle interface{}) (bool, error) {
 	//获得haystack的反射值对象
 	sVal := reflect.ValueOf(haystack)

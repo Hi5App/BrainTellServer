@@ -210,5 +210,5 @@ func GetBoutonArborImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.SendFile(w, 200, imagePath)
+	utils.SendFileNoDelete(w, 200, imagePath)
 }

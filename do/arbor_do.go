@@ -96,9 +96,9 @@ func QueryBoutonArbors(owner string, maxId int64) ([]*Arbor, error) {
 	// 最大检查人数为2
 	const maxCheckCount = 2
 	sql := "select * from t_arbor_bouton where Isdeleted=0 " + "and Id>" + fmt.Sprintf("%d", maxId) + " " +
-		"and Id not in (select ArborId from t_arborresult where t_arborresult.Isdeleted=0 and Owner= " +
+		"and Id not in (select ArborId from t_arborresult_bouton where t_arborresult_bouton.Isdeleted=0 and Owner= " +
 		fmt.Sprintf("\"%s\"", owner) + ")" +
-		"and Id not in (select ArborId from t_arborresult where t_arborresult.Isdeleted=0 group by ArborId having count(*) >=" + strconv.Itoa(maxCheckCount) + ") limit 10"
+		"and Id not in (select ArborId from t_arborresult_bouton where t_arborresult_bouton.Isdeleted=0 group by ArborId having count(*) >=" + strconv.Itoa(maxCheckCount) + ") limit 10"
 
 	arbors, err := utils.DB.QueryString(sql)
 	if err != nil {

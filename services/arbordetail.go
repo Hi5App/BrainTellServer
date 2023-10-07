@@ -346,13 +346,16 @@ func DeleteBoutonArbordetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 记录user name
+	username := p.User.Name
+
 	pp := make([]*models.TArbordetailBouton, 0)
 	for _, v := range p.Pa {
 		pp = append(pp, &models.TArbordetailBouton{
 			Id: v,
 		})
 	}
-	_, err = ao.DeleteBoutonArbordetail(pp)
+	_, err = ao.DeleteBoutonArbordetail(pp, username)
 
 	if err != nil {
 		log.WithFields(log.Fields{

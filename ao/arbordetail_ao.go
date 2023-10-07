@@ -38,8 +38,8 @@ func InsertBoutonArborDetail(pa []*models.TArbordetailBouton) (int, error) {
 	return affected, nil
 }
 
-func DeleteBoutonArbordetail(pa []*models.TArbordetailBouton) (int, error) {
-	affected, err := do.DeleteBoutonArbordetail(pa)
+func DeleteBoutonArbordetail(pa []*models.TArbordetailBouton, username string) (int, error) {
+	affected, err := do.DeleteBoutonArbordetail(pa, username)
 	if err != nil {
 		return 0, err
 	}

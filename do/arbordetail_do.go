@@ -108,7 +108,7 @@ func InsetBoutonArborDetail(pa []*models.TArbordetailBouton) (int, error) {
 	return int(affected), nil
 }
 
-func DeleteBoutonArbordetail(pa []*models.TArbordetailBouton) (int, error) {
+func DeleteBoutonArbordetail(pa []*models.TArbordetailBouton, username string) (int, error) {
 	jsonpa, _ := jsoniter.MarshalToString(pa)
 	idList := make([]int, 0)
 	for _, v := range pa {
@@ -117,6 +117,7 @@ func DeleteBoutonArbordetail(pa []*models.TArbordetailBouton) (int, error) {
 
 	affected, err := utils.DB.NewSession().In("Id", idList).Update(&models.TArbordetailBouton{
 		Isdeleted: 1,
+		Owner:     username,
 	})
 	if err != nil {
 		log.WithFields(log.Fields{

@@ -77,8 +77,8 @@ QVector< QVector<V3DLONG> > get_neighbors(QList<NeuronSWC> &neurons, const QHash
     // ids are the line numbers
     // names are the node names (neurons.name)
     QSet<V3DLONG> tmpSet;
-    for(auto it=LUT.values().begin();it!=LUT.values().end();it++){
-        tmpSet.insert(*it);
+    for(auto it=LUT.begin();it!=LUT.end();it++){
+        tmpSet.insert(it.value());
     }
     QList<V3DLONG> idlist;
     for(auto it=tmpSet.begin();it!=tmpSet.end();it++){
@@ -106,7 +106,7 @@ QVector< QVector<V3DLONG> > get_neighbors(QList<NeuronSWC> &neurons, const QHash
             int pid_new = LUT.value(pname_old);
             int cid_new = LUT.value(cname_old);
             if((pid_new>=siz) || (cid_new>=siz)){
-                v3d_msg(QString("Out of range [0, %1]: pid:%2; cid:%3").arg(siz).arg(pid_new).arg(cid_new));
+                qDebug()<<QString("Out of range [0, %1]: pid:%2; cid:%3").arg(siz).arg(pid_new).arg(cid_new);
             }
             // add a new neighbor for the child node
             if(!neighbors.at(cid_new).contains(pid_new)){
@@ -259,18 +259,22 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
     QHash<V3DLONG, NeuronSWC> LUT_newid_to_node;
     QHash<V3DLONG, V3DLONG> LUT = getUniqueLUT(neurons, LUT_newid_to_node);
 
+//    qDebug()<<LUT.values();
     //create a new id list to give every different neuron a new id
     QSet<V3DLONG> tmpSet;
-    for(auto it=LUT.values().begin();it!=LUT.values().end();it++){
-        tmpSet.insert(*it);
+    for(auto it=LUT.begin();it!=LUT.end();it++){
+        tmpSet.insert(it.value());
     }
     QList<V3DLONG> idlist;
     for(auto it=tmpSet.begin();it!=tmpSet.end();it++){
         idlist.append(*it);
     }
-
+//    qDebug()<<"tmpSet: "<<tmpSet;
+//    qDebug()<<"idlist: "<<idlist;
     V3DLONG siz = idlist.size();
-
+    qDebug()<<siz;
+    sort(idlist.begin(),idlist.end());
+//    qDebug()<<idlist;
     //    // create a LUT from new id to neuron node
     //    QHash<V3DLONG, NeuronSWC> LUT_newid_to_node;
     //    for(int i=0; i<idlist.size(); i++){
@@ -285,6 +289,7 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
     V3DLONG root = 0;
     if (newrootid==VOID)  // If unspecified, use the 1st root as new root.
     {
+        qDebug()<<"000";
         for (V3DLONG i=0;i<neurons.size();i++)
             if (neurons.at(i).pn==-1){
                 root = idlist.indexOf(LUT.value(neurons.at(i).n));
@@ -292,10 +297,11 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
             }
     }
     else{
+        qDebug()<<"1111";
         root = idlist.indexOf(LUT.value(newrootid));
         if (LUT.keys().indexOf(newrootid)==-1)
         {
-            v3d_msg("The new root id you have chosen does not exist in the SWC file.");
+            qDebug()<<QString("The new root id you have chosen does not exist in the SWC file.");
             return(false);
         }
     }
@@ -314,7 +320,7 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
     // Begin with the new root node and
     // generate the 1st sorted tree.
     cur_neworder= DFS(neighbors, root, siz);
-    qDebug()<<QString("cur_neworder=%1").arg(cur_neworder.size());
+//    qDebug()<<QString("cur_neworder=%1").arg(cur_neworder.size());
     sorted_size += cur_neworder.size();
     neworder.append(cur_neworder);
     for(int i=0; i<cur_neworder.size(); i++){
@@ -437,7 +443,7 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
         V3DLONG cnt = 0;
         // Sort current component;
         cur_neworder= DFS(neighbors, new_root, siz);
-        qDebug()<<QString("cur_neworder=%1").arg(cur_neworder.size());
+//        qDebug()<<QString("cur_neworder=%1").arg(cur_neworder.size());
         sorted_size += cur_neworder.size();
         neworder.append(cur_neworder);
         for(int i=0; i<cur_neworder.size(); i++){
@@ -449,7 +455,7 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
         S.pn = -1;
         result.append(S);
         cnt++;
-        qDebug()<<QString("New root %1:").arg(i)<<S.x<<S.y<<S.z;
+//        qDebug()<<QString("New root %1:").arg(i)<<S.x<<S.y<<S.z;
 
         for (V3DLONG ii=offset+1;ii<(sorted_size);ii++)
         {
@@ -475,7 +481,7 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
     }
 
     if ((sorted_size)<siz) {
-        v3d_msg(QString("Error!\nsorted_size:%1\nsize:%2").arg(sorted_size).arg(siz));
+        qDebug()<<QString("Error!\nsorted_size:%1\nsize:%2").arg(sorted_size).arg(siz);
         return false;
     }
 

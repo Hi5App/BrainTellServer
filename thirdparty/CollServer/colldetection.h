@@ -23,17 +23,20 @@ class CollDetection : public QObject
 private:
     CollServer* myServer;
     QNetworkAccessManager* accessManager;
-    QString HostAddress;
+    QString SuperUserHostAddress;
+    QString BrainTellHostAddress;
 
 public:
     static bool isSomaExists;
     static XYZ somaCoordinate;
+    static XYZ maxRes;
+    static XYZ subMaxRes;
 
     explicit CollDetection(CollServer* curServer, QObject* parent=nullptr);
     ~CollDetection(){}
     XYZ getSomaCoordinate(QString apoPath);
     vector<NeuronSWC> specStructsDetection(V_NeuronSWC_list inputSegList, double dist_thresh=3);
-    vector<NeuronSWC> tipDetection(V_NeuronSWC_list inputSegList, double dist_thresh=20);
+    vector<NeuronSWC> tipDetection(V_NeuronSWC_list &inputSegList, bool flag, double dist_thresh=20);
     vector<vector<NeuronSWC>> crossingDetection(V_NeuronSWC_list inputSegList, map<string, vector<string>> &parentsDict, map<string, vector<string>> &offspringsDict);
     void handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& count);
@@ -43,6 +46,8 @@ public:
 
     void sortSWC(QString fileOpenName, QString fileSaveName, double thres=1000000000, V3DLONG rootid=1000000000);
     void setSWCRadius(QString filePath, int r);
+    void getImageRES();
+    void getApoForCrop(QString fileSaveName, vector<NeuronSWC> tipPoints);
 
 public slots:
     void detectOthers();

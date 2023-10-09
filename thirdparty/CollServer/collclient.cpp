@@ -67,7 +67,7 @@ void CollClient::addseg(const QString msg)
         std::cerr<<"ERROR:headerlist.size<1\n";
     }
     unsigned int clienttype=headerlist[0].toUInt();
-    // 其实是username
+
     int useridx=headerlist[1].toUInt();
 
     QStringList pointlist=pointlistwithheader;
@@ -758,7 +758,7 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
         if(msg.contains("/login:"))
         {
             auto ps=msg.right(msg.size()-QString("/login:").size()).split(' ',Qt::SkipEmptyParts);
-            if (ps.size()!=3){
+            if (ps.size()>3){
                 std::cerr<<"login in error:"<<msg.toStdString();
 //                this->disconnectFromHost();
 //                this->close();//关闭读

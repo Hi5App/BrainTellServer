@@ -974,6 +974,18 @@ vector<vector<NeuronSWC>> CollDetection::crossingDetection(V_NeuronSWC_list inpu
             double cur_dmin=1.5;
             string targetCoor="";
             for(auto coorIt=nearPoints.begin();coorIt!=nearPoints.end();coorIt++){
+                set<string> coor_cur_set(parentsDict[*coorIt].begin(),parentsDict[*coorIt].end());
+                if(coor_cur_set.size()<5)
+                    continue;
+                coor_cur_set.insert(*coorIt);
+                if(offspringsDict.count(*coorIt)!=0){
+                    if(offspringsDict[*coorIt].size()<5)
+                        continue;
+                    set<string> coor_offSet(offspringsDict[*coorIt].begin(),offspringsDict[*coorIt].end());
+                    set_union(coor_cur_set.begin(), coor_cur_set.end(), coor_offSet.begin(), coor_offSet.end(), inserter(coor_cur_set,coor_cur_set.begin()));
+                }else{
+                    continue;
+                }
                 NeuronSWC tmp;
                 stringToXYZ(*coorIt,tmp.x,tmp.y,tmp.z);
                 double dist=distance(s.x,tmp.x,s.y,tmp.y,s.z,tmp.z);
@@ -982,18 +994,19 @@ vector<vector<NeuronSWC>> CollDetection::crossingDetection(V_NeuronSWC_list inpu
 //                    for(auto pr1=parentsDict[*coorIt].begin();pr1!=parentsDict[*coorIt].end();pr1++){
 //                        qDebug()<<QString::fromStdString(*pr1);
 //                    }
-                    bool hasCommonParents=false;
-                    for(auto pr0=parentsDict[*it].begin();pr0!=parentsDict[*it].end();pr0++){
-                        for(auto pr1=parentsDict[*coorIt].begin();pr1!=parentsDict[*coorIt].end();pr1++){
-                            if(*pr0==*pr1){
-                                hasCommonParents=true;
-                                break;
-                            }
-                        }
-                        if(hasCommonParents==true)
-                            break;
-                    }
-                    if(!hasCommonParents){
+                    set<string> intersectionSet;
+                    set_intersection(cur_set.begin(), cur_set.end(), coor_cur_set.begin(), coor_cur_set.end(), inserter(intersectionSet, intersectionSet.begin()));
+                    //                    for(auto pr0=parentsDict[*it].begin();pr0!=parentsDict[*it].end();pr0++){
+                    //                        for(auto pr1=parentsDict[*coorIt].begin();pr1!=parentsDict[*coorIt].end();pr1++){
+                    //                            if(*pr0==*pr1){
+                    //                                hasCommonParents=true;
+                    //                                break;
+                    //                            }
+                    //                        }
+                    //                        if(hasCommonParents==true)
+                    //                            break;
+                    //                    }
+                    if(intersectionSet.size()==0){
                         cur_dmin=dist;
                         targetCoor=*coorIt;
                     }
@@ -1049,9 +1062,9 @@ void CollDetection::handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, i
     for(int i=0;i<outputSpecialPoints.size();i++){
         if(isSomaExists)
         {
-            if((abs(outputSpecialPoints[i].x - somaCoordinate.x) > 5 ||
-                abs(outputSpecialPoints[i].y - somaCoordinate.y) > 5 ||
-                abs(outputSpecialPoints[i].z - somaCoordinate.z) > 5 ))
+            if((fabs(outputSpecialPoints[i].x - somaCoordinate.x) > 10 ||
+                fabs(outputSpecialPoints[i].y - somaCoordinate.y) > 10 ||
+                fabs(outputSpecialPoints[i].z - somaCoordinate.z) > 10 ))
             {
                 count++;
                 QStringList result;

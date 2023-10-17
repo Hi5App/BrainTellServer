@@ -7,28 +7,11 @@ extern QFile* logfile;
 
 
 QTimer CollClient::timerforupdatemsg;
-//QStringList CollClient::msglist;
-//int CollClient::processedmsgcnt=0;
-//int CollClient::savedmsgcnt=0;
-//int CollClient::receivedcnt=0;
-//QMap<QString,CollClient*> CollClient::hashmap;
-//V_NeuronSWC_list CollClient::segments;
-//XYZ CollClient::somaCoordinate;
-//bool CollClient::isSomaExists;
-//QList<CellAPO> CollClient::markers;
-//int receivedcnt;
-//QString CollClient::swcpath;
-//QString CollClient::apopath;
-//QString CollClient::anopath;
 
 CollClient:: CollClient(qintptr handle, CollServer* curServer, QObject *parent):QTcpSocket(parent){
     setSocketDescriptor(handle);
     myServer=curServer;
-//    connect(this,&QTcpSocket::readyRead,this,&CollClient::onread);
-//    connect(this,&QTcpSocket::disconnected,this,&CollClient::ondisconnect);
-//    connect(this,&QAbstractSocket::errorOccurred, this, &CollClient::onError);
-//    connect(this,&CollClient::noUsers,myServer,&CollServer::imediateSave);
-//    connect(this,&CollClient::removeList,myServer,&CollServer::RemoveList);
+
 //    如果一分钟内没有登陆好，则断开连接
     QTimer::singleShot(60*1000,this,[this]{
         if(username==""){
@@ -69,6 +52,7 @@ void CollClient::addseg(const QString msg)
     unsigned int clienttype=headerlist[0].toUInt();
 
     int useridx=headerlist[1].toUInt();
+    int isBegin=headerlist[2].toUInt();
 
     QStringList pointlist=pointlistwithheader;
     pointlist.removeAt(0);
@@ -97,39 +81,45 @@ void CollClient::addseg(const QString msg)
     auto segs=NeuronTree__2__V_NeuronSWC_list(addnt).seg;
 //    segs[0].printInfo();
 
-    bool flag;
-    if(point1.x==segs[0].row[0].x&&point1.y==segs[0].row[0].y&&point1.z==segs[0].row[0].z)
-        flag=true;
-    else
-        flag=false;
+//    bool flag;
+//    if(fabs(point1.x-segs[0].row[0].x)<1e-4&&fabs(point1.y-segs[0].row[0].y)<1e-4&&fabs(point1.z-segs[0].row[0].z)<1e-4)
+//        flag=true;
+//    else
+//        flag=false;
 
     myServer->mutex.lock();
 //    myServer->segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
     if(segs.size()==2){
+        int comparedIndex=0;
+        if(isBegin==1){
+            comparedIndex=segs[0].row.size()-1;
+        }else if(isBegin==0){
+            comparedIndex=0;
+        }
+
         auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),segs[1]);
 //        it->printInfo();
         if(it!=myServer->segments.seg.end())
         {
+            int index = -1;
+            double mindist = 5;
             for(int i=0;i<it->row.size();i++){
-                if(flag){
-                    if(distance(segs[0].row[0].x,it->row[i].x,segs[0].row[0].y,it->row[i].y,segs[0].row[0].z,it->row[i].z)<0.3)
-                    {
-                        segs[0].row[0].x=it->row[i].x;
-                        segs[0].row[0].y=it->row[i].y;
-                        segs[0].row[0].z=it->row[i].z;
-                        qDebug()<<"firstSeg success";
-                        break;
-                    }
-                }else{
-                    if(distance(segs[0].row[segs[0].row.size()-1].x,it->row[i].x,segs[0].row[segs[0].row.size()-1].y,it->row[i].y,segs[0].row[segs[0].row.size()-1].z,it->row[i].z)<0.3)
-                    {
-                        segs[0].row[segs[0].row.size()-1].x=it->row[i].x;
-                        segs[0].row[segs[0].row.size()-1].y=it->row[i].y;
-                        segs[0].row[segs[0].row.size()-1].z=it->row[i].z;
-                        qDebug()<<"firstSeg success";
-                        break;
-                    }
+                double dist=distance(segs[0].row[comparedIndex].x,it->row[i].x,segs[0].row[comparedIndex].y,it->row[i].y,segs[0].row[comparedIndex].z,it->row[i].z);
+                if(dist<mindist)
+                {
+                    mindist=dist;
+                    index=i;
                 }
+            }
+            if(index == -1){
+                qDebug()<<"INFO:cannot find nearest point in first connected seg";
+                qDebug()<<segs[0].row[comparedIndex].x<<" "<<segs[0].row[comparedIndex].y<<" "<<segs[0].row[comparedIndex].z;
+                it->printInfo();
+            }
+            else{
+                segs[0].row[comparedIndex].x=it->row[index].x;
+                segs[0].row[comparedIndex].y=it->row[index].y;
+                segs[0].row[comparedIndex].z=it->row[index].z;
             }
         }
         else
@@ -143,26 +133,25 @@ void CollClient::addseg(const QString msg)
 //        it->printInfo();
         if(it!=myServer->segments.seg.end())
         {
+            int index = -1;
+            double mindist = 5;
             for(int i=0;i<it->row.size();i++){
-                if(flag){
-                    if(distance(segs[0].row[0].x,it->row[i].x,segs[0].row[0].y,it->row[i].y,segs[0].row[0].z,it->row[i].z)<0.3)
-                    {
-                        segs[0].row[0].x=it->row[i].x;
-                        segs[0].row[0].y=it->row[i].y;
-                        segs[0].row[0].z=it->row[i].z;
-                        qDebug()<<"firstSeg success";
-                        break;
-                    }
-                }else{
-                    if(distance(segs[0].row[segs[0].row.size()-1].x,it->row[i].x,segs[0].row[segs[0].row.size()-1].y,it->row[i].y,segs[0].row[segs[0].row.size()-1].z,it->row[i].z)<0.3)
-                    {
-                        segs[0].row[segs[0].row.size()-1].x=it->row[i].x;
-                        segs[0].row[segs[0].row.size()-1].y=it->row[i].y;
-                        segs[0].row[segs[0].row.size()-1].z=it->row[i].z;
-                        qDebug()<<"firstSeg success";
-                        break;
-                    }
+                double dist=distance(segs[0].row[segs[0].row.size()-1].x,it->row[i].x,segs[0].row[segs[0].row.size()-1].y,it->row[i].y,segs[0].row[segs[0].row.size()-1].z,it->row[i].z);
+                if(dist<mindist)
+                {
+                    mindist=dist;
+                    index=i;
                 }
+            }
+            if(index == -1){
+                qDebug()<<"INFO:cannot find nearest point in first connected seg";
+                qDebug()<<segs[0].row[segs[0].row.size()-1].x<<" "<<segs[0].row[segs[0].row.size()-1].y<<" "<<segs[0].row[segs[0].row.size()-1].z;
+                it->printInfo();
+            }
+            else{
+                segs[0].row[segs[0].row.size()-1].x=it->row[index].x;
+                segs[0].row[segs[0].row.size()-1].y=it->row[index].y;
+                segs[0].row[segs[0].row.size()-1].z=it->row[index].z;
             }
         }
         else
@@ -174,26 +163,25 @@ void CollClient::addseg(const QString msg)
 //        it->printInfo();
         if(it!=myServer->segments.seg.end())
         {
+            int index = -1;
+            double mindist = 5;
             for(int i=0;i<it->row.size();i++){
-                if(!flag){
-                    if(distance(segs[0].row[0].x,it->row[i].x,segs[0].row[0].y,it->row[i].y,segs[0].row[0].z,it->row[i].z)<0.3)
-                    {
-                        segs[0].row[0].x=it->row[i].x;
-                        segs[0].row[0].y=it->row[i].y;
-                        segs[0].row[0].z=it->row[i].z;
-                        qDebug()<<"secondSeg success";
-                        break;
-                    }
-                }else{
-                    if(distance(segs[0].row[segs[0].row.size()-1].x,it->row[i].x,segs[0].row[segs[0].row.size()-1].y,it->row[i].y,segs[0].row[segs[0].row.size()-1].z,it->row[i].z)<0.3)
-                    {
-                        segs[0].row[segs[0].row.size()-1].x=it->row[i].x;
-                        segs[0].row[segs[0].row.size()-1].y=it->row[i].y;
-                        segs[0].row[segs[0].row.size()-1].z=it->row[i].z;
-                        qDebug()<<"secondSeg success";
-                        break;
-                    }
+                double dist=distance(segs[0].row[0].x,it->row[i].x,segs[0].row[0].y,it->row[i].y,segs[0].row[0].z,it->row[i].z);
+                if(dist<mindist)
+                {
+                    mindist=dist;
+                    index=i;
                 }
+            }
+            if(index == -1){
+                qDebug()<<"INFO:cannot find nearest point in second connected seg";
+                qDebug()<<segs[0].row[0].x<<" "<<segs[0].row[0].y<<" "<<segs[0].row[0].z;
+                it->printInfo();
+            }
+            else{
+                segs[0].row[0].x=it->row[index].x;
+                segs[0].row[0].y=it->row[index].y;
+                segs[0].row[0].z=it->row[index].z;
             }
         }
         else
@@ -313,53 +301,77 @@ void CollClient::connectseg(const QString msg){
 
             //构造segInfo
             if(segInfo.size()==0){
+                double mindist=5;
+                vector<V_NeuronSWC_unit>::iterator it_res=it->row.end();
                 for (vector<V_NeuronSWC_unit>::iterator it_unit = it->row.begin();
                      it_unit != it->row.end(); it_unit++)
                 {
                     //if (p1.x == it_unit->data[2] && p1.y == it_unit->data[3] && p1.z == it_unit->data[4])
-                    if(distance(p1.x,it_unit->data[2],p1.y,it_unit->data[3],p1.z,it_unit->data[4])<0.3)
+                    double dist=distance(p1.x,it_unit->data[2],p1.y,it_unit->data[3],p1.z,it_unit->data[4]);
+                    if(dist<mindist)
                     {
-                        //---------------------- Get seg IDs
-                        //qDebug() << nodeOnStroke->at(j).seg_id << " " << nodeOnStroke->at(j).parent << " " << p.x() << " " << p.y();
-                        qDebug()<<p1.x<<" "<<p1.y<<" "<<p1.z;
-                        qDebug()<<it_unit->data[2]<<" "<<it_unit->data[3]<<" "<<it_unit->data[4];
-                        segInfoUnit curSeg;
-                        curSeg.head_tail = it_unit->data[6];
-                        curSeg.segID = it-myServer->segments.seg.begin();
-                        curSeg.nodeCount = it->row.size();
-                        curSeg.refine = false;
-                        curSeg.branchID = it->branchingProfile.ID;
-                        curSeg.paBranchID = it->branchingProfile.paID;
-                        curSeg.hierarchy = it->branchingProfile.hierarchy;
-                        segInfo.push_back(curSeg);
-                        qDebug()<<"first connect seg found";
-                        break;
+                        mindist=dist;
+                        it_res=it_unit;
                     }
                 }
+                if(it_res==it->row.end()){
+                    qDebug()<<"cannot find nearest point in first to be connected seg";
+                    qDebug()<<p1.x<<" "<<p1.y<<" "<<p1.z;
+                    it->printInfo();
+                }
+                else{
+                    //---------------------- Get seg IDs
+                    //qDebug() << nodeOnStroke->at(j).seg_id << " " << nodeOnStroke->at(j).parent << " " << p.x() << " " << p.y();
+                    qDebug()<<p1.x<<" "<<p1.y<<" "<<p1.z;
+                    qDebug()<<it_res->data[2]<<" "<<it_res->data[3]<<" "<<it_res->data[4];
+                    segInfoUnit curSeg;
+                    curSeg.head_tail = it_res->data[6];
+                    curSeg.segID = it-myServer->segments.seg.begin();
+                    curSeg.nodeCount = it->row.size();
+                    curSeg.refine = false;
+                    curSeg.branchID = it->branchingProfile.ID;
+                    curSeg.paBranchID = it->branchingProfile.paID;
+                    curSeg.hierarchy = it->branchingProfile.hierarchy;
+                    segInfo.push_back(curSeg);
+                }
+
             }
             else if(segInfo.size()==1){
+                double mindist=5;
+                vector<V_NeuronSWC_unit>::iterator it_res=it->row.end();
                 for (vector<V_NeuronSWC_unit>::iterator it_unit = it->row.begin();
                      it_unit != it->row.end(); it_unit++)
                 {
-                    if(distance(p2.x,it_unit->data[2],p2.y,it_unit->data[3],p2.z,it_unit->data[4])<0.3)
+                    double dist=distance(p2.x,it_unit->data[2],p2.y,it_unit->data[3],p2.z,it_unit->data[4]);
+                    if(dist<mindist)
                     {
-                        //---------------------- Get seg IDs
-                        //qDebug() << nodeOnStroke->at(j).seg_id << " " << nodeOnStroke->at(j).parent << " " << p.x() << " " << p.y();
-                        qDebug()<<p2.x<<" "<<p2.y<<" "<<p2.z;
-                        qDebug()<<it_unit->data[2]<<" "<<it_unit->data[3]<<" "<<it_unit->data[4];
-                        segInfoUnit curSeg;
-                        curSeg.head_tail = it_unit->data[6];
-                        curSeg.segID = it-myServer->segments.seg.begin();
-                        curSeg.nodeCount = it->row.size();
-                        curSeg.refine = false;
-                        curSeg.branchID = it->branchingProfile.ID;
-                        curSeg.paBranchID = it->branchingProfile.paID;
-                        curSeg.hierarchy = it->branchingProfile.hierarchy;
-                        segInfo.push_back(curSeg);
-                        qDebug()<<"second connect seg found";
-                        break;
+                        mindist=dist;
+                        it_res=it_unit;
                     }
                 }
+
+                if(it_res==it->row.end()){
+                    qDebug()<<"cannot find nearest point in second to be connected seg";
+                    qDebug()<<p2.x<<" "<<p2.y<<" "<<p2.z;
+                    it->printInfo();
+                }
+                else{
+                    //---------------------- Get seg IDs
+                    //qDebug() << nodeOnStroke->at(j).seg_id << " " << nodeOnStroke->at(j).parent << " " << p.x() << " " << p.y();
+                    qDebug()<<p2.x<<" "<<p2.y<<" "<<p2.z;
+                    qDebug()<<it_res->data[2]<<" "<<it_res->data[3]<<" "<<it_res->data[4];
+                    segInfoUnit curSeg;
+                    curSeg.head_tail = it_res->data[6];
+                    curSeg.segID = it-myServer->segments.seg.begin();
+                    curSeg.nodeCount = it->row.size();
+                    curSeg.refine = false;
+                    curSeg.branchID = it->branchingProfile.ID;
+                    curSeg.paBranchID = it->branchingProfile.paID;
+                    curSeg.hierarchy = it->branchingProfile.hierarchy;
+                    segInfo.push_back(curSeg);
+                    qDebug()<<"second connect seg found";
+                }
+
             }
 
         }
@@ -505,6 +517,57 @@ void CollClient::splitseg(const QString msg){
     qDebug()<<"server splitseg";
 }
 
+void CollClient::retypesegment(const QString msg)
+{
+    QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
+    if(pointlistwithheader.size()<1){
+        std::cerr<<"ERROR:pointlistwithheader.size<1\n";
+    }
+
+    QStringList headerlist=pointlistwithheader[0].split(' ',Qt::SkipEmptyParts);
+    if(headerlist.size()<3) {
+        std::cerr<<"ERROR:headerlist.size<1\n";
+    }
+
+    unsigned int clienttype=headerlist[0].toUInt();
+    int useridx=headerlist[1].toUInt();
+    unsigned int newcolor=headerlist[2].toUInt();
+    unsigned int isMany=0;
+    if(headerlist.size()>=7)
+        isMany=headerlist[6].toUInt();
+
+    QStringList pointlist=pointlistwithheader;
+    pointlist.removeAt(0);
+    if(pointlist.size()==0){
+        std::cerr<<"ERROR:pointlist.size=0\n";
+        return;
+    }
+
+    auto retypent=convertMsg2NT(pointlist,clienttype,useridx,isMany);
+    auto retypesegs=NeuronTree__2__V_NeuronSWC_list(retypent).seg;
+
+    int count=0;
+
+    QMutexLocker locker(&myServer->mutex);
+    for(int i=0;i<retypesegs.size();i++){
+        auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),retypesegs[i]);
+        if(it==myServer->segments.seg.end()){
+            std::cerr<<"INFO:not find retype seg ,"<<msg.toStdString()<<std::endl;
+            //            myServer->mutex.unlock();
+            return;
+        }
+        int now=QDateTime::currentMSecsSinceEpoch();
+        for(auto &unit:it->row){
+            unit.type=newcolor;
+            unit.level=now-unit.timestamp;
+            unit.creatmode=useridx*10+clienttype;
+        }
+        if(count<5)
+            qDebug()<<"server retypesegment";
+        count++;
+    }
+}
+
 void CollClient::addmarkers(const QString msg)
 {
     qDebug()<<msg;
@@ -543,7 +606,7 @@ void CollClient::addmarkers(const QString msg)
 
         for(auto it=myServer->markers.begin();it!=myServer->markers.end(); ++it)
         {
-            if(abs(it->x-marker.x)<1&&abs(it->y-marker.y)<1&&abs(it->z-marker.z)<1)
+            if(fabs(it->x-marker.x)<1&&fabs(it->y-marker.y)<1&&fabs(it->z-marker.z)<1)
             {
                 qDebug()<<"the marker has already existed";
 //                myServer->mutex.unlock();
@@ -662,56 +725,7 @@ void CollClient::retypemarker(const QString msg){
     }
 }
 
-void CollClient::retypesegment(const QString msg)
-{
-    QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
-    if(pointlistwithheader.size()<1){
-        std::cerr<<"ERROR:pointlistwithheader.size<1\n";
-    }
 
-    QStringList headerlist=pointlistwithheader[0].split(' ',Qt::SkipEmptyParts);
-    if(headerlist.size()<3) {
-        std::cerr<<"ERROR:headerlist.size<1\n";
-    }
-
-    unsigned int clienttype=headerlist[0].toUInt();
-    int useridx=headerlist[1].toUInt();
-    unsigned int newcolor=headerlist[2].toUInt();
-    unsigned int isMany=0;
-    if(headerlist.size()>=7)
-        isMany=headerlist[6].toUInt();
-
-    QStringList pointlist=pointlistwithheader;
-    pointlist.removeAt(0);
-    if(pointlist.size()==0){
-        std::cerr<<"ERROR:pointlist.size=0\n";
-        return;
-    }
-
-    auto retypent=convertMsg2NT(pointlist,clienttype,useridx,isMany);
-    auto retypesegs=NeuronTree__2__V_NeuronSWC_list(retypent).seg;
-
-    int count=0;
-
-    QMutexLocker locker(&myServer->mutex);
-    for(int i=0;i<retypesegs.size();i++){
-        auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),retypesegs[i]);
-        if(it==myServer->segments.seg.end()){
-            std::cerr<<"INFO:not find retype seg ,"<<msg.toStdString()<<std::endl;
-//            myServer->mutex.unlock();
-            return;
-        }
-        int now=QDateTime::currentMSecsSinceEpoch();
-        for(auto &unit:it->row){
-            unit.type=newcolor;
-            unit.level=now-unit.timestamp;
-            unit.creatmode=useridx*10+clienttype;
-        }
-        if(count<5)
-            qDebug()<<"server retypesegment";
-        count++;
-    }
-}
 
 void CollClient::sendmsgs(const QStringList &msgs)
 {

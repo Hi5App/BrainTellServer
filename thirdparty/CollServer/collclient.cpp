@@ -2,6 +2,7 @@
 #include "coll_server.h"
 #include "utils.h"
 #include <cmath>
+#include <analyze.h>
 //#include <algorithm>
 extern QFile* logfile;
 
@@ -15,8 +16,6 @@ CollClient:: CollClient(qintptr handle, CollServer* curServer, QObject *parent):
 //    如果一分钟内没有登陆好，则断开连接
     QTimer::singleShot(60*1000,this,[this]{
         if(username==""){
-//            this->disconnectFromHost();
-//            this->close();//关闭读
             emit exitNow();
         }
     });
@@ -653,9 +652,9 @@ void CollClient::delmarkers(const QString msg)
         marker.x=markerinfo[1].toDouble();
         marker.y=markerinfo[2].toDouble();
         marker.z=markerinfo[3].toDouble();
-        if(myServer->detectUtil->isSomaExists&&sqrt((marker.x-myServer->detectUtil->somaCoordinate.x)*(marker.x-myServer->detectUtil->somaCoordinate.x)+
-                (marker.y-myServer->detectUtil->somaCoordinate.y)*(marker.y-myServer->detectUtil->somaCoordinate.y)+
-                 (marker.z-myServer->detectUtil->somaCoordinate.z)*(marker.z-myServer->detectUtil->somaCoordinate.z))<1)
+        if(myServer->isSomaExists&&sqrt((marker.x-myServer->somaCoordinate.x)*(marker.x-myServer->somaCoordinate.x)+
+                (marker.y-myServer->somaCoordinate.y)*(marker.y-myServer->somaCoordinate.y)+
+                (marker.z-myServer->somaCoordinate.z)*(marker.z-myServer->somaCoordinate.z))<1)
         {
             qDebug()<<"cannot delete the soma marker";
 //            myServer->mutex.unlock();
@@ -781,7 +780,18 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
             }
             qDebug()<<"subThread:"<<QThread::currentThreadId();
             receiveuser(ps[0], ps[1]);
-        }else{
+        }else if(msg.contains("/ANALYZE")){
+            if(msg.startsWith("/ANALYZE_SomaNearBy:")){
+                analyzeSomaNearBy(msg.right(msg.size()-QString("/ANALYZE_SomaNearBy:").size()));
+            }
+            else if(msg.startsWith("/ANALYZE_ColorMutation:")){
+                analyzeColorMutation(msg.right(msg.size()-QString("/ANALYZE_ColorMutation:").size()));
+            }
+            else if(msg.startsWith("/ANALYZE_Dissociative:")){
+                analyzeDissociativeSegs(msg.right(msg.size()-QString("/ANALYZE_Dissociative:").size()));
+            }
+        }
+        else{
             if(msg.startsWith("/drawline_norm:")||msg.startsWith("/drawline_undo:")||msg.startsWith("/drawline_redo:")){
                 addseg(msg.right(msg.size()-QString("/drawline_norm:").size()));
             }else if(msg.startsWith("/delline_norm:")||msg.startsWith("/delline_undo:")||msg.startsWith("/delline_redo:")){
@@ -927,9 +937,7 @@ void CollClient::receiveuser(const QString user, QString RES)
     if(myServer->hashmap.contains(user))
     {
         std::cerr<<"ERROR:"+user.toStdString()+" is duolicate,will remove the first\n";
-//        myServer->hashmap[user]->disconnectFromHost();
         emit myServer->clientDisconnectFromHost(myServer->hashmap[user]);
-//        myServer->hashmap[user]->ondisconnect();
     }
     myServer->hashmap[user]=this;
     myServer->RES=RES;
@@ -978,7 +986,6 @@ void CollClient::sendmsgs2client(int maxsize)
 //        maxsize=CollClient::msglist.size()-sendmsgcnt;
     qDebug()<<"send to "<< this->username<<" :("<<myServer->msglist.begin()+this->sendmsgcnt
            <<","<<myServer->msglist.begin()+end<<")/"<<myServer->msglist.size();
-    //这里会超出范围吗
     //左闭右开
     sendmsgs(QStringList(myServer->msglist.begin()+this->sendmsgcnt,
                          myServer->msglist.begin()+end));
@@ -1187,4 +1194,169 @@ void CollClient::simpleConnectExecutor(V_NeuronSWC_list& segments, vector<segInf
     //////////////////////////////////////////// END of [BRANCHING CONNECTION] ////////////////////////////////////////////
 
     return;
+}
+
+void CollClient::analyzeSomaNearBy(const QString msg){
+    QStringList headerlist=msg.split(' ',Qt::SkipEmptyParts);
+    int clienttype=headerlist[0].toUInt();
+    int useridx=headerlist[1].toUInt();
+    qDebug()<<QString("analyzeSomaNearBy: clienttype=%1, useridx=%2").arg(clienttype).arg(useridx);
+
+    if(!myServer->isSomaExists){
+        qDebug()<<"soma not detected!";
+        return;
+    }
+    else{
+        myServer->imediateSave();
+        vector<int> counts=getMulfurcationsCountNearSoma(12, myServer->somaCoordinate, myServer->segments);
+        QString tobeSendMsg="/ANALYZE_SomaNearBy:";
+        if((counts[0] + counts[1])!=1){
+            qDebug()<<"the soma is not connected to one point!";
+            tobeSendMsg += QString("server %1").arg(0);
+        }else{
+            qDebug()<<"the soma has been connected to one point";
+            tobeSendMsg += QString("server %1").arg(1);
+        }
+        sendmsgs({tobeSendMsg});
+    }
+}
+
+void CollClient::analyzeColorMutation(const QString msg){
+    QStringList headerlist=msg.split(' ',Qt::SkipEmptyParts);
+    int clienttype=headerlist[0].toUInt();
+    int useridx=headerlist[1].toUInt();
+    qDebug()<<QString("analyzeColorMutation: clienttype=%1, useridx=%2").arg(clienttype).arg(useridx);
+
+    bool result=true;
+    if(!myServer->isSomaExists){
+        qDebug()<<"soma not detected!";
+        return;
+    }
+    else{
+        myServer->imediateSave();
+        map<string,set<int>> specPointsMap=getColorChangedPoints(myServer->segments);
+        set<string> resultSet;
+        int case_type=0;
+        for(auto it=specPointsMap.begin();it!=specPointsMap.end();it++){
+            if(it->second.find(2)!=it->second.end() && it->second.find(3)!=it->second.end()){
+                resultSet.insert(it->first);
+            }
+        }
+        if(resultSet.size()!=1)
+            result=false;
+        else{
+            string gridKey=*resultSet.begin();
+            XYZ coor;
+            stringToXYZ(gridKey, coor.x, coor.y, coor.z);
+            if(distance(coor.x, myServer->somaCoordinate.x, coor.y, myServer->somaCoordinate.y,
+                         coor.z, myServer->somaCoordinate.z)<12)
+                case_type=1;
+            else
+                case_type=2;
+        }
+
+        if(case_type==0){
+            qDebug()<<"axons not connected or the number of axons is more than 1";
+        }
+        else if(case_type==1){
+            for(auto it=specPointsMap.begin();it!=specPointsMap.end();it++){
+                if(it->second.find(2)!=it->second.end() && it->second.find(4)!=it->second.end()){
+                    resultSet.insert(it->first);
+                }
+                if(it->second.find(4)!=it->second.end() && it->second.find(3)!=it->second.end()){
+                    resultSet.insert(it->first);
+                }
+            }
+            if(resultSet.size()!=1)
+                result=false;
+        }
+        else if(case_type==2){
+            string gridKey;
+            for(auto it=specPointsMap.begin();it!=specPointsMap.end();it++){
+                if(it->second.find(4)!=it->second.end() && it->second.find(3)!=it->second.end()){
+                    resultSet.insert(it->first);
+                    gridKey=it->first;
+                }
+            }
+            if(resultSet.size()>2)
+            {
+                result=false;
+            }
+            else if(resultSet.size()==2){
+                XYZ coor;
+                stringToXYZ(gridKey, coor.x, coor.y, coor.z);
+                if(distance(coor.x, myServer->somaCoordinate.x, coor.y, myServer->somaCoordinate.y,
+                             coor.z, myServer->somaCoordinate.z)>12)
+                    result=false;
+            }
+
+            int curCount=resultSet.size();
+            for(auto it=specPointsMap.begin();it!=specPointsMap.end();it++){
+                if(it->second.find(4)!=it->second.end() && it->second.find(2)!=it->second.end()){
+                    resultSet.insert(it->first);
+                }
+            }
+            if(curCount!=resultSet.size())
+                result=false;
+
+        }
+
+        for(auto it=resultSet.begin();it!=resultSet.end();){
+            NeuronSWC s;
+            stringToXYZ(*it, s.x, s.y, s.z);
+            if(distance(s.x, myServer->somaCoordinate.x, s.y, myServer->somaCoordinate.y,
+                         s.z, myServer->somaCoordinate.z)<12)
+            {
+                it=resultSet.erase(it);
+            }else{
+                it++;
+            }
+        }
+
+        QString tobeSendMsg="/ANALYZE_ColorMutation:";
+        if(result){
+            qDebug()<<"no color mutation";
+            tobeSendMsg += QString("server %1").arg(1);
+        }else{
+            qDebug()<<"color mutation exists";
+            tobeSendMsg += QString("server %1").arg(0);
+            tobeSendMsg +=",";
+            for(auto it=resultSet.begin(); it!=resultSet.end(); it++){
+                NeuronSWC s;
+                stringToXYZ(*it, s.x, s.y, s.z);
+                tobeSendMsg += QString("%1 %2 %3 %4").arg(2).arg(s.x).arg(s.y).arg(s.z);
+                tobeSendMsg += ",";
+            }
+            tobeSendMsg.chop(1);
+        }
+        sendmsgs({tobeSendMsg});
+    }
+}
+
+void CollClient::analyzeDissociativeSegs(const QString msg){
+    QStringList headerlist=msg.split(' ',Qt::SkipEmptyParts);
+    int clienttype=headerlist[0].toUInt();
+    int useridx=headerlist[1].toUInt();
+    qDebug()<<QString("analyzeDissociativeSegs: clienttype=%1, useridx=%2").arg(clienttype).arg(useridx);
+
+    myServer->imediateSave();
+    set<string> dissociativePoints=getDissociativeSegEndPoints(myServer->segments);
+
+    QString tobeSendMsg="/ANALYZE_Dissociative:";
+    if(dissociativePoints.size()==0){
+        qDebug()<<"no dissociative segs";
+        tobeSendMsg += QString("server %1").arg(1);
+    }else{
+        qDebug()<<"dissociative seg exists";
+        tobeSendMsg += QString("server %1").arg(0);
+        tobeSendMsg +=",";
+        for(auto it=dissociativePoints.begin(); it!=dissociativePoints.end(); it++){
+            NeuronSWC s;
+            stringToXYZ(*it, s.x, s.y, s.z);
+            tobeSendMsg += QString("%1 %2 %3 %4").arg(2).arg(s.x).arg(s.y).arg(s.z);
+            tobeSendMsg += ",";
+        }
+        tobeSendMsg.chop(1);
+    }
+    sendmsgs({tobeSendMsg});
 }

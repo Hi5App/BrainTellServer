@@ -194,8 +194,7 @@ func GetAnoImage(w http.ResponseWriter, r *http.Request) {
 		utils.EncodeToHttp(w, 400, "Bad Request")
 		return
 	}
-	//这里不需要进行登录验证吗
-	//新加登录验证
+
 	if _, err := ao.Login(&do.UserInfo{
 		Name:   p.User.Name,
 		Passwd: p.User.Passwd,
@@ -348,7 +347,6 @@ func GetAno(w http.ResponseWriter, r *http.Request) {
 		utils.EncodeToHttp(w, 401, err.Error())
 		return
 	} else {
-		//!!!
 		w.Header().Set("Set-Cookie", fmt.Sprint(user.Id))
 	}
 

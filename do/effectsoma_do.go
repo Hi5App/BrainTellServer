@@ -47,7 +47,6 @@ func QueryEffectSoma(pa *models.TEffectSoma) ([]*TEffectSoma, error) {
 	if err != nil {
 		return nil, err
 	}
-	//这里的TEffectSoma和models.TEffectSoma不一样
 	res := make([]*TEffectSoma, 0)
 	for _, soma := range somas {
 		res = append(res, &TEffectSoma{

@@ -17,23 +17,23 @@ extern QFile *logfile;
 
 CollServer* CollServer::curServer=nullptr;
 
-QStringList CollServer::msglist;
-int CollServer::processedmsgcnt=0;
-int CollServer::savedmsgcnt=0;
-int CollServer::receivedcnt=0;
-QMap<QString,CollClient*> CollServer::hashmap;
-V_NeuronSWC_list CollServer::segments;
-QList<CellAPO> CollServer::markers;
-//int receivedcnt;
-QString CollServer::swcpath;
-QString CollServer::apopath;
-QString CollServer::anopath;
-QMutex CollServer::mutex;
-QString CollServer::RES;
+//QStringList CollServer::msglist;
+//int CollServer::processedmsgcnt=0;
+//int CollServer::savedmsgcnt=0;
+//int CollServer::receivedcnt=0;
+//QMap<QString,CollClient*> CollServer::hashmap;
+//V_NeuronSWC_list CollServer::segments;
+//QList<CellAPO> CollServer::markers;
+////int receivedcnt;
+//QString CollServer::swcpath;
+//QString CollServer::apopath;
+//QString CollServer::anopath;
+//QMutex CollServer::mutex;
+//QString CollServer::RES;
 
 CollServer::CollServer(QString port,QString image,QString neuron,QString anoname,QString prefix,QObject *parent)
     :QTcpServer(parent),Port(port),Image(image),Neuron(neuron),AnoName(anoname),Prefix(prefix+"/data/"+image+"/"+neuron+"/"+anoname)
-    ,timerForAutoSave(new QTimer(this)),timerForDetectOthers(new QTimer(this)),timerForDetectTip(new QTimer(this)),
+    ,timerForAutoSave(new QTimer(this)),timerForDetectLoops(new QTimer(this)), timerForDetectOthers(new QTimer(this)),timerForDetectTip(new QTimer(this)),
     timerForDetectCrossing(new QTimer(this)),timerForAutoExit(new QTimer(this))
 {
     qDebug()<<"MainThread:"<<QThread::currentThreadId();
@@ -49,16 +49,17 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     apopath=Prefix+"/"+AnoName+".ano.apo";
     anopath=Prefix+"/"+AnoName+".ano";
 
-    CollDetection::somaCoordinate=detectUtil->getSomaCoordinate(apopath);
+    somaCoordinate=detectUtil->getSomaCoordinate(apopath);
     detectUtil->getImageRES();
     // 3分钟执行一次
     timerForAutoSave->start(3*60*1000);
 //    timerForDetectTip->setSingleShot(true);
-    timerForDetectTip->start(30*60*1000);
+    timerForDetectTip->start(24*60*60*1000);
 //    timerForDetectCrossing->setSingleShot(true);
-    timerForDetectCrossing->start(30*60*1000);
-    timerForDetectOthers->start(30*60*1000);
-    timerForAutoExit->start(24*60*60*1000);
+    timerForDetectCrossing->start(24*60*60*1000);
+    timerForDetectOthers->start(1*60*1000);
+    timerForDetectLoops->start(1*60*1000);
+    timerForAutoExit->start(20*60*60*1000);
     CollClient::timerforupdatemsg.start(1000);
     // 为msglist这个列表分配内存
     msglist.reserve(5000);
@@ -71,19 +72,14 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
         std::cerr<<AnoName.toStdString()+" server is released\n";
         exit(-1);
     }
-//    QTimer::singleShot(24*60*60*1000,this,[this]{
-//        setexpire(Port.toInt(),AnoName.toStdString().c_str(),5);
-//        recoverPort(Port.toInt());
-//        std::cerr<<AnoName.toStdString()+" server is released\n";
-//        logfile->flush();
-//        exit(0);
-//    });
+
+    connect(timerForDetectLoops,&QTimer::timeout,detectUtil,&CollDetection::detectLoops);
     connect(timerForDetectOthers,&QTimer::timeout,detectUtil,&CollDetection::detectOthers);
     connect(timerForDetectTip,&QTimer::timeout,detectUtil,&CollDetection::detectTips);
     connect(timerForDetectCrossing,&QTimer::timeout,detectUtil,&CollDetection::detectCrossings);
     connect(timerForAutoSave,&QTimer::timeout,this,&CollServer::autoSave);
     connect(timerForAutoExit,&QTimer::timeout,this,&CollServer::autoExit);
-    connect(&CollClient::timerforupdatemsg,&QTimer::timeout,[]{
+    connect(&CollClient::timerforupdatemsg,&QTimer::timeout,[this]{
         for (auto iter=hashmap.begin();iter!=hashmap.end();iter++){
             qDebug()<<"user:"<<iter.key()<<" state:"<<iter.value()->state();
         }
@@ -126,18 +122,16 @@ void CollServer::incomingConnection(qintptr handle){
     list_thread.append(new CollThread(this));
     list_thread[list_thread.size()-1]->setServer(curServer);
     list_thread[list_thread.size()-1]->start();
-//    std::this_thread::sleep_for(chrono::seconds(1));
-    qDebug()<<"5";
-//    emit list_thread[list_thread.size()-1]->sockethelper->create(handle);
+
     CollClient* client=new CollClient(handle,this);
-    qDebug()<<"6";
+
     connect(client,&QTcpSocket::readyRead,client,&CollClient::onread);
     connect(client,&QTcpSocket::disconnected,client,&CollClient::ondisconnect);
     connect(client,&QAbstractSocket::errorOccurred,client,&CollClient::onError);
     connect(client,&CollClient::noUsers,this,&CollServer::imediateSave);
     connect(client,&CollClient::removeList,this,&CollServer::RemoveList);
     connect(client,&CollClient::exitNow,this,&CollServer::autoExit);
-    connect(this,&CollServer::clientAddMarker,client,&CollClient::addmarkers);
+//    connect(this,&CollServer::clientAddMarker,client,&CollClient::addmarkers);
     connect(this,&CollServer::clientSendMsgs,client,&CollClient::sendmsgs);
     connect(this,&CollServer::clientSendmsgs2client,client,&CollClient::sendmsgs2client);
     connect(this,&CollServer::clientUpdatesendmsgcnt,client,&CollClient::updatesendmsgcnt2processed);
@@ -230,12 +224,8 @@ void CollServer::addmarkers(const QString msg){
     }
 
     QStringList headerlist=pointlistwithheader[0].split(' ',Qt::SkipEmptyParts);
-    if(headerlist.size()<2) {
-        std::cerr<<"ERROR:headerlist.size<1\n";
-    }
 
-    unsigned int clienttype=headerlist[0].toUInt();
-    int useridx=headerlist[1].toUInt();
+    int useridx=headerlist[0].toUInt();
 
     QStringList pointlist=pointlistwithheader;
     pointlist.removeAt(0);
@@ -245,6 +235,7 @@ void CollServer::addmarkers(const QString msg){
 
     CellAPO marker;
 
+    QMutexLocker locker(&this->mutex);
     for(auto &msg:pointlist){
         auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
         if(markerinfo.size()!=4) continue;
@@ -257,7 +248,7 @@ void CollServer::addmarkers(const QString msg){
 
         for(auto it=markers.begin();it!=markers.end(); ++it)
         {
-            if(abs(it->x-marker.x)<1&&abs(it->y-marker.y)<1&&abs(it->z-marker.z)<1)
+            if(abs(it->x-marker.x)<2&&abs(it->y-marker.y)<2&&abs(it->z-marker.z)<2)
             {
                 qDebug()<<"the marker has already existed";
                 return;

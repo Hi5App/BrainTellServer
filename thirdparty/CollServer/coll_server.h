@@ -22,25 +22,28 @@ public:
     CollDetection* detectUtil;
     static CollServer* getInstance();
 
-    static QStringList msglist;
-    static int processedmsgcnt;
-    static int savedmsgcnt;
-    static int receivedcnt;
+    QStringList msglist;
+    int processedmsgcnt;
+    int savedmsgcnt;
+    int receivedcnt;
 
-    static QMap<QString,CollClient*> hashmap;//user->client
-    static V_NeuronSWC_list segments;
+    QMap<QString,CollClient*> hashmap;//user->client
+    V_NeuronSWC_list segments;
 
-    static QList<CellAPO> markers;
+    QList<CellAPO> markers;
 
-    static QString swcpath;
-    static QString apopath;
-    static QString anopath;
+    QString swcpath;
+    QString apopath;
+    QString anopath;
 
-    static QMutex mutex;
-    static QString RES;
+    QMutex mutex;
+    QString RES;
+
+    bool isSomaExists;
+    XYZ somaCoordinate;
 
 signals:
-    void clientAddMarker(QString);
+//    void clientAddMarker(QString);
     void clientSendMsgs(QStringList);
     void clientUpdatesendmsgcnt();
     void clientSendmsgs2client(int);
@@ -62,6 +65,7 @@ private:
     QString Prefix;
 
     QTimer *timerForAutoSave;
+    QTimer *timerForDetectLoops;
     QTimer *timerForDetectOthers;
     QTimer *timerForDetectTip;
     QTimer *timerForDetectCrossing;

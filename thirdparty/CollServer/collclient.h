@@ -38,7 +38,8 @@ public:
     void updateuserlist();//广播在线用户
     void addseg(const QString msg);//加线
     void delseg(const QString msg);//减线
-    void delmarkers(const QString msg);//减点
+    void addmarkers(const QString msg);//加marker
+    void delmarkers(const QString msg);//删marker
     void retypemarker(const QString msg);//marker改颜色
     void connectseg(const QString msg);//连线
     void retypesegment(const QString msg);//线改颜色
@@ -46,27 +47,17 @@ public:
 
     void simpleConnectExecutor(V_NeuronSWC_list& segments, vector<segInfoUnit>& segInfo);
     static QTimer timerforupdatemsg;//todo
-//    static QStringList msglist;
-//    static int processedmsgcnt;
-//    static int savedmsgcnt;
-//    static int receivedcnt;
 
-//    static QMap<QString,CollClient*> hashmap;//user->client
-//    static V_NeuronSWC_list segments;
-//    static bool isSomaExists;
-//    static XYZ somaCoordinate;
-//    static QList<CellAPO> markers;
-
-//    static QString swcpath;
-//    static QString apopath;
-//    static QString anopath;
+    //analyze
+    void analyzeSomaNearBy(const QString msg);//分析soma处是否连接至一点
+    void analyzeColorMutation(const QString msg);//分析是否存在颜色突变
+    void analyzeDissociativeSegs(const QString msg);//分析是否存在游离的线段
 
 public slots:
     void sendmsgs(const QStringList &msgs);//发送消息
     void ondisconnect();//连接断开
     void onread();//读数据
     void onError(QAbstractSocket::SocketError); //异常连接
-    void addmarkers(const QString msg);//加点
 
     void updatesendmsgcnt2processed();//将自动保存时已处理还未发送的消息发送
     void sendmsgs2client(const int maxsize=0);//发送信息给客户端

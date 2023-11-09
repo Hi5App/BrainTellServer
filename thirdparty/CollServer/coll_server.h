@@ -18,7 +18,7 @@ public:
     virtual ~CollServer();
     void incomingConnection(qintptr handle);
 
-    void addmarkers(const QString msg);
+    bool addmarkers(const QString msg);
     CollDetection* detectUtil;
     static CollServer* getInstance();
 
@@ -29,6 +29,10 @@ public:
 
     QMap<QString,CollClient*> hashmap;//user->client
     V_NeuronSWC_list segments;
+    V_NeuronSWC_list last1MinSegments;
+    V_NeuronSWC_list last3MinSegments;
+    V_NeuronSWC_list segmentsForOthersDetect;
+    V_NeuronSWC_list segmentsForMissingDetect;
 
     QList<CellAPO> markers;
 
@@ -37,6 +41,8 @@ public:
     QString anopath;
 
     QMutex mutex;
+    QMutex mutexForDetectOthers;
+    QMutex mutexForDetectMissing;
     QString RES;
 
     bool isSomaExists;
@@ -56,6 +62,12 @@ public slots:
     void autoExit();
 
     void RemoveList(QThread* thread);
+
+    void startTimerForDetectLoops();
+    void startTimerForDetectOthers();
+    void startTimerForDetectTip();
+    void startTimerForDetectCrossing();
+
 private:
 //    qsizetype idxforprocessed=0;
     QString Port;
@@ -70,12 +82,17 @@ private:
     QTimer *timerForDetectTip;
     QTimer *timerForDetectCrossing;
     QTimer *timerForAutoExit;
+
     static CollServer* curServer;
     QList<CollThread*> list_thread;
 
 public:
     QString getAnoName();
     QString getImage();
+    QTimer* getTimerForDetectLoops();
+    QTimer* getTimerForDetectOthers();
+    QTimer* getTimerForDetectTip();
+    QTimer* getTimerForDetectCrossing();
 };
 
 #endif // COLL_SERVER_H

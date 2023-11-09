@@ -88,6 +88,7 @@ void CollClient::addseg(const QString msg)
 
     myServer->mutex.lock();
 //    myServer->segments.append(NeuronTree__2__V_NeuronSWC_list(addnt).seg[0]);
+    bool isNeedReverse = false;
     if(segs.size()==2){
         int comparedIndex=0;
         if(isBegin==1){
@@ -119,7 +120,12 @@ void CollClient::addseg(const QString msg)
                 segs[0].row[comparedIndex].x=it->row[index].x;
                 segs[0].row[comparedIndex].y=it->row[index].y;
                 segs[0].row[comparedIndex].z=it->row[index].z;
+
+                if(comparedIndex==0)
+                    isNeedReverse=true;
             }
+            if(isNeedReverse)
+                reverseSeg(segs[0]);
         }
         else
         {
@@ -128,6 +134,10 @@ void CollClient::addseg(const QString msg)
     }
 
     if(segs.size()==3){
+        set<size_t> segIds1;
+        set<size_t> segIds2;
+        int firstIndex = -1;
+        int firstEndIndex = -1;
         auto it=findseg(myServer->segments.seg.begin(),myServer->segments.seg.end(),segs[1]);
 //        it->printInfo();
         if(it!=myServer->segments.seg.end())
@@ -151,6 +161,15 @@ void CollClient::addseg(const QString msg)
                 segs[0].row[segs[0].row.size()-1].x=it->row[index].x;
                 segs[0].row[segs[0].row.size()-1].y=it->row[index].y;
                 segs[0].row[segs[0].row.size()-1].z=it->row[index].z;
+                float xLabel = it->row[index].x;
+                float yLabel = it->row[index].y;
+                float zLabel = it->row[index].z;
+                QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+                string gridKey = gridKeyQ.toStdString();
+                map<string, set<size_t>> wholeGrid2SegIDMap = getWholeGrid2SegIDMap(myServer->segments);
+                segIds1 = wholeGrid2SegIDMap[gridKey];
+                firstIndex = index;
+                firstEndIndex = it->row.size()-1;
             }
         }
         else
@@ -181,16 +200,40 @@ void CollClient::addseg(const QString msg)
                 segs[0].row[0].x=it->row[index].x;
                 segs[0].row[0].y=it->row[index].y;
                 segs[0].row[0].z=it->row[index].z;
+                float xLabel = it->row[index].x;
+                float yLabel = it->row[index].y;
+                float zLabel = it->row[index].z;
+                QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+                string gridKey = gridKeyQ.toStdString();
+                map<string, set<size_t>> wholeGrid2SegIDMap = getWholeGrid2SegIDMap(myServer->segments);
+                segIds2 = wholeGrid2SegIDMap[gridKey];
             }
         }
         else
         {
             std::cerr<<"INFO:not find connected seg ,"<<msg.toStdString()<<std::endl;
         }
+
+        if(segIds1.size()==1 && segIds2.size()==1 && firstIndex==firstEndIndex && firstEndIndex!=-1 )
+            isNeedReverse = true;
+        if(segIds1.size()==1 && segIds2.size()>1)
+            isNeedReverse = true;
+        if(isNeedReverse)
+            reverseSeg(segs[0]);
     }
+
     myServer->segments.append(segs[0]);
 
+    myServer->mutexForDetectOthers.lock();
+    myServer->last1MinSegments.append(segs[0]);
+    myServer->mutexForDetectOthers.unlock();
+
+    myServer->mutexForDetectMissing.lock();
+    myServer->last3MinSegments.append(segs[0]);
+    myServer->mutexForDetectMissing.unlock();
+
     myServer->mutex.unlock();
+
     qDebug()<<"server addseg";
 //    for(int i=0;i<myServer->segments.seg.size();i++){
 //        myServer->segments.seg[i].printInfo();
@@ -236,8 +279,32 @@ void CollClient::delseg(const QString msg)
         }
         else
             std::cerr<<"INFO:not find del seg ,"<<msg.toStdString()<<std::endl;
+
     }
+
+    myServer->mutexForDetectOthers.lock();
+    for(int i=0;i<delsegs.size();i++){
+        auto it=findseg(myServer->last1MinSegments.seg.begin(),myServer->last1MinSegments.seg.end(),delsegs[i]);
+        if(it!=myServer->last1MinSegments.seg.end())
+        {
+            myServer->last1MinSegments.seg.erase(it);
+            qDebug()<<"server delseg in latestSegments";
+        }
+    }
+    myServer->mutexForDetectOthers.unlock();
+
+    myServer->mutexForDetectMissing.lock();
+    for(int i=0;i<delsegs.size();i++){
+        auto it=findseg(myServer->last3MinSegments.seg.begin(),myServer->last3MinSegments.seg.end(),delsegs[i]);
+        if(it!=myServer->last3MinSegments.seg.end())
+        {
+            myServer->last3MinSegments.seg.erase(it);
+            qDebug()<<"server delseg in latestSegments";
+        }
+    }
+    myServer->mutexForDetectMissing.unlock();
     myServer->mutex.unlock();
+
 //    for(int i=0;i<myServer->segments.seg.size();i++){
 //        myServer->segments.seg[i].printInfo();
 //    }
@@ -458,11 +525,28 @@ void CollClient::splitseg(const QString msg){
         point2.z=it->row[it->row.size()-1].z;
         myServer->segments.seg.erase(it);
     }
+
     else
     {
         std::cerr<<"INFO:not find del seg ,"<<msg.toStdString()<<std::endl;
         return;
     }
+
+    myServer->mutexForDetectOthers.lock();
+    auto it_last1Min=findseg(myServer->last1MinSegments.seg.begin(),myServer->last1MinSegments.seg.end(),segs[0]);
+    if(it_last1Min!=myServer->last1MinSegments.seg.end())
+    {
+        myServer->last1MinSegments.seg.erase(it_last1Min);
+    }
+    myServer->mutexForDetectOthers.unlock();
+
+    myServer->mutexForDetectMissing.lock();
+    auto it_last3Min=findseg(myServer->last3MinSegments.seg.begin(),myServer->last3MinSegments.seg.end(),segs[0]);
+    if(it_last3Min!=myServer->last3MinSegments.seg.end())
+    {
+        myServer->last3MinSegments.seg.erase(it_last3Min);
+    }
+    myServer->mutexForDetectMissing.unlock();
 
     for(int i=1;i<segs.size();i++){
         if(distance(segs[i].row[0].x,point1.x,segs[i].row[0].y,point1.y,segs[i].row[0].z,point1.z)<0.3){
@@ -513,6 +597,19 @@ void CollClient::splitseg(const QString msg){
         }
         myServer->segments.append(segs[i]);
     }
+
+    myServer->mutexForDetectOthers.lock();
+    for(int i=1;i<segs.size();i++){
+        myServer->last1MinSegments.append(segs[i]);
+    }
+    myServer->mutexForDetectOthers.unlock();
+
+    myServer->mutexForDetectMissing.lock();
+    for(int i=1;i<segs.size();i++){
+        myServer->last3MinSegments.append(segs[i]);
+    }
+    myServer->mutexForDetectMissing.unlock();
+
     qDebug()<<"server splitseg";
 }
 
@@ -790,6 +887,9 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
             else if(msg.startsWith("/ANALYZE_Dissociative:")){
                 analyzeDissociativeSegs(msg.right(msg.size()-QString("/ANALYZE_Dissociative:").size()));
             }
+            else if(msg.startsWith("/ANALYZE_Angle:")){
+                analyzeAngles(msg.right(msg.size()-QString("/ANALYZE_Angle:").size()));
+            }
         }
         else{
             if(msg.startsWith("/drawline_norm:")||msg.startsWith("/drawline_undo:")||msg.startsWith("/drawline_redo:")){
@@ -957,6 +1057,18 @@ void CollClient::receiveuser(const QString user, QString RES)
     // 获取协同的ano文件名
     QString msg=QString("STARTCOLLABORATE:%1").arg(myServer->anopath.section('/',-1,-1));
     sendmsgs({msg});
+
+    if(myServer->hashmap.size()==1)
+    {
+        if(!myServer->getTimerForDetectOthers()->isActive())
+            emit serverStartTimerForDetectOthers();
+        if(!myServer->getTimerForDetectLoops()->isActive())
+            emit serverStartTimerForDetectLoops();
+        if(!myServer->getTimerForDetectTip()->isActive())
+            emit serverStartTimerForDetectTip();
+        if(!myServer->getTimerForDetectCrossing()->isActive())
+            emit serverStartTimerForDetectCrossing();
+    }
 
 }
 
@@ -1359,4 +1471,38 @@ void CollClient::analyzeDissociativeSegs(const QString msg){
         tobeSendMsg.chop(1);
     }
     sendmsgs({tobeSendMsg});
+}
+
+void CollClient::analyzeAngles(const QString msg){
+    QStringList headerlist=msg.split(' ',Qt::SkipEmptyParts);
+    int clienttype=headerlist[0].toUInt();
+    int useridx=headerlist[1].toUInt();
+    qDebug()<<QString("analyzeAngles: clienttype=%1, useridx=%2").arg(clienttype).arg(useridx);
+
+    if(!myServer->isSomaExists){
+        qDebug()<<"soma not detected!";
+        return;
+    }
+    else{
+        myServer->imediateSave();
+        set<string> angleErrPoints=getAngleErrPoints(12, myServer->somaCoordinate, myServer->segments);
+
+        QString tobeSendMsg="/ANALYZE_Angle:";
+        if(angleErrPoints.size()==0){
+            qDebug()<<"no angle-error dendrite bifurcations";
+            tobeSendMsg += QString("server %1").arg(1);
+        }else{
+            qDebug()<<"angle-error dendrite bifurcation exists";
+            tobeSendMsg += QString("server %1").arg(0);
+            tobeSendMsg +=",";
+            for(auto it=angleErrPoints.begin(); it!=angleErrPoints.end(); it++){
+                NeuronSWC s;
+                stringToXYZ(*it, s.x, s.y, s.z);
+                tobeSendMsg += QString("%1 %2 %3 %4").arg(2).arg(s.x).arg(s.y).arg(s.z);
+                tobeSendMsg += ",";
+            }
+            tobeSendMsg.chop(1);
+        }
+        sendmsgs({tobeSendMsg});
+    }
 }

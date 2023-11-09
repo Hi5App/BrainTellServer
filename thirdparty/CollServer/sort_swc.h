@@ -307,7 +307,7 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
     }
 
     //Major steps
-    //do a DFS for the the matrix and re-allocate ids for all the nodes
+    //do a DFS for the matrix and re-allocate ids for all the nodes
     QList<V3DLONG> neworder;
     QList<V3DLONG> cur_neworder;
     QList<V3DLONG> component_id;

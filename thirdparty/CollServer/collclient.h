@@ -52,6 +52,7 @@ public:
     void analyzeSomaNearBy(const QString msg);//分析soma处是否连接至一点
     void analyzeColorMutation(const QString msg);//分析是否存在颜色突变
     void analyzeDissociativeSegs(const QString msg);//分析是否存在游离的线段
+    void analyzeAngles(const QString msg);//分析树突分叉的角度是否合理
 
 public slots:
     void sendmsgs(const QStringList &msgs);//发送消息
@@ -82,6 +83,11 @@ signals:
     void removeList(QThread*);
     void noUsers();
     void exitNow();
+
+    void serverStartTimerForDetectLoops();
+    void serverStartTimerForDetectOthers();
+    void serverStartTimerForDetectTip();
+    void serverStartTimerForDetectCrossing();
 
 };
 

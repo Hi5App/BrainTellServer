@@ -67,25 +67,31 @@ XYZ CollDetection::getSomaCoordinate(QString apoPath){
 }
 
 void CollDetection::detectTips(){
-    myServer->imediateSave();
-    vector<NeuronSWC> tipPoints=tipDetection(myServer->segments, false, 20);
-    QString apoFileNameTip="/home/BrainTellServer/image/tmpApoFile/tip/"+myServer->getAnoName()+"_tip.apo";
-    getApoForCrop(apoFileNameTip, tipPoints);
-    myServer->imediateSave();
+    myServer->mutexForDetectMissing.lock();
+    map<string, set<size_t>> allPoint2SegIdMap = getWholeGrid2SegIDMap(myServer->segments);
+    getSegmentsForMissingDetect(myServer->last3MinSegments, myServer->segmentsForMissingDetect, myServer->segments);
+
+    vector<NeuronSWC> tipPoints=tipDetection(myServer->segmentsForMissingDetect, false, allPoint2SegIdMap, 30);
+//    QString apoFileNameTip="/home/BrainTellServer/image/tmpApoFile/tip/"+myServer->getAnoName()+"_tip.apo";
+//    getApoForCrop(apoFileNameTip, tipPoints);
+//    myServer->imediateSave();
+    myServer->last3MinSegments.seg.clear();
+    myServer->segmentsForMissingDetect.seg.clear();
+    myServer->mutexForDetectMissing.unlock();
+
     handleTip(tipPoints);
 
-    tipPoints=tipDetection(myServer->segments, true, 20);
-    myServer->imediateSave();
+//    tipPoints=tipDetection(myServer->segments, true, 20);
+//    myServer->imediateSave();
 
-    tipPoints=tipDetection(myServer->segments, false, 20);
-    QString apoFileNameUndone="/home/BrainTellServer/image/tmpApoFile/undone/"+myServer->getAnoName()+"_undone.apo";
-    getApoForCrop(apoFileNameUndone, tipPoints);
-    myServer->imediateSave();
-    handleTip(tipPoints);
+//    tipPoints=tipDetection(myServer->segments, false, 20);
+//    QString apoFileNameUndone="/home/BrainTellServer/image/tmpApoFile/undone/"+myServer->getAnoName()+"_undone.apo";
+//    getApoForCrop(apoFileNameUndone, tipPoints);
+//    myServer->imediateSave();
+//    handleTip(tipPoints);
 }
 
 void CollDetection::detectCrossings(){
-    myServer->imediateSave();
     map<string, vector<string>> parentsDict;
     map<string, vector<string>> offspringsDict;
 
@@ -94,47 +100,45 @@ void CollDetection::detectCrossings(){
 }
 
 void CollDetection::detectOthers(){
-    myServer->imediateSave();
+    myServer->mutex.lock();
+    myServer->mutexForDetectOthers.lock();
+    getSegmentsForOthersDetect(myServer->last1MinSegments, myServer->segmentsForOthersDetect, myServer->segments);
+
     int count=0;
-    vector<NeuronSWC> outputSpecialPoints = specStructsDetection(myServer->segments);
+    vector<NeuronSWC> outputSpecialPoints = specStructsDetection(myServer->segmentsForOthersDetect);
+    myServer->last1MinSegments.seg.clear();
+    myServer->segmentsForOthersDetect.seg.clear();
+    myServer->mutexForDetectOthers.unlock();
+    myServer->mutex.unlock();
+
     vector<NeuronSWC> bifurPoints;
     vector<NeuronSWC> mulfurPoints;
-//    vector<NeuronSWC> loopPoints;
 
     for(int i=0;i<outputSpecialPoints.size();i++){
         if(outputSpecialPoints[i].type == 6)
             bifurPoints.push_back(outputSpecialPoints[i]);
-//        else if(outputSpecialPoints[i].type == 0)
-//            loopPoints.push_back(outputSpecialPoints[i]);
         else if(outputSpecialPoints[i].type == 8)
             mulfurPoints.push_back(outputSpecialPoints[i]);
     }
 
     handleMulFurcation(mulfurPoints, count);
-//    handleLoop(loopPoints, count);
     handleNearBifurcation(bifurPoints, count);
 
-    if(count!=0){
-        myServer->imediateSave();
-    }
 }
 
 void CollDetection::detectLoops(){
-    myServer->imediateSave();
     int count=0;
+    myServer->mutex.lock();
     vector<NeuronSWC> outputSpecialPoints = loopDetection(myServer->segments);
+    myServer->mutex.unlock();
 
     handleLoop(outputSpecialPoints, count);
-
-    if(count!=0){
-        myServer->imediateSave();
-    }
 }
 
-vector<NeuronSWC> CollDetection::specStructsDetection(V_NeuronSWC_list inputSegList, double dist_thresh){
-
+vector<NeuronSWC> CollDetection::specStructsDetection(V_NeuronSWC_list& inputSegList, double dist_thresh){
     vector<NeuronSWC> outputSpecialPoints;
-    outputSpecialPoints.clear();
+    if(inputSegList.seg.size()==0)
+        return outputSpecialPoints;
 
     map<string, set<size_t> > wholeGrid2segIDmap;
     map<string, bool> isEndPointMap;
@@ -334,6 +338,38 @@ vector<NeuronSWC> CollDetection::specStructsDetection(V_NeuronSWC_list inputSegL
     qDebug()<<pairs;
     //    qDebug()<<points;
 
+    set<size_t> overlapSegIds;
+    //检测overlap线段
+    for(size_t i=0; i<inputSegList.seg.size(); ++i){
+        for(size_t j=i+1; j<inputSegList.seg.size(); j++){
+            int result = isOverlapOfTwoSegs(inputSegList.seg[i], inputSegList.seg[j]);
+            if(result == 1)
+                overlapSegIds.insert(i);
+            if(result == 2)
+                overlapSegIds.insert(j);
+        }
+    }
+    for(auto it=overlapSegIds.begin(); it!=overlapSegIds.end(); it++){
+        auto seg_it = findseg(myServer->segments.seg.begin(), myServer->segments.seg.end(), inputSegList.seg[*it]);
+        if(seg_it != myServer->segments.seg.end()){
+            seg_it->to_be_deleted = true;
+        }
+    }
+
+    std::vector<V_NeuronSWC>::iterator iter = myServer->segments.seg.begin();
+    while (iter != myServer->segments.seg.end())
+        if (iter->to_be_deleted){
+            QStringList result;
+            result.push_back(QString("%1 server %2 %3 %4").arg(0).arg(123).arg(123).arg(123));
+            result+=V_NeuronSWCToSendMSG(*iter);
+            QString msg=QString("/delline_norm:"+result.join(","));
+            emit myServer->clientSendMsgs({msg});
+
+            iter = myServer->segments.seg.erase(iter);
+        }
+        else
+            ++iter;
+
     for(auto it=pset.begin(); it!=pset.end(); it++){
         qDebug()<<*it;
         NeuronSWC n;
@@ -342,96 +378,11 @@ vector<NeuronSWC> CollDetection::specStructsDetection(V_NeuronSWC_list inputSegL
         outputSpecialPoints.push_back(n);
     }
 
-//    bool isDeleteEnd = false;
-//    while(!isDeleteEnd){
-//        isDeleteEnd = true;
-//        for(int i=0; i<points.size(); ++i){
-//            if(linksIndex[i].size() == 1){
-//                int linkIndex = *(linksIndex[i].begin());
-//                linksIndex[i].clear();
-//                linksIndex[linkIndex].erase(std::find(linksIndex[linkIndex].begin(),linksIndex[linkIndex].end(),i));
-//                isDeleteEnd = false;
-//            }
-//        }
-//    }
-
-//    //检测3条及3条以上的边构成的环
-
-//    vector<string> newpoints;
-
-//    for(size_t i=0; i<points.size(); ++i){
-//        if(linksIndex[i].size()>=2)
-//            newpoints.push_back(points[i]);
-//    }
-
-//    size_t start=0;
-//    for(size_t i=0; i<newpoints.size(); ++i){
-//        qDebug()<<QString::fromStdString(newpoints[i])<<" "<<parentMap[newpoints[i]].size();
-//        /*if(newLinksIndexVec[i].size()>=2&&counts[i]>=3&&newLinksIndexVec[i].size()!=counts[i])*/
-//        if(parentMap[newpoints[i]].size()>=2){
-//            size_t interval=i-start;
-//            int nums=interval/12;
-//            for(int j=0;j<nums;j++){
-//                NeuronSWC s;
-//                stringToXYZ(newpoints[start+(j+1)*12],s.x,s.y,s.z);
-//                s.type = 0;
-//                outputSpecialPoints.push_back(s);
-//            }
-
-//            NeuronSWC s;
-//            stringToXYZ(newpoints[i],s.x,s.y,s.z);
-//            s.type = 0;
-//            outputSpecialPoints.push_back(s);
-
-//            start=i+1;
-//            qDebug()<<"loop exists";
-//        }
-
-//    }
-
-//    if(start<newpoints.size()){
-//        size_t interval=newpoints.size()-1-start;
-//        int nums=interval/12;
-//        for(int j=0;j<nums;j++){
-//            NeuronSWC s;
-//            stringToXYZ(newpoints[start+(j+1)*12],s.x,s.y,s.z);
-//            s.type = 0;
-//            outputSpecialPoints.push_back(s);
-//        }
-//    }
-
-//    //检测2条边构成的环
-//    for(size_t i=0; i<inputSegList.seg.size(); ++i){
-//        V_NeuronSWC seg = inputSegList.seg[i];
-//        float xLabel1 = seg.row[0].x;
-//        float yLabel1 = seg.row[0].y;
-//        float zLabel1 = seg.row[0].z;
-//        float xLabel2=seg.row[seg.row.size()-1].x;
-//        float yLabel2=seg.row[seg.row.size()-1].y;
-//        float zLabel2=seg.row[seg.row.size()-1].z;
-//        QString gridKeyQ1 = QString::number(xLabel1) + "_" + QString::number(yLabel1) + "_" + QString::number(zLabel1);
-//        string gridKey1 = gridKeyQ1.toStdString();
-//        QString gridKeyQ2 = QString::number(xLabel2) + "_" + QString::number(yLabel2) + "_" + QString::number(zLabel2);
-//        string gridKey2 = gridKeyQ2.toStdString();
-//        set<size_t> segSet1=wholeGrid2segIDmap[gridKey1];
-//        set<size_t> segSet2=wholeGrid2segIDmap[gridKey2];
-//        set<size_t> intersectionSet;
-//        set_intersection(segSet1.begin(),segSet1.end(),segSet2.begin(),segSet2.end(),inserter( intersectionSet , intersectionSet.begin() ));
-//        if(intersectionSet.size()>=2){
-//            NeuronSWC s;
-//            stringToXYZ(gridKey1,s.x,s.y,s.z);
-//            s.type = 0;
-//            outputSpecialPoints.push_back(s);
-//            stringToXYZ(gridKey2,s.x,s.y,s.z);
-//            outputSpecialPoints.push_back(s);
-//        }
-//    }
-
     return outputSpecialPoints;
 
 }
 
-vector<NeuronSWC> CollDetection::loopDetection(V_NeuronSWC_list inputSegList){
+vector<NeuronSWC> CollDetection::loopDetection(V_NeuronSWC_list& inputSegList){
     vector<NeuronSWC> outputSpecialPoints;
     outputSpecialPoints.clear();
 
@@ -569,12 +520,12 @@ vector<NeuronSWC> CollDetection::loopDetection(V_NeuronSWC_list inputSegList){
     for(size_t i=0; i<newpoints.size(); ++i){
         qDebug()<<QString::fromStdString(newpoints[i])<<" "<<parentMap[newpoints[i]].size();
         /*if(newLinksIndexVec[i].size()>=2&&counts[i]>=3&&newLinksIndexVec[i].size()!=counts[i])*/
-        if(parentMap[newpoints[i]].size()>=2){
+        if(parentMap[newpoints[i]].size()>=2 || childMap[newpoints[i]].size()>=2){
             size_t interval=i-start;
             //interval/12
-            int nums=interval/3;
+            int nums=interval/8;
             for(int j=0;j<nums;j++){
-                specPoints.insert(newpoints[start+(j+1)*3]);
+                specPoints.insert(newpoints[start+(j+1)*8]);
             }
 
             specPoints.insert(newpoints[i]);
@@ -587,17 +538,17 @@ vector<NeuronSWC> CollDetection::loopDetection(V_NeuronSWC_list inputSegList){
 
     if(start<newpoints.size()){
         size_t interval=newpoints.size()-1-start;
-        int nums=interval/3;
+        int nums=interval/8;
         for(int j=0;j<nums;j++){
-            specPoints.insert(newpoints[start+(j+1)*3]);
+            specPoints.insert(newpoints[start+(j+1)*8]);
         }
     }
 
     //检测2条边构成的环
     for(size_t i=0; i<inputSegList.seg.size(); ++i){
         V_NeuronSWC seg = inputSegList.seg[i];
-        if(seg.row.size()<5)
-            continue;
+//        if(seg.row.size()<4)
+//            continue;
         float xLabel1 = seg.row[0].x;
         float yLabel1 = seg.row[0].y;
         float zLabel1 = seg.row[0].z;
@@ -611,15 +562,53 @@ vector<NeuronSWC> CollDetection::loopDetection(V_NeuronSWC_list inputSegList){
         set<size_t> segSet1=wholeGrid2segIDmap[gridKey1];
         set<size_t> segSet2=wholeGrid2segIDmap[gridKey2];
         set<size_t> intersectionSet;
-        set_intersection(segSet1.begin(),segSet1.end(),segSet2.begin(),segSet2.end(),inserter( intersectionSet , intersectionSet.begin() ));
+        set_intersection(segSet1.begin(),segSet1.end(),segSet2.begin(),segSet2.end(),inserter( intersectionSet , intersectionSet.begin()));
+        vector<size_t> maybeOverlapSegIdVec;
+        set<size_t> overlapSegIdSet;
+
         if(intersectionSet.size()>=2){
-            qDebug()<<"exists two-edge loop";
-            qDebug()<<"gridKey1:"<<QString::fromStdString(gridKey1);
-            qDebug()<<"gridKey2:"<<QString::fromStdString(gridKey2);
-            specPoints.insert(gridKey1);
-            specPoints.insert(gridKey2);
+            for(auto it=intersectionSet.begin(); it!=intersectionSet.end(); it++){
+                maybeOverlapSegIdVec.push_back(*it);
+            }
+            for(int m=0; m<maybeOverlapSegIdVec.size(); m++){
+                for(int n=m+1; n<maybeOverlapSegIdVec.size(); n++){
+                    int result = isOverlapOfTwoSegs(inputSegList.seg[maybeOverlapSegIdVec[m]], inputSegList.seg[maybeOverlapSegIdVec[n]]);
+                    if(result == 1)
+                        overlapSegIdSet.insert(maybeOverlapSegIdVec[m]);
+                    if(result == 2)
+                        overlapSegIdSet.insert(maybeOverlapSegIdVec[n]);
+                }
+            }
+
+            if(maybeOverlapSegIdVec.size() - overlapSegIdSet.size() != 1){
+                qDebug()<<"exists two-edge loop";
+                qDebug()<<"gridKey1:"<<QString::fromStdString(gridKey1);
+                qDebug()<<"gridKey2:"<<QString::fromStdString(gridKey2);
+                specPoints.insert(gridKey1);
+                specPoints.insert(gridKey2);
+            }
+
+            for(auto it=overlapSegIdSet.begin(); it!=overlapSegIdSet.end(); it++){
+//                qDebug()<<"to be deleted";
+//                qDebug()<<*it;
+                inputSegList.seg[*it].to_be_deleted = true;
+            }
         }
     }
+
+    std::vector<V_NeuronSWC>::iterator iter = inputSegList.seg.begin();
+    while (iter != inputSegList.seg.end())
+        if (iter->to_be_deleted){
+            QStringList result;
+            result.push_back(QString("%1 server %2 %3 %4").arg(0).arg(123).arg(123).arg(123));
+            result+=V_NeuronSWCToSendMSG(*iter);
+            QString msg=QString("/delline_norm:"+result.join(","));
+            emit myServer->clientSendMsgs({msg});
+
+            iter = inputSegList.seg.erase(iter);
+        }
+        else
+            ++iter;
 
     for(auto it=specPoints.begin(); it!=specPoints.end(); it++){
         NeuronSWC s;
@@ -631,8 +620,11 @@ vector<NeuronSWC> CollDetection::loopDetection(V_NeuronSWC_list inputSegList){
     return outputSpecialPoints;
 }
 
-vector<NeuronSWC> CollDetection::tipDetection(V_NeuronSWC_list &inputSegList, bool flag, double dist_thresh){
+vector<NeuronSWC> CollDetection::tipDetection(V_NeuronSWC_list &inputSegList, bool flag, map<string, set<size_t>> allPoint2SegIdMap, double dist_thresh){
     vector<NeuronSWC> outputSpecialPoints;
+    if(inputSegList.seg.size()==0)
+        return outputSpecialPoints;
+
     XYZ res;
     // 定义正则表达式
     QRegularExpression regex("RES\\((\\d+)x(\\d+)x(\\d+)\\)");
@@ -759,7 +751,7 @@ vector<NeuronSWC> CollDetection::tipDetection(V_NeuronSWC_list &inputSegList, bo
         float zLabel2 = seg.row[seg.row.size()-1].z;
         QString gridKeyQ2 = QString::number(xLabel2) + "_" + QString::number(yLabel2) + "_" + QString::number(zLabel2);
         string gridKey2 = gridKeyQ2.toStdString();
-        if(wholeGrid2segIDmap[gridKey1].size()==1&&wholeGrid2segIDmap[gridKey2].size()>1)
+        if(wholeGrid2segIDmap[gridKey1].size()==1 && allPoint2SegIdMap[gridKey1].size()==1 && wholeGrid2segIDmap[gridKey2].size()>1)
         {
             if(myServer->isSomaExists&&sqrt((xLabel1-myServer->somaCoordinate.x)*(xLabel1-myServer->somaCoordinate.x)+
                 (yLabel1-myServer->somaCoordinate.y)*(yLabel1-myServer->somaCoordinate.y)+(zLabel1-myServer->somaCoordinate.z)*(zLabel1-myServer->somaCoordinate.z))>50)
@@ -767,7 +759,7 @@ vector<NeuronSWC> CollDetection::tipDetection(V_NeuronSWC_list &inputSegList, bo
             else if(!myServer->isSomaExists)
                 tips.insert(gridKey1);
         }
-        if(wholeGrid2segIDmap[gridKey2].size()==1&&wholeGrid2segIDmap[gridKey1].size()>1)
+        if(wholeGrid2segIDmap[gridKey2].size()==1 && allPoint2SegIdMap[gridKey2].size()==1 && wholeGrid2segIDmap[gridKey1].size()>1)
         {
             if(myServer->isSomaExists&&sqrt((xLabel2-myServer->somaCoordinate.x)*(xLabel2-myServer->somaCoordinate.x)+
                 (yLabel2-myServer->somaCoordinate.y)*(yLabel2-myServer->somaCoordinate.y)+(zLabel2-myServer->somaCoordinate.z)*(zLabel2-myServer->somaCoordinate.z))>50)
@@ -871,7 +863,7 @@ vector<NeuronSWC> CollDetection::tipDetection(V_NeuronSWC_list &inputSegList, bo
             NeuronSWC s;
             stringToXYZ(*it,s.x,s.y,s.z);
             s.type = 10;
-            if(s.x>33&&s.x+33<res.x&&s.y>33&&s.y+33<res.y&&s.z>33&&s.z+33<res.z)
+            if(s.x>65&&s.x+65<res.x&&s.y>65&&s.y+65<res.y&&s.z>65&&s.z+65<res.z)
                 outputSpecialPoints.push_back(s);
         }
 
@@ -960,7 +952,7 @@ vector<NeuronSWC> CollDetection::tipDetection(V_NeuronSWC_list &inputSegList, bo
     return outputSpecialPoints;
 }
 
-vector<vector<NeuronSWC>> CollDetection::crossingDetection(V_NeuronSWC_list inputSegList, map<string, vector<string>> &parentsDict, map<string, vector<string>> &offspringsDict){
+vector<vector<NeuronSWC>> CollDetection::crossingDetection(V_NeuronSWC_list& inputSegList, map<string, vector<string>> &parentsDict, map<string, vector<string>> &offspringsDict){
     vector<vector<NeuronSWC>> outputSpecialPoints;
     XYZ res;
     // 定义正则表达式
@@ -1253,7 +1245,7 @@ vector<vector<NeuronSWC>> CollDetection::crossingDetection(V_NeuronSWC_list inpu
         s.type=15;
         for(auto coorIt=(*it).begin();coorIt!=(*it).end();coorIt++){
             stringToXYZ(*coorIt,s.x,s.y,s.z);
-            if(s.x>35&&s.x+35<res.x&&s.y>35&&s.y+35<res.y&&s.z>35&&s.z+35<res.z)
+            if(s.x>65&&s.x+65<res.x&&s.y>65&&s.y+65<res.y&&s.z>65&&s.z+65<res.z)
                 tmpVec.push_back(s);
             else{
                 flag=false;
@@ -1286,13 +1278,10 @@ void CollDetection::handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, i
                 //            const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
 
                 //emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size());
-                myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
-                qDebug()<<"Server finish /WARN_MulBifurcation";
+                bool isSucess=myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
 
-                //                for(auto &socket:sockets){
-                //                    socket->sendmsgs({msg});
-                //                }
-                emit myServer->clientSendMsgs({msg});
+                if(isSucess)
+                    emit myServer->clientSendMsgs({msg});
             }
         }
 
@@ -1306,15 +1295,13 @@ void CollDetection::handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, i
             //            const std::string header=QString("DataTypeWithSize:%1 %2\n").arg(0).arg(data.size()).toStdString();
             //                auto sockets=hashmap.values();
             //                emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
-            myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
-            qDebug()<<"Server finish /WARN_MulBifurcation";
+            bool isSucess=myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_MulBifurcation:").size()));
 
-            //                for(auto &socket:sockets){
-            //                    socket->sendmsgs({msg});
-            //                }
-            emit myServer->clientSendMsgs({msg});
+            if(isSucess)
+                emit myServer->clientSendMsgs({msg});
         }
     }
+    qDebug()<<"Server finish /WARN_MulBifurcation";
 }
 
 void CollDetection::handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& count){
@@ -1326,14 +1313,12 @@ void CollDetection::handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& coun
         QString msg=QString("/WARN_Loop:"+result.join(","));
         //            auto sockets=hashmap.values();
         //            emit clientAddMarker(msg.trimmed().right(msg.size()-QString("/WARN_Loop:").size()));
-        myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_Loop:").size()));
-        qDebug()<<"Server finish /WARN_Loop";
+        bool isSucess=myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_Loop:").size()));
 
-        //            for(auto &socket:sockets){
-        //                socket->sendmsgs({msg});
-        //            }
-        emit myServer->clientSendMsgs({msg});
+        if(isSucess)
+            emit myServer->clientSendMsgs({msg});
     }
+    qDebug()<<"Server finish /WARN_Loop";
 }
 
 void CollDetection::handleNearBifurcation(vector<NeuronSWC>& bifurPoints, int& count){
@@ -1372,9 +1357,20 @@ void CollDetection::handleTip(vector<NeuronSWC>& tipPoints){
         QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
         QHttpPart filePart;
         QString swcFileName=myServer->getAnoName()+".ano.eswc";
-        QString fileSaveName=myServer->swcpath.left(myServer->swcpath.size()-QString(".ano.eswc").size())+"_sorted.ano.eswc";
+        QString fileSaveName=myServer->swcpath.left(myServer->swcpath.size()-QString(".ano.eswc").size())+"_copyed.ano.eswc";
 
-        sortSWC(myServer->swcpath,fileSaveName,0);
+        QFile sourceFile(myServer->swcpath);
+        if (sourceFile.exists()) {
+            // 如果源文件存在，尝试将其复制到目标文件
+            if (sourceFile.copy(fileSaveName)) {
+                qDebug() << "文件复制成功！";
+            } else {
+                qDebug() << "文件复制失败：" << sourceFile.errorString();
+            }
+        } else {
+            qDebug() << "源文件不存在：" << myServer->swcpath;
+        }
+//        sortSWC(myServer->swcpath,fileSaveName,0);
 
         // 创建一个QFile对象，用于读取要上传的文件
         QFile *file = new QFile(fileSaveName);
@@ -1499,7 +1495,8 @@ void CollDetection::handleTip(vector<NeuronSWC>& tipPoints){
                                     if (info.contains("y_pred")) {
                                         QJsonValue predValue = info.value("y_pred");
                                         y_pred = predValue.toInt();
-                                        qDebug()<<i<<": "<<y_pred;
+                                        if(y_pred == 1)
+                                            qDebug()<<i<<": "<<y_pred;
                                     }
                                     if(y_pred==1){
                                         NeuronSWC s;
@@ -1525,13 +1522,16 @@ void CollDetection::handleTip(vector<NeuronSWC>& tipPoints){
             result.push_back(QString("server"));
             result.push_back(QString("%1 %2 %3 %4").arg(markPoints[i].type).arg(markPoints[i].x).arg(markPoints[i].y).arg(markPoints[i].z));
             QString msg=QString("/WARN_TipUndone:"+result.join(","));
-            myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_TipUndone:").size()));
-            qDebug()<<"Server finish /WARN_TipUndone";
-            emit myServer->clientSendMsgs({msg});
+            bool isSucess=myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_TipUndone:").size()));
+
+            if(isSucess)
+                emit myServer->clientSendMsgs({msg});
         }
 
-        if(markPoints.size()!=0)
-            myServer->imediateSave();
+        qDebug()<<"Server finish /WARN_TipUndone";
+
+//        if(markPoints.size()!=0)
+//            myServer->imediateSave();
 
         //清理资源
         reply->deleteLater();     
@@ -1735,10 +1735,11 @@ void CollDetection::handleCrossing(vector<vector<NeuronSWC>>& crossingPoints, ma
                                         }
                                     }
                                     if (info.contains("y_pred")) {
-                                        QJsonValue predValue = obj.value("y_pred");
-                                        if (predValue.isDouble()) {
-                                            y_pred = predValue.toInt();
-                                        }
+                                        QJsonValue predValue = info.value("y_pred");
+                                        y_pred = predValue.toInt();
+                                        if(y_pred == 0)
+                                            qDebug()<<i<<": "<<y_pred;
+
                                     }
                                     if(y_pred==0){
                                         NeuronSWC s;
@@ -1764,13 +1765,16 @@ void CollDetection::handleCrossing(vector<vector<NeuronSWC>>& crossingPoints, ma
             result.push_back(QString("server"));
             result.push_back(QString("%1 %2 %3 %4").arg(markPoints[i].type).arg(markPoints[i].x).arg(markPoints[i].y).arg(markPoints[i].z));
             QString msg=QString("/WARN_CrossingError:"+result.join(","));
-            myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_CrossingError:").size()));
-            qDebug()<<"Server finish /WARN_CrossingError";
-            emit myServer->clientSendMsgs({msg});
+            bool isSucess=myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_CrossingError:").size()));
+
+            if(isSucess)
+                emit myServer->clientSendMsgs({msg});
         }
 
-        if(markPoints.size()!=0)
-            myServer->imediateSave();
+        qDebug()<<"Server finish /WARN_CrossingError";
+
+//        if(markPoints.size()!=0)
+//            myServer->imediateSave();
 
         //清理资源
         reply->deleteLater();
@@ -1876,7 +1880,7 @@ void CollDetection::getImageRES(){
         if (json_error.error == QJsonParseError::NoError) {
             if (doucment.isArray()) {
                 const QJsonArray array = doucment.array();
-                qDebug() << array;
+//                qDebug() << array;
                 int nSize = array.size();
                 for (int i = 0; i < nSize; ++i) {
                     QJsonValue mapValue = array.at(i);

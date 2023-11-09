@@ -3,6 +3,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <set>
 #include "neuron_editing/neuron_format_converter.h"
 #include <hiredis/hiredis.h>
 const int neuron_type_color[21][3] = {
@@ -46,8 +47,17 @@ NeuronTree convertMsg2NT(QStringList pointlist,int client,int user, int isMany, 
 double distance(const CellAPO &m1,const CellAPO &m2);
 double distance(const double x1, const double x2, const double y1, const double y2, const double z1, const double z2);
 double getSegLength(V_NeuronSWC &seg);
+double getPartOfSegLength(V_NeuronSWC &seg, int index);
 int findnearest(const CellAPO &m,const QList<CellAPO> &markers);
 
 void init();
 void stringToXYZ(string xyz, float& x, float& y, float& z);
+void getSegmentsForOthersDetect(V_NeuronSWC_list& last1MinSegments, V_NeuronSWC_list& segmentsForOthersDetect, V_NeuronSWC_list& segments);
+void getSegmentsForMissingDetect(V_NeuronSWC_list& last3MinSegments, V_NeuronSWC_list& segmentsForMissingDetect, V_NeuronSWC_list& segments);
+void reverseSeg(V_NeuronSWC& seg);
+int getPointInSegIndex(string point, V_NeuronSWC& seg);
+map<string, set<size_t>> getWholeGrid2SegIDMap(V_NeuronSWC_list& inputSegments);
+int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2);
+QStringList V_NeuronSWCToSendMSG(V_NeuronSWC seg);
+
 #endif // UTILS_H

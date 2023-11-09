@@ -1,7 +1,6 @@
 ﻿#include <QCoreApplication>
 #include <QDir>
 #include "neuron_editing/neuron_format_converter.h"
-
 #include "utils.h"
 #include "hiredis/hiredis.h"
 void dirCheck(QString dirBaseName)
@@ -263,7 +262,7 @@ NeuronTree convertMsg2NT(QStringList pointlist,int client,int user, int isMany, 
 vector<V_NeuronSWC>::iterator findseg(vector<V_NeuronSWC>::iterator begin,vector<V_NeuronSWC>::iterator end,const V_NeuronSWC seg)
 {
     vector<V_NeuronSWC>::iterator result=end;
-    double mindist=100;
+    double mindist=3;
     const std::vector<V_NeuronSWC_unit>::size_type cnt=seg.row.size();
 
     while(begin!=end)
@@ -334,6 +333,14 @@ double getSegLength(V_NeuronSWC &seg){
     return sum;
 }
 
+double getPartOfSegLength(V_NeuronSWC &seg, int index){
+    double sum=0;
+    for(int i=0; i<index; i++){
+        sum+=distance(seg.row[i].x,seg.row[i+1].x,seg.row[i].y,seg.row[i+1].y,seg.row[i].z,seg.row[i+1].z);
+    }
+    return sum;
+}
+
 int findnearest(const CellAPO &m,const QList<CellAPO> &markers)
 {
     int index=-1;
@@ -379,4 +386,256 @@ void stringToXYZ(string xyz, float& x, float& y, float& z){
     x = xyzstrs[0].toFloat();
     y = xyzstrs[1].toFloat();
     z = xyzstrs[2].toFloat();
+}
+
+void getSegmentsForOthersDetect(V_NeuronSWC_list& last1MinSegments, V_NeuronSWC_list& segmentsForOthersDetect, V_NeuronSWC_list& segments){
+    map<string, set<size_t>> wholeGrid2SegIDMap = getWholeGrid2SegIDMap(segments);
+
+    set<size_t> tobeInsertSegIds;
+    for(size_t i=0; i<last1MinSegments.seg.size(); i++){
+        V_NeuronSWC seg = last1MinSegments.seg[i];
+
+        for(size_t j=0; j<seg.row.size(); j++){
+            float xLabel = seg.row[j].x;
+            float yLabel = seg.row[j].y;
+            float zLabel = seg.row[j].z;
+            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+            string gridKey = gridKeyQ.toStdString();
+            if(wholeGrid2SegIDMap[gridKey].size()>=2){
+                for(auto it=wholeGrid2SegIDMap[gridKey].begin(); it!=wholeGrid2SegIDMap[gridKey].end(); it++){
+                    tobeInsertSegIds.insert(*it);
+                }
+            }
+        }
+    }
+
+    for(auto it=tobeInsertSegIds.begin(); it!=tobeInsertSegIds.end(); it++){
+        V_NeuronSWC seg = segments.seg[*it];
+
+        for(size_t j=0; j<seg.row.size(); j++){
+            float xLabel = seg.row[j].x;
+            float yLabel = seg.row[j].y;
+            float zLabel = seg.row[j].z;
+            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+            string gridKey = gridKeyQ.toStdString();
+            if(wholeGrid2SegIDMap[gridKey].size()>=2){
+                for(auto it2=wholeGrid2SegIDMap[gridKey].begin(); it2!=wholeGrid2SegIDMap[gridKey].end(); it2++){
+                    tobeInsertSegIds.insert(*it2);
+                }
+            }
+        }
+    }
+
+    for(auto it=tobeInsertSegIds.begin(); it!=tobeInsertSegIds.end(); it++){
+        segmentsForOthersDetect.append(segments.seg[*it]);
+    }
+}
+
+void getSegmentsForMissingDetect(V_NeuronSWC_list& last3MinSegments, V_NeuronSWC_list& segmentsForMissingDetect, V_NeuronSWC_list& segments){
+    map<string, set<size_t>> wholeGrid2SegIDMap = getWholeGrid2SegIDMap(segments);
+
+    set<size_t> tobeInsertSegIds;
+    for(size_t i=0; i<last3MinSegments.seg.size(); i++){
+        V_NeuronSWC seg = last3MinSegments.seg[i];
+
+        for(size_t j=0; j<seg.row.size(); j++){
+            float xLabel = seg.row[j].x;
+            float yLabel = seg.row[j].y;
+            float zLabel = seg.row[j].z;
+            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+            string gridKey = gridKeyQ.toStdString();
+            if(wholeGrid2SegIDMap[gridKey].size()>=2){
+                for(auto it=wholeGrid2SegIDMap[gridKey].begin(); it!=wholeGrid2SegIDMap[gridKey].end(); it++){
+                    tobeInsertSegIds.insert(*it);
+                }
+            }
+        }
+    }
+
+    for(auto it=tobeInsertSegIds.begin(); it!=tobeInsertSegIds.end(); it++){
+        V_NeuronSWC seg = segments.seg[*it];
+
+        for(size_t j=0; j<seg.row.size(); j++){
+            float xLabel = seg.row[j].x;
+            float yLabel = seg.row[j].y;
+            float zLabel = seg.row[j].z;
+            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+            string gridKey = gridKeyQ.toStdString();
+            if(wholeGrid2SegIDMap[gridKey].size()>=2){
+                for(auto it2=wholeGrid2SegIDMap[gridKey].begin(); it2!=wholeGrid2SegIDMap[gridKey].end(); it2++){
+                    tobeInsertSegIds.insert(*it2);
+                }
+            }
+        }
+    }
+
+    for(auto it=tobeInsertSegIds.begin(); it!=tobeInsertSegIds.end(); it++){
+        segmentsForMissingDetect.append(segments.seg[*it]);
+    }
+
+}
+
+void reverseSeg(V_NeuronSWC& seg){
+    reverse(seg.row.begin(), seg.row.end());
+    for(int i=0; i<seg.row.size(); i++){
+        seg.row[i].n=i+1;
+        seg.row[i].parent=i+2;
+    }
+    seg.row[seg.row.size()-1].parent=-1;
+}
+
+int getPointInSegIndex(string point, V_NeuronSWC& seg){
+    int index=-1;
+    for(int i=0; i<seg.row.size(); i++){
+        float xLabel = seg.row[i].x;
+        float yLabel = seg.row[i].y;
+        float zLabel = seg.row[i].z;
+        QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+        string gridKey = gridKeyQ.toStdString();
+        if(point==gridKey){
+            index=i;
+            break;
+        }
+    }
+    return index;
+}
+
+map<string, set<size_t>> getWholeGrid2SegIDMap(V_NeuronSWC_list& inputSegments){
+    map<string, set<size_t>> wholeGrid2SegIDMap;
+
+    for(size_t i=0; i<inputSegments.seg.size(); ++i){
+        V_NeuronSWC seg = inputSegments.seg[i];
+
+        for(size_t j=0; j<seg.row.size(); ++j){
+            float xLabel = seg.row[j].x;
+            float yLabel = seg.row[j].y;
+            float zLabel = seg.row[j].z;
+            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+            string gridKey = gridKeyQ.toStdString();
+            wholeGrid2SegIDMap[gridKey].insert(size_t(i));
+        }
+    }
+
+    return wholeGrid2SegIDMap;
+}
+
+int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
+    double mindist=0.3;
+    if(seg1.row.size() == seg2.row.size()){
+        double dist=0;
+        const std::vector<V_NeuronSWC_unit>::size_type cnt=seg1.row.size();
+        for(std::vector<V_NeuronSWC_unit>::size_type i=0;i<cnt;i++)
+        {
+            auto node=seg1.row.at(i);
+            dist+=sqrt(
+                pow(node.x-seg2.row[i].x,2)
+                +pow(node.y-seg2.row[i].y,2)
+                +pow(node.z-seg2.row[i].z,2)
+            );
+        }
+
+        if(dist/cnt<mindist)
+            return 1;
+
+        dist=0;
+        for(std::vector<V_NeuronSWC_unit>::size_type i=0;i<cnt;i++)
+        {
+            auto node=seg1.row.at(i);
+            dist+=sqrt(
+                pow(node.x-seg2.row[cnt-i-1].x,2)
+                +pow(node.y-seg2.row[cnt-i-1].y,2)
+                +pow(node.z-seg2.row[cnt-i-1].z,2)
+            );
+        }
+
+        if(dist/cnt<mindist)
+            return 1;
+
+        return 0;
+    }
+
+    double mindist_thres = 2;
+    bool isReverse = false;
+    V_NeuronSWC seg_short = seg1;
+    V_NeuronSWC seg_long = seg2;
+    if(seg1.row.size() > seg2.row.size()){
+        seg_short = seg2;
+        seg_long = seg1;
+        isReverse = true;
+    }
+    qDebug()<<"seg_short"<<seg_short.row.size();
+    qDebug()<<"seg_long"<<seg_long.row.size();
+
+    int index = -1;
+    mindist = 100;
+    for(auto it=seg_long.row.begin(); it!=seg_long.row.end(); it++){
+        double dist = distance(it->x, seg_short.row[0].x, it->y, seg_short.row[0].y, it->z, seg_short.row[0].z);
+        if(dist<mindist){
+            mindist = dist;
+            index = it - seg_long.row.begin();
+        }
+    }
+
+    if(index == -1 || mindist >= mindist_thres){
+        return 0;
+    }else if(seg_long.row.size()-index >= seg_short.row.size()){
+        double dist=0;
+        const std::vector<V_NeuronSWC_unit>::size_type cnt=seg_short.row.size();
+        for(std::vector<V_NeuronSWC_unit>::size_type i=0;i<cnt;i++)
+        {
+            auto node=seg_short.row.at(i);
+            dist+=sqrt(
+                pow(node.x-seg_long.row[index+i].x,2)
+                +pow(node.y-seg_long.row[index+i].y,2)
+                +pow(node.z-seg_long.row[index+i].z,2)
+            );
+        }
+
+        qDebug()<<"1:  "<<dist/cnt;
+        if(dist/cnt<mindist_thres){
+            if(!isReverse)
+                return 1;
+            else
+                return 2;
+        }
+
+    }else if(index+1 >= seg_short.row.size()){
+        double dist=0;
+        const std::vector<V_NeuronSWC_unit>::size_type cnt=seg_short.row.size();
+        for(std::vector<V_NeuronSWC_unit>::size_type i=0;i<cnt;i++)
+        {
+            auto node=seg_short.row.at(i);
+            dist+=sqrt(
+                pow(node.x-seg_long.row[index-i].x,2)
+                +pow(node.y-seg_long.row[index-i].y,2)
+                +pow(node.z-seg_long.row[index-i].z,2)
+            );
+        }
+
+        qDebug()<<"2:  "<<dist/cnt;
+        if(dist/cnt<mindist_thres){
+            if(!isReverse)
+                return 1;
+            else
+                return 2;
+        }
+
+    }else{
+        return 0;
+    }
+
+    return 0;
+}
+
+QStringList V_NeuronSWCToSendMSG(V_NeuronSWC seg)
+{
+    QStringList result;
+    for(int i=0;i<seg.row.size();i++)   //why  i need  < 120, does msg has length limitation? liqi 2019/10/7
+    {
+        V_NeuronSWC_unit curSWCunit = seg.row[i];
+        result.push_back(QString("%1 %2 %3 %4").arg(curSWCunit.type).arg(curSWCunit.x).arg(curSWCunit.y).arg(curSWCunit.z));
+        //        if(i==seg.row.size()-1)
+        //            AutoTraceNode=XYZ(GlobalCroods.x,GlobalCroods.y,GlobalCroods.z);
+    }
+    return result;
 }

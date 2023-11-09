@@ -33,10 +33,10 @@ public:
     explicit CollDetection(CollServer* curServer, QObject* parent=nullptr);
     ~CollDetection(){}
     XYZ getSomaCoordinate(QString apoPath);
-    vector<NeuronSWC> specStructsDetection(V_NeuronSWC_list inputSegList, double dist_thresh=1.5);
-    vector<NeuronSWC> loopDetection(V_NeuronSWC_list inputSegList);
-    vector<NeuronSWC> tipDetection(V_NeuronSWC_list &inputSegList, bool flag, double dist_thresh=30);
-    vector<vector<NeuronSWC>> crossingDetection(V_NeuronSWC_list inputSegList, map<string, vector<string>> &parentsDict, map<string, vector<string>> &offspringsDict);
+    vector<NeuronSWC> specStructsDetection(V_NeuronSWC_list& inputSegList, double dist_thresh=1.5);
+    vector<NeuronSWC> loopDetection(V_NeuronSWC_list& inputSegList);
+    vector<NeuronSWC> tipDetection(V_NeuronSWC_list &inputSegList, bool flag, map<string, set<size_t>> allPoint2SegIdMap, double dist_thresh=30);
+    vector<vector<NeuronSWC>> crossingDetection(V_NeuronSWC_list& inputSegList, map<string, vector<string>> &parentsDict, map<string, vector<string>> &offspringsDict);
     void handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleNearBifurcation(vector<NeuronSWC>& bifurPoints, int& count);

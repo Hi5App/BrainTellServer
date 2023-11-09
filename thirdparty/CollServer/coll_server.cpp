@@ -54,13 +54,8 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     // 3分钟执行一次
     timerForAutoSave->start(3*60*1000);
 //    timerForDetectTip->setSingleShot(true);
-    timerForDetectTip->start(24*60*60*1000);
-//    timerForDetectCrossing->setSingleShot(true);
-    timerForDetectCrossing->start(24*60*60*1000);
-    timerForDetectOthers->start(1*60*1000);
-    timerForDetectLoops->start(1*60*1000);
     timerForAutoExit->start(20*60*60*1000);
-    CollClient::timerforupdatemsg.start(1000);
+    CollClient::timerforupdatemsg.start(10*1000);
     // 为msglist这个列表分配内存
     msglist.reserve(5000);
 
@@ -77,6 +72,7 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     connect(timerForDetectOthers,&QTimer::timeout,detectUtil,&CollDetection::detectOthers);
     connect(timerForDetectTip,&QTimer::timeout,detectUtil,&CollDetection::detectTips);
     connect(timerForDetectCrossing,&QTimer::timeout,detectUtil,&CollDetection::detectCrossings);
+
     connect(timerForAutoSave,&QTimer::timeout,this,&CollServer::autoSave);
     connect(timerForAutoExit,&QTimer::timeout,this,&CollServer::autoExit);
     connect(&CollClient::timerforupdatemsg,&QTimer::timeout,[this]{
@@ -131,6 +127,12 @@ void CollServer::incomingConnection(qintptr handle){
     connect(client,&CollClient::noUsers,this,&CollServer::imediateSave);
     connect(client,&CollClient::removeList,this,&CollServer::RemoveList);
     connect(client,&CollClient::exitNow,this,&CollServer::autoExit);
+
+    connect(client,&CollClient::serverStartTimerForDetectLoops,this,&CollServer::startTimerForDetectLoops);
+    connect(client,&CollClient::serverStartTimerForDetectOthers,this,&CollServer::startTimerForDetectOthers);
+    connect(client,&CollClient::serverStartTimerForDetectTip,this,&CollServer::startTimerForDetectTip);
+    connect(client,&CollClient::serverStartTimerForDetectCrossing,this,&CollServer::startTimerForDetectCrossing);
+
 //    connect(this,&CollServer::clientAddMarker,client,&CollClient::addmarkers);
     connect(this,&CollServer::clientSendMsgs,client,&CollClient::sendmsgs);
     connect(this,&CollServer::clientSendmsgs2client,client,&CollClient::sendmsgs2client);
@@ -216,7 +218,23 @@ void CollServer::RemoveList(QThread* thread){
     }
 }
 
-void CollServer::addmarkers(const QString msg){
+void CollServer::startTimerForDetectLoops(){
+    timerForDetectLoops->start(1*60*1000);
+}
+
+void CollServer::startTimerForDetectOthers(){
+    timerForDetectOthers->start(1*60*1000);
+}
+
+void CollServer::startTimerForDetectTip(){
+    timerForDetectTip->start(3*60*1000);
+}
+
+void CollServer::startTimerForDetectCrossing(){
+    timerForDetectCrossing->start(24*60*60*1000);
+}
+
+bool CollServer::addmarkers(const QString msg){
     qDebug()<<msg;
     QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
     if(pointlistwithheader.size()<1){
@@ -251,12 +269,13 @@ void CollServer::addmarkers(const QString msg){
             if(abs(it->x-marker.x)<2&&abs(it->y-marker.y)<2&&abs(it->z-marker.z)<2)
             {
                 qDebug()<<"the marker has already existed";
-                return;
+                return false;
             }
         }
 
         markers.append(marker);
         qDebug()<<"server addmarker";
+        return true;
     }
 }
 
@@ -268,3 +287,18 @@ QString CollServer::getImage(){
     return Image;
 }
 
+QTimer* CollServer::getTimerForDetectLoops(){
+    return timerForDetectLoops;
+}
+
+QTimer* CollServer::getTimerForDetectOthers(){
+    return timerForDetectOthers;
+}
+
+QTimer* CollServer::getTimerForDetectTip(){
+    return timerForDetectTip;
+}
+
+QTimer* CollServer::getTimerForDetectCrossing(){
+    return timerForDetectCrossing;
+}

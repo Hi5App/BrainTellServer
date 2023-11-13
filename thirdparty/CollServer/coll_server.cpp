@@ -73,6 +73,8 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     connect(timerForDetectTip,&QTimer::timeout,detectUtil,&CollDetection::detectTips);
     connect(timerForDetectCrossing,&QTimer::timeout,detectUtil,&CollDetection::detectCrossings);
 
+    connect(detectUtil->timerForFilterTip,&QTimer::timeout,detectUtil,&CollDetection::filterTip);
+
     connect(timerForAutoSave,&QTimer::timeout,this,&CollServer::autoSave);
     connect(timerForAutoExit,&QTimer::timeout,this,&CollServer::autoExit);
     connect(&CollClient::timerforupdatemsg,&QTimer::timeout,[this]{

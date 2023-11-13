@@ -88,6 +88,7 @@ signals:
     void serverStartTimerForDetectOthers();
     void serverStartTimerForDetectTip();
     void serverStartTimerForDetectCrossing();
+    void serverStartTimerForHandleTip();
 
 };
 

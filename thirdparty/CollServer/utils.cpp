@@ -262,7 +262,7 @@ NeuronTree convertMsg2NT(QStringList pointlist,int client,int user, int isMany, 
 vector<V_NeuronSWC>::iterator findseg(vector<V_NeuronSWC>::iterator begin,vector<V_NeuronSWC>::iterator end,const V_NeuronSWC seg)
 {
     vector<V_NeuronSWC>::iterator result=end;
-    double mindist=3;
+    double mindist=5;
     const std::vector<V_NeuronSWC_unit>::size_type cnt=seg.row.size();
 
     while(begin!=end)
@@ -408,6 +408,7 @@ void getSegmentsForOthersDetect(V_NeuronSWC_list& last1MinSegments, V_NeuronSWC_
             }
         }
     }
+    set<size_t> tmpSegIds;
 
     for(auto it=tobeInsertSegIds.begin(); it!=tobeInsertSegIds.end(); it++){
         V_NeuronSWC seg = segments.seg[*it];
@@ -420,10 +421,14 @@ void getSegmentsForOthersDetect(V_NeuronSWC_list& last1MinSegments, V_NeuronSWC_
             string gridKey = gridKeyQ.toStdString();
             if(wholeGrid2SegIDMap[gridKey].size()>=2){
                 for(auto it2=wholeGrid2SegIDMap[gridKey].begin(); it2!=wholeGrid2SegIDMap[gridKey].end(); it2++){
-                    tobeInsertSegIds.insert(*it2);
+                    tmpSegIds.insert(*it2);
                 }
             }
         }
+    }
+
+    for(auto it=tmpSegIds.begin(); it!=tmpSegIds.end(); it++){
+        tobeInsertSegIds.insert(*it);
     }
 
     for(auto it=tobeInsertSegIds.begin(); it!=tobeInsertSegIds.end(); it++){
@@ -451,6 +456,7 @@ void getSegmentsForMissingDetect(V_NeuronSWC_list& last3MinSegments, V_NeuronSWC
             }
         }
     }
+    set<size_t> tmpSegIds;
 
     for(auto it=tobeInsertSegIds.begin(); it!=tobeInsertSegIds.end(); it++){
         V_NeuronSWC seg = segments.seg[*it];
@@ -463,10 +469,14 @@ void getSegmentsForMissingDetect(V_NeuronSWC_list& last3MinSegments, V_NeuronSWC
             string gridKey = gridKeyQ.toStdString();
             if(wholeGrid2SegIDMap[gridKey].size()>=2){
                 for(auto it2=wholeGrid2SegIDMap[gridKey].begin(); it2!=wholeGrid2SegIDMap[gridKey].end(); it2++){
-                    tobeInsertSegIds.insert(*it2);
+                    tmpSegIds.insert(*it2);
                 }
             }
         }
+    }
+
+    for(auto it=tmpSegIds.begin(); it!=tmpSegIds.end(); it++){
+        tobeInsertSegIds.insert(*it);
     }
 
     for(auto it=tobeInsertSegIds.begin(); it!=tobeInsertSegIds.end(); it++){
@@ -520,7 +530,7 @@ map<string, set<size_t>> getWholeGrid2SegIDMap(V_NeuronSWC_list& inputSegments){
 }
 
 int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
-    double mindist=0.3;
+    double mindist = 8;
     if(seg1.row.size() == seg2.row.size()){
         double dist=0;
         const std::vector<V_NeuronSWC_unit>::size_type cnt=seg1.row.size();
@@ -554,7 +564,7 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
         return 0;
     }
 
-    double mindist_thres = 2;
+    double mindist_thres = 8;
     bool isReverse = false;
     V_NeuronSWC seg_short = seg1;
     V_NeuronSWC seg_long = seg2;
@@ -563,8 +573,8 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
         seg_long = seg1;
         isReverse = true;
     }
-    qDebug()<<"seg_short"<<seg_short.row.size();
-    qDebug()<<"seg_long"<<seg_long.row.size();
+//    qDebug()<<"seg_short"<<seg_short.row.size();
+//    qDebug()<<"seg_long"<<seg_long.row.size();
 
     int index = -1;
     mindist = 100;

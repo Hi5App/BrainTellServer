@@ -1058,18 +1058,14 @@ void CollClient::receiveuser(const QString user, QString RES)
     QString msg=QString("STARTCOLLABORATE:%1").arg(myServer->anopath.section('/',-1,-1));
     sendmsgs({msg});
 
-    if(myServer->hashmap.size()==1)
-    {
-        if(!myServer->getTimerForDetectOthers()->isActive())
-            emit serverStartTimerForDetectOthers();
-        if(!myServer->getTimerForDetectLoops()->isActive())
-            emit serverStartTimerForDetectLoops();
-        if(!myServer->getTimerForDetectTip()->isActive())
-            emit serverStartTimerForDetectTip();
-        if(!myServer->getTimerForDetectCrossing()->isActive())
-            emit serverStartTimerForDetectCrossing();
-    }
-
+    if(!myServer->getTimerForDetectOthers()->isActive())
+        emit serverStartTimerForDetectOthers();
+    if(!myServer->getTimerForDetectLoops()->isActive())
+        emit serverStartTimerForDetectLoops();
+    if(!myServer->getTimerForDetectTip()->isActive())
+        emit serverStartTimerForDetectTip();
+    if(!myServer->getTimerForDetectCrossing()->isActive())
+        emit serverStartTimerForDetectCrossing();
 }
 
 

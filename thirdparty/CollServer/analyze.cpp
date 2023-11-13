@@ -166,32 +166,25 @@ set<string> getDissociativeSegEndPoints(V_NeuronSWC_list segments){
 
     for(size_t i=0; i<segments.seg.size(); ++i){
         V_NeuronSWC seg = segments.seg[i];
-        bool flag1=true;
-        bool flag2=true;
+        bool flag=true;
         string savedgridKey;
 
         for(size_t j=0; j<seg.row.size(); ++j){
-            if(j!=0 && j!=seg.row.size()-1){
-                continue;
-            }
-            else{
-                float xLabel = seg.row[j].x;
-                float yLabel = seg.row[j].y;
-                float zLabel = seg.row[j].z;
-                QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
-                string gridKey = gridKeyQ.toStdString();
-                int size=wholeGrid2SegIDMap[gridKey].size();
-                if(j==0 && size<=1){
-                    flag1=false;
-                    savedgridKey=gridKey;
-                }
-                if(j==seg.row.size()-1 && size<=1){
-                    flag2=false;
-                }
+            float xLabel = seg.row[j].x;
+            float yLabel = seg.row[j].y;
+            float zLabel = seg.row[j].z;
+            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+            string gridKey = gridKeyQ.toStdString();
+            int size=wholeGrid2SegIDMap[gridKey].size();
+
+            if(j == 0)
+                savedgridKey=gridKey;
+            if(size > 1){
+                flag = false;
             }
         }
 
-        if(!flag1 && !flag2){
+        if(flag){
             dissociativePoints.insert(savedgridKey);
         }
     }

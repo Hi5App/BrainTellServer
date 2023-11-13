@@ -29,6 +29,8 @@ private:
 public:
     static XYZ maxRes;
     static XYZ subMaxRes;
+    vector<NeuronSWC> tipPoints;
+    QTimer *timerForFilterTip;
 
     explicit CollDetection(CollServer* curServer, QObject* parent=nullptr);
     ~CollDetection(){}
@@ -48,12 +50,14 @@ public:
     void getImageRES();
     void getApoForCrop(QString fileSaveName, vector<NeuronSWC> tipPoints);
 
+
 public slots:
     void detectOthers();
     void detectLoops();
     void detectTips();
     void detectCrossings();
 
+    void filterTip();
 };
 
 #endif // COLLDETECTION_H

@@ -1522,16 +1522,26 @@ void CollDetection::handleTip(vector<NeuronSWC>& tipPoints){
         {
             std::cerr<<"handle tip error!";
         }
-        for(int i=0;i<markPoints.size();i++){
-            QStringList result;
-            result.push_back(QString("server"));
-            result.push_back(QString("%1 %2 %3 %4").arg(markPoints[i].type).arg(markPoints[i].x).arg(markPoints[i].y).arg(markPoints[i].z));
-            QString msg=QString("/WARN_TipUndone:"+result.join(","));
-            bool isSucess=myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_TipUndone:").size()));
 
-            if(isSucess)
-                emit myServer->clientSendMsgs({msg});
+        QString tobeSendMsg=QString("/WARN_TipUndone:server,");
+        QStringList result;
+        int count = 0;
+
+        for(int i=0;i<markPoints.size();i++){
+            QString curMarker=QString("%1 %2 %3 %4").arg(markPoints[i].type).arg(markPoints[i].x).arg(markPoints[i].y).arg(markPoints[i].z);
+
+            QString msg=QString("/WARN_TipUndone:server,"+curMarker);
+            bool isSucess=myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_TipUndone:").size()));
+            if(isSucess){
+                result.push_back(curMarker);
+                count++;
+            }
         }
+
+        tobeSendMsg = tobeSendMsg + result.join(",");
+
+        if(count!=0)
+            emit myServer->clientSendMsgs({tobeSendMsg});
 
         qDebug()<<"Server finish /WARN_TipUndone";
 
@@ -1784,16 +1794,26 @@ void CollDetection::handleCrossing(vector<vector<NeuronSWC>>& crossingPoints, ma
         {
             std::cerr<<"handle crossing error!";
         }
-        for(int i=0;i<markPoints.size();i++){
-            QStringList result;
-            result.push_back(QString("server"));
-            result.push_back(QString("%1 %2 %3 %4").arg(markPoints[i].type).arg(markPoints[i].x).arg(markPoints[i].y).arg(markPoints[i].z));
-            QString msg=QString("/WARN_CrossingError:"+result.join(","));
-            bool isSucess=myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_CrossingError:").size()));
 
-            if(isSucess)
-                emit myServer->clientSendMsgs({msg});
+        QString tobeSendMsg=QString("/WARN_CrossingError:server,");
+        QStringList result;
+        int count = 0;
+
+        for(int i=0;i<markPoints.size();i++){
+            QString curMarker=QString("%1 %2 %3 %4").arg(markPoints[i].type).arg(markPoints[i].x).arg(markPoints[i].y).arg(markPoints[i].z);
+
+            QString msg=QString("/WARN_CrossingError:server,"+curMarker);
+            bool isSucess=myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_CrossingError:").size()));
+            if(isSucess){
+                result.push_back(curMarker);
+                count++;
+            }
         }
+
+        tobeSendMsg = tobeSendMsg + result.join(",");
+
+        if(count!=0)
+            emit myServer->clientSendMsgs({tobeSendMsg});
 
         qDebug()<<"Server finish /WARN_CrossingError";
 

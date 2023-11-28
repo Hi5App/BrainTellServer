@@ -67,6 +67,7 @@ public slots:
     void startTimerForDetectOthers();
     void startTimerForDetectTip();
     void startTimerForDetectCrossing();
+    void startTimerForDetectOthersWhole();
 
 private:
 //    qsizetype idxforprocessed=0;
@@ -79,6 +80,7 @@ private:
     QTimer *timerForAutoSave;
     QTimer *timerForDetectLoops;
     QTimer *timerForDetectOthers;
+    QTimer *timerForDetectOthersWhole;
     QTimer *timerForDetectTip;
     QTimer *timerForDetectCrossing;
     QTimer *timerForAutoExit;
@@ -93,6 +95,8 @@ public:
     QTimer* getTimerForDetectOthers();
     QTimer* getTimerForDetectTip();
     QTimer* getTimerForDetectCrossing();
+    QTimer* getTimerForDetectOthersWhole();
+
 };
 
 #endif // COLL_SERVER_H

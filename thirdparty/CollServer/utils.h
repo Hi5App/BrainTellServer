@@ -52,11 +52,11 @@ int findnearest(const CellAPO &m,const QList<CellAPO> &markers);
 
 void init();
 void stringToXYZ(string xyz, float& x, float& y, float& z);
-void getSegmentsForOthersDetect(V_NeuronSWC_list& last1MinSegments, V_NeuronSWC_list& segmentsForOthersDetect, V_NeuronSWC_list& segments);
-void getSegmentsForMissingDetect(V_NeuronSWC_list& last3MinSegments, V_NeuronSWC_list& segmentsForMissingDetect, V_NeuronSWC_list& segments);
+void getSegmentsForOthersDetect(V_NeuronSWC_list& last1MinSegments, V_NeuronSWC_list& segmentsForOthersDetect, V_NeuronSWC_list segments);
+void getSegmentsForMissingDetect(V_NeuronSWC_list& last3MinSegments, V_NeuronSWC_list& segmentsForMissingDetect, V_NeuronSWC_list segments);
 void reverseSeg(V_NeuronSWC& seg);
 int getPointInSegIndex(string point, V_NeuronSWC& seg);
-map<string, set<size_t>> getWholeGrid2SegIDMap(V_NeuronSWC_list& inputSegments);
+map<string, set<size_t>> getWholeGrid2SegIDMap(V_NeuronSWC_list inputSegments);
 int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2);
 QStringList V_NeuronSWCToSendMSG(V_NeuronSWC seg);
 

@@ -54,6 +54,12 @@ public:
     void analyzeDissociativeSegs(const QString msg);//分析是否存在游离的线段
     void analyzeAngles(const QString msg);//分析树突分叉的角度是否合理
 
+    //define soma
+    void defineSoma(const QString msg);//定义soma点
+
+    //get soma pos
+    void getSomaPos(const QString msg);//获取soma点的坐标
+
 public slots:
     void sendmsgs(const QStringList &msgs);//发送消息
     void ondisconnect();//连接断开
@@ -81,14 +87,16 @@ private:
 
 signals:
     void removeList(QThread*);
-    void noUsers();
+    void serverImediateSave();
     void exitNow();
 
     void serverStartTimerForDetectLoops();
     void serverStartTimerForDetectOthers();
+    void serverStartTimerForDetectOthersWhole();
     void serverStartTimerForDetectTip();
     void serverStartTimerForDetectCrossing();
     void serverStartTimerForHandleTip();
+    void detectUtilRemoveErrorSegs(bool);
 
 };
 

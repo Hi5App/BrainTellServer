@@ -124,7 +124,7 @@ void setredis(int port,const char *ano)
 {
     // 取消DB0中键ano的过期时间
     // 改为将键的有效时间设置为24h
-    redisContext *c = redisConnect("172.18.0.3", 6379);
+    redisContext *c = redisConnect("172.18.0.2", 6379);
     if (c == NULL || c->err) {
         if (c) {
             printf("Error: %s\n", c->errstr);
@@ -149,7 +149,7 @@ void setredis(int port,const char *ano)
 void setexpire(int port,const char *ano,int expiretime)
 {
     //设置DB0中键ano的过期时间,单位是s
-    redisContext *c = redisConnect("172.18.0.3", 6379);
+    redisContext *c = redisConnect("172.18.0.2", 6379);
     if (c == NULL || c->err) {
         if (c) {
             printf("Error: %s\n", c->errstr);
@@ -168,7 +168,7 @@ void setexpire(int port,const char *ano,int expiretime)
 
 void recoverPort(int port)
 {
-    redisContext *c = redisConnect("172.18.0.3", 6379);
+    redisContext *c = redisConnect("172.18.0.2", 6379);
         if (c == NULL || c->err) {
             if (c) {
                 printf("Error: %s\n", c->errstr);
@@ -388,7 +388,7 @@ void stringToXYZ(string xyz, float& x, float& y, float& z){
     z = xyzstrs[2].toFloat();
 }
 
-void getSegmentsForOthersDetect(V_NeuronSWC_list& last1MinSegments, V_NeuronSWC_list& segmentsForOthersDetect, V_NeuronSWC_list& segments){
+void getSegmentsForOthersDetect(V_NeuronSWC_list& last1MinSegments, V_NeuronSWC_list& segmentsForOthersDetect, V_NeuronSWC_list segments){
     map<string, set<size_t>> wholeGrid2SegIDMap = getWholeGrid2SegIDMap(segments);
 
     set<size_t> tobeInsertSegIds;
@@ -436,7 +436,7 @@ void getSegmentsForOthersDetect(V_NeuronSWC_list& last1MinSegments, V_NeuronSWC_
     }
 }
 
-void getSegmentsForMissingDetect(V_NeuronSWC_list& last3MinSegments, V_NeuronSWC_list& segmentsForMissingDetect, V_NeuronSWC_list& segments){
+void getSegmentsForMissingDetect(V_NeuronSWC_list& last3MinSegments, V_NeuronSWC_list& segmentsForMissingDetect, V_NeuronSWC_list segments){
     map<string, set<size_t>> wholeGrid2SegIDMap = getWholeGrid2SegIDMap(segments);
 
     set<size_t> tobeInsertSegIds;
@@ -510,7 +510,7 @@ int getPointInSegIndex(string point, V_NeuronSWC& seg){
     return index;
 }
 
-map<string, set<size_t>> getWholeGrid2SegIDMap(V_NeuronSWC_list& inputSegments){
+map<string, set<size_t>> getWholeGrid2SegIDMap(V_NeuronSWC_list inputSegments){
     map<string, set<size_t>> wholeGrid2SegIDMap;
 
     for(size_t i=0; i<inputSegments.seg.size(); ++i){
@@ -530,8 +530,9 @@ map<string, set<size_t>> getWholeGrid2SegIDMap(V_NeuronSWC_list& inputSegments){
 }
 
 int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
-    double mindist = 8;
+    double mindist = 0.8;
     if(seg1.row.size() == seg2.row.size()){
+//        qDebug()<<"seg1.row.size() == seg2.row.size()";
         double dist=0;
         const std::vector<V_NeuronSWC_unit>::size_type cnt=seg1.row.size();
         for(std::vector<V_NeuronSWC_unit>::size_type i=0;i<cnt;i++)
@@ -544,6 +545,7 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
             );
         }
 
+//        qDebug()<<"1: "<<dist/cnt;
         if(dist/cnt<mindist)
             return 1;
 
@@ -558,13 +560,14 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
             );
         }
 
+//        qDebug()<<"2: "<<dist/cnt;
         if(dist/cnt<mindist)
             return 1;
 
         return 0;
     }
 
-    double mindist_thres = 8;
+    double mindist_thres = 0.8;
     bool isReverse = false;
     V_NeuronSWC seg_short = seg1;
     V_NeuronSWC seg_long = seg2;
@@ -576,32 +579,63 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
 //    qDebug()<<"seg_short"<<seg_short.row.size();
 //    qDebug()<<"seg_long"<<seg_long.row.size();
 
-    int index = -1;
-    mindist = 100;
+    int long_index1 = -1;
+    int long_index2 = -1;
+    int start_index = -1;
+    double mindist1 = 100;
+    double mindist2 = 100;
+    double mindist_final = 100;
+    int seg_short_index = 0;
     for(auto it=seg_long.row.begin(); it!=seg_long.row.end(); it++){
-        double dist = distance(it->x, seg_short.row[0].x, it->y, seg_short.row[0].y, it->z, seg_short.row[0].z);
-        if(dist<mindist){
-            mindist = dist;
-            index = it - seg_long.row.begin();
+        double dist = distance(it->x, seg_short.row[seg_short.row.size()-1].x, it->y, seg_short.row[seg_short.row.size()-1].y, it->z, seg_short.row[seg_short.row.size()-1].z);
+        if(dist<mindist1){
+            mindist1 = dist;
+            long_index1 = it - seg_long.row.begin();
         }
     }
 
-    if(index == -1 || mindist >= mindist_thres){
+    for(auto it=seg_long.row.begin(); it!=seg_long.row.end(); it++){
+        double dist = distance(it->x, seg_short.row[0].x, it->y, seg_short.row[0].y, it->z, seg_short.row[0].z);
+        if(dist<mindist2){
+            mindist2 = dist;
+            long_index2 = it - seg_long.row.begin();
+        }
+    }
+
+    if(long_index1 == -1 && long_index2 == -1)
         return 0;
-    }else if(seg_long.row.size()-index >= seg_short.row.size()){
+
+    if(mindist1 < mindist2){
+        start_index = long_index1;
+        mindist_final = mindist1;
+        seg_short_index = seg_short.row.size()-1;
+    }else{
+        start_index = long_index2;
+        mindist_final = mindist2;
+        seg_short_index = 0;
+    }
+
+    if(start_index == -1 || mindist_final >= mindist_thres){
+        return 0;
+    }else if(seg_long.row.size()-start_index >= seg_short.row.size()){
         double dist=0;
         const std::vector<V_NeuronSWC_unit>::size_type cnt=seg_short.row.size();
         for(std::vector<V_NeuronSWC_unit>::size_type i=0;i<cnt;i++)
         {
-            auto node=seg_short.row.at(i);
+            V_NeuronSWC_unit node;
+            if(seg_short_index == seg_short.row.size()-1)
+                node=seg_short.row.at(cnt-i-1);
+            if(seg_short_index == 0)
+                node=seg_short.row.at(i);
+
             dist+=sqrt(
-                pow(node.x-seg_long.row[index+i].x,2)
-                +pow(node.y-seg_long.row[index+i].y,2)
-                +pow(node.z-seg_long.row[index+i].z,2)
+                pow(node.x-seg_long.row[start_index+i].x,2)
+                +pow(node.y-seg_long.row[start_index+i].y,2)
+                +pow(node.z-seg_long.row[start_index+i].z,2)
             );
         }
 
-        qDebug()<<"1:  "<<dist/cnt;
+//        qDebug()<<"1:  "<<dist/cnt;
         if(dist/cnt<mindist_thres){
             if(!isReverse)
                 return 1;
@@ -609,20 +643,25 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
                 return 2;
         }
 
-    }else if(index+1 >= seg_short.row.size()){
+    }else if(start_index+1 >= seg_short.row.size()){
         double dist=0;
         const std::vector<V_NeuronSWC_unit>::size_type cnt=seg_short.row.size();
         for(std::vector<V_NeuronSWC_unit>::size_type i=0;i<cnt;i++)
         {
-            auto node=seg_short.row.at(i);
+            V_NeuronSWC_unit node;
+            if(seg_short_index == seg_short.row.size()-1)
+                node=seg_short.row.at(cnt-i-1);
+            if(seg_short_index == 0)
+                node=seg_short.row.at(i);
+
             dist+=sqrt(
-                pow(node.x-seg_long.row[index-i].x,2)
-                +pow(node.y-seg_long.row[index-i].y,2)
-                +pow(node.z-seg_long.row[index-i].z,2)
+                pow(node.x-seg_long.row[start_index-i].x,2)
+                +pow(node.y-seg_long.row[start_index-i].y,2)
+                +pow(node.z-seg_long.row[start_index-i].z,2)
             );
         }
 
-        qDebug()<<"2:  "<<dist/cnt;
+//        qDebug()<<"2:  "<<dist/cnt;
         if(dist/cnt<mindist_thres){
             if(!isReverse)
                 return 1;

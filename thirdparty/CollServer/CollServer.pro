@@ -21,6 +21,7 @@ SOURCES += \
         neuron_editing/neuron_format_converter.cpp \
         neuron_editing/neuron_xforms.cpp \
         neuron_editing/v_neuronswc.cpp \
+        sort_swc.cpp \
         utils.cpp
 
 # Default rules for deployment.

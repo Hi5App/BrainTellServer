@@ -60,4 +60,6 @@ map<string, set<size_t>> getWholeGrid2SegIDMap(V_NeuronSWC_list inputSegments);
 int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2);
 QStringList V_NeuronSWCToSendMSG(V_NeuronSWC seg);
 
+RGB8 getColorFromType(int type);
+
 #endif // UTILS_H

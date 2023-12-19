@@ -37,6 +37,7 @@ public:
 
     void updateuserlist();//广播在线用户
     void addseg(const QString msg);//加线
+    void addmanysegs(const QString msg); //加很多线
     void delseg(const QString msg);//减线
     void addmarkers(const QString msg);//加marker
     void delmarkers(const QString msg);//删marker
@@ -87,7 +88,7 @@ private:
 
 signals:
     void removeList(QThread*);
-    void serverImediateSave();
+    void serverImediateSave(bool);
     void exitNow();
 
     void serverStartTimerForDetectLoops();

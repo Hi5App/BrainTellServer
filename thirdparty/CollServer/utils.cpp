@@ -530,7 +530,7 @@ map<string, set<size_t>> getWholeGrid2SegIDMap(V_NeuronSWC_list inputSegments){
 }
 
 int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
-    double mindist = 0.8;
+    double mindist = 2;
     if(seg1.row.size() == seg2.row.size()){
 //        qDebug()<<"seg1.row.size() == seg2.row.size()";
         double dist=0;
@@ -567,7 +567,7 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
         return 0;
     }
 
-    double mindist_thres = 0.8;
+    double mindist_thres = 2;
     bool isReverse = false;
     V_NeuronSWC seg_short = seg1;
     V_NeuronSWC seg_long = seg2;
@@ -578,6 +578,9 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
     }
 //    qDebug()<<"seg_short"<<seg_short.row.size();
 //    qDebug()<<"seg_long"<<seg_long.row.size();
+
+    double length_short = getSegLength(seg_short);
+    double length_long = getSegLength(seg_long);
 
     int long_index1 = -1;
     int long_index2 = -1;
@@ -637,10 +640,18 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
 
 //        qDebug()<<"1:  "<<dist/cnt;
         if(dist/cnt<mindist_thres){
-            if(!isReverse)
-                return 1;
-            else
-                return 2;
+            if(!isReverse){
+                if(length_short <= length_long)
+                    return 1;
+                else
+                    return 2;
+            }
+            else{
+                if(length_short <= length_long)
+                    return 2;
+                else
+                    return 1;
+            }
         }
 
     }else if(start_index+1 >= seg_short.row.size()){
@@ -663,10 +674,18 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
 
 //        qDebug()<<"2:  "<<dist/cnt;
         if(dist/cnt<mindist_thres){
-            if(!isReverse)
-                return 1;
-            else
-                return 2;
+            if(!isReverse){
+                if(length_short <= length_long)
+                    return 1;
+                else
+                    return 2;
+            }
+            else{
+                if(length_short <= length_long)
+                    return 2;
+                else
+                    return 1;
+            }
         }
 
     }else{
@@ -687,4 +706,19 @@ QStringList V_NeuronSWCToSendMSG(V_NeuronSWC seg)
         //            AutoTraceNode=XYZ(GlobalCroods.x,GlobalCroods.y,GlobalCroods.z);
     }
     return result;
+}
+
+RGB8 getColorFromType(int type){
+    RGB8 color;
+    color.r=0;
+    color.g=0;
+    color.b=0;
+    if(type<0 || type>20)
+        return color;
+    else{
+        color.r=neuron_type_color[type][0];
+        color.g=neuron_type_color[type][1];
+        color.b=neuron_type_color[type][2];
+        return color;
+    }
 }

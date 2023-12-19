@@ -241,6 +241,46 @@ void CollClient::addseg(const QString msg)
 //    }
 }
 
+void CollClient::addmanysegs(const QString msg){
+    QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
+    if(pointlistwithheader.size()<1){
+        std::cerr<<"ERROR:pointlistwithheader.size<1\n";
+    }
+
+    QStringList headerlist=pointlistwithheader[0].split(' ',Qt::SkipEmptyParts);
+    if(headerlist.size()<2) {
+        std::cerr<<"ERROR:headerlist.size<2\n";
+    }
+    unsigned int clienttype=headerlist[0].toUInt();
+    int useridx=headerlist[1].toUInt();
+
+    QStringList pointlist=pointlistwithheader;
+    pointlist.removeAt(0);
+    if(pointlist.size()==0){
+        std::cerr<<"ERROR:pointlist.size=0\n";
+        return;
+    }
+
+    auto addnt=convertMsg2NT(pointlist,clienttype,useridx,1);
+    auto segs=NeuronTree__2__V_NeuronSWC_list(addnt).seg;
+
+    myServer->mutex.lock();
+    myServer->mutexForDetectOthers.lock();
+    myServer->mutexForDetectMissing.lock();
+
+    for(auto seg:segs){
+        myServer->segments.append(seg);
+        myServer->last1MinSegments.append(seg);
+        myServer->last3MinSegments.append(seg);
+    }
+
+    myServer->mutexForDetectMissing.unlock();
+    myServer->mutexForDetectOthers.unlock();
+    myServer->mutex.unlock();
+
+    qDebug()<<"server addmanysegs";
+}
+
 void CollClient::delseg(const QString msg)
 {
     QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
@@ -690,27 +730,30 @@ void CollClient::addmarkers(const QString msg)
     }
 
     CellAPO marker;
+    marker.name="";
+    marker.comment="";
+    marker.orderinfo="";
 
     QMutexLocker locker(&myServer->mutex);
     for(auto &msg:pointlist){
         auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
-        if(markerinfo.size()!=4) continue;
-        marker.color.r=neuron_type_color[markerinfo[0].toUInt()][0];
-        marker.color.g=neuron_type_color[markerinfo[0].toUInt()][1];
-        marker.color.b=neuron_type_color[markerinfo[0].toUInt()][2];
-        marker.x=markerinfo[1].toDouble();
-        marker.y=markerinfo[2].toDouble();
-        marker.z=markerinfo[3].toDouble();
+        if(markerinfo.size()!=6) continue;
+        marker.color.r=markerinfo[0].toUInt();
+        marker.color.g=markerinfo[1].toUInt();
+        marker.color.b=markerinfo[2].toUInt();
+        marker.x=markerinfo[3].toDouble();
+        marker.y=markerinfo[4].toDouble();
+        marker.z=markerinfo[5].toDouble();
 
-        for(auto it=myServer->markers.begin();it!=myServer->markers.end(); ++it)
-        {
-            if(fabs(it->x-marker.x)<1&&fabs(it->y-marker.y)<1&&fabs(it->z-marker.z)<1)
-            {
-                qDebug()<<"the marker has already existed";
-//                myServer->mutex.unlock();
-                return;
-            }
-        }
+//        for(auto it=myServer->markers.begin();it!=myServer->markers.end(); ++it)
+//        {
+//            if(fabs(it->x-marker.x)<1&&fabs(it->y-marker.y)<1&&fabs(it->z-marker.z)<1)
+//            {
+//                qDebug()<<"the marker has already existed";
+////                myServer->mutex.unlock();
+//                return;
+//            }
+//        }
 
         myServer->markers.append(marker);
         qDebug()<<"server addmarker";
@@ -744,13 +787,13 @@ void CollClient::delmarkers(const QString msg)
     QMutexLocker locker(&myServer->mutex);
     for(auto &msg:pointlist){
         auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
-        if(markerinfo.size()!=4) continue;
-        marker.color.r=neuron_type_color[markerinfo[0].toUInt()][0];
-        marker.color.g=neuron_type_color[markerinfo[0].toUInt()][1];
-        marker.color.b=neuron_type_color[markerinfo[0].toUInt()][2];
-        marker.x=markerinfo[1].toDouble();
-        marker.y=markerinfo[2].toDouble();
-        marker.z=markerinfo[3].toDouble();
+        if(markerinfo.size()!=6) continue;
+        marker.color.r=markerinfo[0].toUInt();
+        marker.color.g=markerinfo[1].toUInt();
+        marker.color.b=markerinfo[2].toUInt();
+        marker.x=markerinfo[3].toDouble();
+        marker.y=markerinfo[4].toDouble();
+        marker.z=markerinfo[5].toDouble();
 //        if(myServer->isSomaExists&&sqrt((marker.x-myServer->somaCoordinate.x)*(marker.x-myServer->somaCoordinate.x)+
 //                (marker.y-myServer->somaCoordinate.y)*(marker.y-myServer->somaCoordinate.y)+
 //                (marker.z-myServer->somaCoordinate.z)*(marker.z-myServer->somaCoordinate.z))<1)
@@ -918,6 +961,8 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
                 retypesegment(msg.right(msg.size()-QString("/retypeline_norm:").size()));
             }else if(msg.startsWith("/splitline_norm:")||msg.startsWith("/splitline_undo:")||msg.startsWith("/splitline_redo:")){
                 splitseg(msg.right(msg.size()-QString("/splitline_norm:").size()));
+            }else if(msg.startsWith("/drawmanylines_norm:")||msg.startsWith("/drawmanylines_undo:")){
+                addmanysegs(msg.right(msg.size()-QString("/drawmanylines_norm:").size()));
             }
 
             myServer->mutex.lock();
@@ -1007,14 +1052,16 @@ void CollClient::ondisconnect()
             break;
         onread();
     }
+    qDebug()<<"ondisconnect: 00";
     this->close();//关闭读
     if(myServer->hashmap.contains(username)&&myServer->hashmap[username]==this)
         myServer->hashmap.remove(username);
     if(myServer->hashmap.size()==0)
     {
-        emit serverImediateSave();
+        emit serverImediateSave(false);
     }
     updateuserlist();
+    qDebug()<<"ondisconnect: 11";
     qDebug()<<"subthread "<<QThread::currentThreadId()<<" will quit";
     emit removeList(thread());
     this->deleteLater();  
@@ -1054,7 +1101,17 @@ void CollClient::receiveuser(const QString user, QString RES)
     myServer->mutex.unlock();
     updateuserlist();
 
-    myServer->imediateSave();
+    // 创建事件循环
+    QEventLoop loop;
+
+    // 连接信号和事件循环的退出槽
+    connect(myServer, &CollServer::imediateSaveDone, &loop, &QEventLoop::quit);
+
+    emit serverImediateSave(true);
+
+    // 等待事件循环退出
+    loop.exec();
+
     //todo发送保存的文件
     sendfiles({
     myServer->anopath,myServer->apopath,myServer->swcpath
@@ -1068,10 +1125,10 @@ void CollClient::receiveuser(const QString user, QString RES)
     QString msg=QString("STARTCOLLABORATE:%1").arg(myServer->anopath.section('/',-1,-1));
     sendmsgs({msg});
 
-    if(!myServer->getTimerForDetectOthers()->isActive())
-        emit serverStartTimerForDetectOthers();
     if(!myServer->getTimerForDetectLoops()->isActive())
         emit serverStartTimerForDetectLoops();
+    if(!myServer->getTimerForDetectOthers()->isActive())
+        emit serverStartTimerForDetectOthers();
     if(!myServer->getTimerForDetectTip()->isActive())
         emit serverStartTimerForDetectTip();
     if(!myServer->getTimerForDetectCrossing()->isActive())
@@ -1322,6 +1379,9 @@ void CollClient::analyzeSomaNearBy(const QString msg){
 
     if(!myServer->isSomaExists){
         qDebug()<<"soma not detected!";
+        QString tobeSendMsg="/FEEDBACK_ANALYZE_SomaNearBy:";
+        tobeSendMsg += QString("server %1").arg(-1);
+        sendmsgs({tobeSendMsg});
         return;
     }
     else{
@@ -1366,6 +1426,9 @@ void CollClient::analyzeColorMutation(const QString msg){
     bool result=true;
     if(!myServer->isSomaExists){
         qDebug()<<"soma not detected!";
+        QString tobeSendMsg="/FEEDBACK_ANALYZE_ColorMutation:";
+        tobeSendMsg += QString("server %1").arg(-1);
+        sendmsgs({tobeSendMsg});
         return;
     }
     else{
@@ -1400,7 +1463,7 @@ void CollClient::analyzeColorMutation(const QString msg){
             for(auto it=resultSet.begin(); it!=resultSet.end(); it++){
                 NeuronSWC s;
                 stringToXYZ(*it, s.x, s.y, s.z);
-                tobeSendMsg += QString("%1 %2 %3 %4").arg(2).arg(s.x).arg(s.y).arg(s.z);
+                tobeSendMsg += QString("%1 %2 %3 %4 %5 %6").arg(200).arg(20).arg(0).arg(s.x).arg(s.y).arg(s.z);
                 tobeSendMsg += ",";
             }
             tobeSendMsg.chop(1);
@@ -1496,7 +1559,7 @@ void CollClient::analyzeColorMutation(const QString msg){
             for(auto it=resultSet.begin(); it!=resultSet.end(); it++){
                 NeuronSWC s;
                 stringToXYZ(*it, s.x, s.y, s.z);
-                tobeSendMsg += QString("%1 %2 %3 %4").arg(2).arg(s.x).arg(s.y).arg(s.z);
+                tobeSendMsg += QString("%1 %2 %3 %4 %5 %6").arg(200).arg(20).arg(0).arg(s.x).arg(s.y).arg(s.z);
                 tobeSendMsg += ",";
             }
             tobeSendMsg.chop(1);
@@ -1524,7 +1587,7 @@ void CollClient::analyzeDissociativeSegs(const QString msg){
         for(auto it=dissociativePoints.begin(); it!=dissociativePoints.end(); it++){
             NeuronSWC s;
             stringToXYZ(*it, s.x, s.y, s.z);
-            tobeSendMsg += QString("%1 %2 %3 %4").arg(2).arg(s.x).arg(s.y).arg(s.z);
+            tobeSendMsg += QString("%1 %2 %3 %4 %5 %6").arg(200).arg(20).arg(0).arg(s.x).arg(s.y).arg(s.z);
             tobeSendMsg += ",";
         }
         tobeSendMsg.chop(1);
@@ -1540,6 +1603,9 @@ void CollClient::analyzeAngles(const QString msg){
 
     if(!myServer->isSomaExists){
         qDebug()<<"soma not detected!";
+        QString tobeSendMsg="/FEEDBACK_ANALYZE_Angle:";
+        tobeSendMsg += QString("server %1").arg(-1);
+        sendmsgs({tobeSendMsg});
         return;
     }
     else{
@@ -1556,7 +1622,7 @@ void CollClient::analyzeAngles(const QString msg){
             for(auto it=angleErrPoints.begin(); it!=angleErrPoints.end(); it++){
                 NeuronSWC s;
                 stringToXYZ(*it, s.x, s.y, s.z);
-                tobeSendMsg += QString("%1 %2 %3 %4").arg(2).arg(s.x).arg(s.y).arg(s.z);
+                tobeSendMsg += QString("%1 %2 %3 %4 %5 %6").arg(200).arg(20).arg(0).arg(s.x).arg(s.y).arg(s.z);
                 tobeSendMsg += ",";
             }
             tobeSendMsg.chop(1);
@@ -1677,7 +1743,7 @@ void CollClient::getSomaPos(const QString msg){
         myServer->somaCoordinate.z = myServer->markers.last().z;
         myServer->isSomaExists = true;
         myServer->markers.move(myServer->markers.size() - 1, 0);
-        emit serverImediateSave();
+        emit serverImediateSave(false);
 
         tobeSendMsg += QString("server %1").arg(1);
         tobeSendMsg += ",";

@@ -217,7 +217,7 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
 
     //create a LUT, from the original id to the position in the listNeuron, different neurons with the same x,y,z & r are merged into one position
     QHash<V3DLONG, NeuronSWC> LUT_newid_to_node;
-    QHash<V3DLONG, V3DLONG> LUT = getUniqueLUT(neurons, LUT_newid_to_node);
+    QHash<V3DLONG, V3DLONG> LUT = getUniqueLUT_updated(neurons, LUT_newid_to_node);
 
     //    qDebug()<<LUT.values();
     //create a new id list to give every different neuron a new id
@@ -266,6 +266,9 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
         }
     }
 
+    QList<V3DLONG> output_newroot_list;
+    output_newroot_list.append(root);
+
     //Major steps
     //do a DFS for the matrix and re-allocate ids for all the nodes
     QList<V3DLONG> neworder;
@@ -298,6 +301,7 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
             if (!neworder.contains(iter))
             {
                 new_root = iter;
+                output_newroot_list.append(new_root);
                 break;
             }
         }
@@ -311,89 +315,88 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
     }
     qDebug()<<"Number of components before making connections"<<cur_group;
 
-    QList<V3DLONG> output_newroot_list;
     //    if((thres != 1000000000) && (thres>0)){  // If distance threshold > 0: make new connections
     //    v3d_msg(QString::number(thres));
-    if(thres>=0){  // If distance threshold > 0: make new connections
-        qDebug()<<"find the point in non-group 1 that is nearest to group 1";
-        //find the point in non-group 1 that is nearest to group 1,
-        //include the nearest point as well as its neighbors into group 1, until all the nodes are connected
-        output_newroot_list.append(root);
-        while(cur_group>1)
-        {
-            qDebug()<<"Remaining components: "<<cur_group;
-            double min = VOID;
-            double dist2 = 0;
-            int mingroup = 1;
+//    if(thres>=0){  // If distance threshold > 0: make new connections
+//        qDebug()<<"find the point in non-group 1 that is nearest to group 1";
+//        //find the point in non-group 1 that is nearest to group 1,
+//        //include the nearest point as well as its neighbors into group 1, until all the nodes are connected
+//        output_newroot_list.append(root);
+//        while(cur_group>1)
+//        {
+//            qDebug()<<"Remaining components: "<<cur_group;
+//            double min = VOID;
+//            double dist2 = 0;
+//            int mingroup = 1;
 
-            // Find the closest pair of nodes between group 1 and the rest.
-            V3DLONG m1,m2;
-            for (V3DLONG ii=0;ii<siz;ii++)
-            {
-                if (component_id[ii]==1)
-                {
-                    //                    qDebug()<<QString("Distance check: %1").arg(ii);
-                    for (V3DLONG jj=0;jj<siz;jj++)
-                        if (component_id[jj]!=1)
-                        {
-                            //                            dist2 = computeDist2(neurons.at(nlist.indexOf(LUT.key(ii))),
-                            //                                                 neurons.at(nlist.indexOf(LUT.key(jj))));
-                            dist2 = computeDist2(LUT_newid_to_node.value(ii),
-                                                 LUT_newid_to_node.value(jj));
-                            if (dist2<min)
-                            {
-                                min = dist2;
-                                mingroup = component_id[jj];
-                                m1 = ii;
-                                m2 = jj;
-                            }
-                        }
-                }
-            }
-            for (V3DLONG i=0;i<siz;i++)
-            {
-                if (component_id[i]==mingroup)
-                {
-                    component_id[i] = 1;
-                }
-            }
-            qDebug()<<QString("Min distance: %1").arg(min);
-            if (min<=thres)
-            {
-                //                qDebug()<<QString("New connection is made between %1 and %2").arg(m1).arg(m2);
-                //                qDebug()<<QString("Original node name: %1 and %2")
-                //                                .arg(LUT_newid_to_node.value(m1).n)
-                //                                .arg(LUT_newid_to_node.value(m2).n);
-                if(!neighbors.at(m1).contains(m2)){neighbors[m1].push_back(m2);}
-                if(!neighbors.at(m2).contains(m1)){neighbors[m2].push_back(m1);}
-            }
-            else{  // set component the node closest to group 1 is root
-                output_newroot_list.append(m2);
-            }
-            cur_group--;
-        }
-        qDebug()<<"Number of components after making connections"<<output_newroot_list.size();
-    }
-    else{
-        int tp_group = 0;
-        for(int i=0; i<siz; i++){
-            if(component_id.at(i) != tp_group){
-                output_newroot_list.append(neworder.at(i));
-                tp_group = component_id.at(i);
-            }
-        }
-    }
+//            // Find the closest pair of nodes between group 1 and the rest.
+//            V3DLONG m1,m2;
+//            for (V3DLONG ii=0;ii<siz;ii++)
+//            {
+//                if (component_id[ii]==1)
+//                {
+//                    //                    qDebug()<<QString("Distance check: %1").arg(ii);
+//                    for (V3DLONG jj=0;jj<siz;jj++)
+//                        if (component_id[jj]!=1)
+//                        {
+//                            //                            dist2 = computeDist2(neurons.at(nlist.indexOf(LUT.key(ii))),
+//                            //                                                 neurons.at(nlist.indexOf(LUT.key(jj))));
+//                            dist2 = computeDist2(LUT_newid_to_node.value(ii),
+//                                                 LUT_newid_to_node.value(jj));
+//                            if (dist2<min)
+//                            {
+//                                min = dist2;
+//                                mingroup = component_id[jj];
+//                                m1 = ii;
+//                                m2 = jj;
+//                            }
+//                        }
+//                }
+//            }
+//            for (V3DLONG i=0;i<siz;i++)
+//            {
+//                if (component_id[i]==mingroup)
+//                {
+//                    component_id[i] = 1;
+//                }
+//            }
+//            qDebug()<<QString("Min distance: %1").arg(min);
+//            if (min<=thres)
+//            {
+//                //                qDebug()<<QString("New connection is made between %1 and %2").arg(m1).arg(m2);
+//                //                qDebug()<<QString("Original node name: %1 and %2")
+//                //                                .arg(LUT_newid_to_node.value(m1).n)
+//                //                                .arg(LUT_newid_to_node.value(m2).n);
+//                if(!neighbors.at(m1).contains(m2)){neighbors[m1].push_back(m2);}
+//                if(!neighbors.at(m2).contains(m1)){neighbors[m2].push_back(m1);}
+//            }
+//            else{  // set component the node closest to group 1 is root
+//                output_newroot_list.append(m2);
+//            }
+//            cur_group--;
+//        }
+//        qDebug()<<"Number of components after making connections"<<output_newroot_list.size();
+//    }
+//    else{
+//        int tp_group = 0;
+//        for(int i=0; i<siz; i++){
+//            if(component_id.at(i) != tp_group){
+//                output_newroot_list.append(neworder.at(i));
+//                tp_group = component_id.at(i);
+//            }
+//        }
+//    }
 
     // DFS sort of the neuronlist after new connections
-    for (int i=0;i<siz;i++)
-    {
-        component_id[i] = 0;
-        neworder[i]= VOID;
-    }
-    component_id.clear();
+//    for (int i=0;i<siz;i++)
+//    {
+//        component_id[i] = 0;
+//        neworder[i]= VOID;
+//    }
+//    component_id.clear();
     neworder.clear();
     sorted_size = 0;
-    cur_group = 1;
+//    cur_group = 1;
 
     V3DLONG offset=0;
     for(V3DLONG i=0; i<output_newroot_list.size(); i++)
@@ -406,9 +409,9 @@ bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newr
         //        qDebug()<<QString("cur_neworder=%1").arg(cur_neworder.size());
         sorted_size += cur_neworder.size();
         neworder.append(cur_neworder);
-        for(int i=0; i<cur_neworder.size(); i++){
-            component_id.append(cur_group);
-        }
+//        for(int i=0; i<cur_neworder.size(); i++){
+//            component_id.append(cur_group);
+//        }
         NeuronSWC S;
         S = LUT_newid_to_node.value(new_root);
         S.n = offset+1;

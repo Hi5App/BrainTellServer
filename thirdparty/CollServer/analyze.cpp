@@ -327,7 +327,7 @@ set<string> getAngleErrPoints(float dist_thre, XYZ somaCoordinate, V_NeuronSWC_l
 
     for(auto it=bifurcationPoints.begin(); it!=bifurcationPoints.end();){
         set<int> types = point2TypeMap[*it];
-
+//        qDebug()<<"types: "<<point2TypeMap[*it].size();
         if (types.size()!=1) {
             it = bifurcationPoints.erase(it); // 通过迭代器去除元素，并返回下一个有效迭代器
         }
@@ -354,7 +354,7 @@ set<string> getAngleErrPoints(float dist_thre, XYZ somaCoordinate, V_NeuronSWC_l
 
                         double length = getSegLength(segments.seg[*segIt]);
                         if(length < 20){
-                            it = bifurcationPoints.erase(it);
+//                            it = bifurcationPoints.erase(it);
                             flag=false;
                             break;
                         }
@@ -374,7 +374,6 @@ set<string> getAngleErrPoints(float dist_thre, XYZ somaCoordinate, V_NeuronSWC_l
 
                         double length = getPartOfSegLength(seg, index);
                         if(length < 20){
-                            it = bifurcationPoints.erase(it);
                             flag=false;
                             break;
                         }
@@ -386,6 +385,9 @@ set<string> getAngleErrPoints(float dist_thre, XYZ somaCoordinate, V_NeuronSWC_l
 
                 if(flag)
                     it++;
+                else{
+                    it = bifurcationPoints.erase(it);
+                }
             }
             else
             {

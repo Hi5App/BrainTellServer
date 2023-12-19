@@ -49,6 +49,7 @@ public:
     void setSWCRadius(QString filePath, int r);
     void getImageRES();
     void getApoForCrop(QString fileSaveName, vector<NeuronSWC> tipPoints);
+    void removeshortSegs(V_NeuronSWC_list inputSegList);
 
 signals:
     void removeErrorSegsDone();

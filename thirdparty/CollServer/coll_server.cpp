@@ -148,13 +148,15 @@ void CollServer::incomingConnection(qintptr handle){
 //    new CollClient(handle,this);
 }
 
-void CollServer::imediateSave(){
+void CollServer::imediateSave(bool flag){
     qDebug()<<"imediateSave";
     mutex.lock();
     savedmsgcnt=processedmsgcnt;
     mutex.unlock();
     writeESWC_file(Prefix+"/"+AnoName+".ano.eswc",V_NeuronSWC_list__2__NeuronTree(segments));
     writeAPO_file(Prefix+"/"+AnoName+".ano.apo",markers);
+    if(flag)
+        emit imediateSaveDone();
 }
 
 void CollServer::autoSave()
@@ -235,7 +237,7 @@ void CollServer::startTimerForDetectOthers(){
 
 void CollServer::startTimerForDetectOthersWhole(){
     timerForDetectOthersWhole->setSingleShot(true);
-    timerForDetectOthersWhole->start(10*1000);
+    timerForDetectOthersWhole->start(5*1000);
 }
 
 void CollServer::startTimerForDetectTip(){
@@ -264,17 +266,20 @@ bool CollServer::addmarkers(const QString msg){
     }
 
     CellAPO marker;
+    marker.name="";
+    marker.comment="";
+    marker.orderinfo="";
 
     QMutexLocker locker(&this->mutex);
     for(auto &msg:pointlist){
         auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
-        if(markerinfo.size()!=4) continue;
-        marker.color.r=neuron_type_color[markerinfo[0].toUInt()][0];
-        marker.color.g=neuron_type_color[markerinfo[0].toUInt()][1];
-        marker.color.b=neuron_type_color[markerinfo[0].toUInt()][2];
-        marker.x=markerinfo[1].toDouble();
-        marker.y=markerinfo[2].toDouble();
-        marker.z=markerinfo[3].toDouble();
+        if(markerinfo.size()!=6) continue;
+        marker.color.r=markerinfo[0].toUInt();
+        marker.color.g=markerinfo[1].toUInt();
+        marker.color.b=markerinfo[2].toUInt();
+        marker.x=markerinfo[3].toDouble();
+        marker.y=markerinfo[4].toDouble();
+        marker.z=markerinfo[5].toDouble();
 
         for(auto it=markers.begin();it!=markers.end(); ++it)
         {

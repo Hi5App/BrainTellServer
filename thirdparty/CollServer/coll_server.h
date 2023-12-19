@@ -23,9 +23,9 @@ public:
     static CollServer* getInstance();
 
     QStringList msglist;
-    int processedmsgcnt;
-    int savedmsgcnt;
-    int receivedcnt;
+    int processedmsgcnt = 0;
+    int savedmsgcnt = 0;
+    int receivedcnt = 0;
 
     QMap<QString,CollClient*> hashmap;//user->client
     V_NeuronSWC_list segments;
@@ -55,9 +55,10 @@ signals:
     void clientSendmsgs2client(int);
     void clientDeleteLater();
     void clientDisconnectFromHost(CollClient*);
+    void imediateSaveDone();
 
 public slots:
-    void imediateSave();
+    void imediateSave(bool);
     void autoSave();
     void autoExit();
 

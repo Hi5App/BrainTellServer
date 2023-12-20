@@ -19,6 +19,7 @@ find_package(Qt6 COMPONENTS
         REQUIRED)
 
 include_directories(
+    include
     include/hiredis
     include/qjson
 )

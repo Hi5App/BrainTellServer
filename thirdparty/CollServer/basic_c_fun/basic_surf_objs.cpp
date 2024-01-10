@@ -35,8 +35,8 @@ Peng, H, Ruan, Z., Atasoy, D., and Sternson, S. (2010) “Automatic reconstructi
 //090716: add color save for apo file
 //100119: merge with the io_ano_file.cpp
 
-#include "basic_c_fun/basic_surf_objs.h"
-#include "basic_c_fun/v3d_message.h"
+#include "basic_surf_objs.h"
+#include "v3d_message.h"
 
 #include <QString>
 #include <string.h>

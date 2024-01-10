@@ -745,15 +745,15 @@ void CollClient::addmarkers(const QString msg)
         marker.y=markerinfo[4].toDouble();
         marker.z=markerinfo[5].toDouble();
 
-//        for(auto it=myServer->markers.begin();it!=myServer->markers.end(); ++it)
-//        {
-//            if(fabs(it->x-marker.x)<1&&fabs(it->y-marker.y)<1&&fabs(it->z-marker.z)<1)
-//            {
-//                qDebug()<<"the marker has already existed";
-////                myServer->mutex.unlock();
-//                return;
-//            }
-//        }
+        for(auto it=myServer->markers.begin();it!=myServer->markers.end(); ++it)
+        {
+            if(fabs(it->x-marker.x)<1&&fabs(it->y-marker.y)<1&&fabs(it->z-marker.z)<1)
+            {
+                qDebug()<<"the marker has already existed";
+//                myServer->mutex.unlock();
+                return;
+            }
+        }
 
         myServer->markers.append(marker);
         qDebug()<<"server addmarker";
@@ -1129,8 +1129,8 @@ void CollClient::receiveuser(const QString user, QString RES)
         emit serverStartTimerForDetectLoops();
     if(!myServer->getTimerForDetectOthers()->isActive())
         emit serverStartTimerForDetectOthers();
-    if(!myServer->getTimerForDetectTip()->isActive())
-        emit serverStartTimerForDetectTip();
+//    if(!myServer->getTimerForDetectTip()->isActive())
+//        emit serverStartTimerForDetectTip();
     if(!myServer->getTimerForDetectCrossing()->isActive())
         emit serverStartTimerForDetectCrossing();
 }

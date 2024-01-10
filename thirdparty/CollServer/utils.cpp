@@ -1,8 +1,9 @@
 ﻿#include <QCoreApplication>
 #include <QDir>
+#include "include/hiredis/hiredis.h"
 #include "neuron_editing/neuron_format_converter.h"
 #include "utils.h"
-#include "hiredis/hiredis.h"
+#include "include/hiredis/hiredis.h"
 void dirCheck(QString dirBaseName)
 {
     //QCoreApplication::applicationDirPath()获取程序所在目录
@@ -262,7 +263,7 @@ NeuronTree convertMsg2NT(QStringList pointlist,int client,int user, int isMany, 
 vector<V_NeuronSWC>::iterator findseg(vector<V_NeuronSWC>::iterator begin,vector<V_NeuronSWC>::iterator end,const V_NeuronSWC seg)
 {
     vector<V_NeuronSWC>::iterator result=end;
-    double mindist=5;
+    double mindist=1.5;
     const std::vector<V_NeuronSWC_unit>::size_type cnt=seg.row.size();
 
     while(begin!=end)
@@ -530,7 +531,17 @@ map<string, set<size_t>> getWholeGrid2SegIDMap(V_NeuronSWC_list inputSegments){
 }
 
 int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
+    double length1 = getSegLength(seg1);
+    double length2 = getSegLength(seg2);
+    double minDensity = min(length1/seg1.row.size(), length2/seg2.row.size());
     double mindist = 2;
+    double mindist_thres = 2;
+
+    if(minDensity < 5){
+        mindist = 0.2;
+        mindist_thres = 0.2;
+    }
+
     if(seg1.row.size() == seg2.row.size()){
 //        qDebug()<<"seg1.row.size() == seg2.row.size()";
         double dist=0;
@@ -567,20 +578,22 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
         return 0;
     }
 
-    double mindist_thres = 2;
     bool isReverse = false;
     V_NeuronSWC seg_short = seg1;
     V_NeuronSWC seg_long = seg2;
+
+    double length_short = length1;
+    double length_long = length2;
+
     if(seg1.row.size() > seg2.row.size()){
         seg_short = seg2;
         seg_long = seg1;
+        length_short = length2;
+        length_long = length1;
         isReverse = true;
     }
 //    qDebug()<<"seg_short"<<seg_short.row.size();
 //    qDebug()<<"seg_long"<<seg_long.row.size();
-
-    double length_short = getSegLength(seg_short);
-    double length_long = getSegLength(seg_long);
 
     int long_index1 = -1;
     int long_index2 = -1;

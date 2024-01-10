@@ -2,14 +2,16 @@
 #define COLLDETECTION_H
 #include <vector>
 #include <set>
-#include <utils.h>
-#include <basic_c_fun/basic_surf_objs.h>
-#include <neuron_editing/neuron_format_converter.h>
+#include <unordered_set>
+#include "utils.h"
+#include "basic_c_fun/basic_surf_objs.h"
+#include "neuron_editing/neuron_format_converter.h"
 #include <QNetworkRequest>
 #include <QEventLoop>
 #include <QNetworkReply>
 #include <QHttpMultiPart>
 #include <QFile>
+#include "json.hpp"
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -25,11 +27,13 @@ private:
     QNetworkAccessManager* accessManager;
     QString SuperUserHostAddress;
     QString BrainTellHostAddress;
+    unordered_set<string> detectedTipPoints;
+    set<set<string>> detectedCrossingPoints;
+    vector<NeuronSWC> tipPoints;
 
 public:
     static XYZ maxRes;
     static XYZ subMaxRes;
-    vector<NeuronSWC> tipPoints;
     QTimer *timerForFilterTip;
 
     explicit CollDetection(CollServer* curServer, QObject* parent=nullptr);
@@ -38,31 +42,35 @@ public:
     vector<NeuronSWC> specStructsDetection(V_NeuronSWC_list& inputSegList, double dist_thresh=1.5);
     vector<NeuronSWC> loopDetection(V_NeuronSWC_list& inputSegList);
     vector<NeuronSWC> tipDetection(V_NeuronSWC_list inputSegList, bool flag, map<string, set<size_t>> allPoint2SegIdMap, double dist_thresh=30);
-    vector<vector<NeuronSWC>> crossingDetection(V_NeuronSWC_list inputSegList, map<string, vector<string>> &parentsDict, map<string, vector<string>> &offspringsDict);
+    QJsonArray crossingDetection();
     void handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleNearBifurcation(vector<NeuronSWC>& bifurPoints, int& count);
     void handleTip(vector<NeuronSWC>& tipPoints);
-    void handleCrossing(vector<vector<NeuronSWC>>& crossingPoints, map<string, vector<string>> &parentsDict, map<string, vector<string>> &offspringsDict);
+    void filterTip(vector<NeuronSWC>& markpoints);
+    void handleCrossing(QJsonArray& json);
 
     void sortSWC(QString fileOpenName, QString fileSaveName, double thres=1000000000, V3DLONG rootid=1000000000);
     void setSWCRadius(QString filePath, int r);
     void getImageRES();
+    void getImageMaxRES();
     void getApoForCrop(QString fileSaveName, vector<NeuronSWC> tipPoints);
-    void removeshortSegs(V_NeuronSWC_list inputSegList);
+    void removeShortSegs(V_NeuronSWC_list inputSegList);
+    void removeOverlapSegs(V_NeuronSWC_list inputSegList);
 
 signals:
     void removeErrorSegsDone();
 
 public slots:
+    void detectWholeAtStart();
     void detectOthers();
     void detectLoops();
     void detectTips();
+    void detectTipsWhole();
     void detectCrossings();
     void detectOthersWhole();
     void removeErrorSegs(bool);
 
-    void filterTip();
 };
 
 #endif // COLLDETECTION_H

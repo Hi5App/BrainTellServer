@@ -39,9 +39,9 @@ Peng, H, Ruan, Z., Atasoy, D., and Sternson, S. (2010) “Automatic reconstructi
 #ifndef __BASIC_SURF_OBJS_H__
 #define __BASIC_SURF_OBJS_H__
 
-#include "basic_c_fun/v3d_basicdatatype.h"
-#include "basic_c_fun/color_xyz.h"
-#include "basic_c_fun/v3d_message.h"
+#include "v3d_basicdatatype.h"
+#include "color_xyz.h"
+#include "v3d_message.h"
 
 #include <QtCore> // this is for QList, QString etc types
 //#include <QFileDialog>

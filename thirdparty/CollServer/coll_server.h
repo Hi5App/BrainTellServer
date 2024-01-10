@@ -68,7 +68,7 @@ public slots:
     void startTimerForDetectOthers();
     void startTimerForDetectTip();
     void startTimerForDetectCrossing();
-    void startTimerForDetectOthersWhole();
+    void startTimerForDetectWhole();
 
 private:
 //    qsizetype idxforprocessed=0;
@@ -81,7 +81,7 @@ private:
     QTimer *timerForAutoSave;
     QTimer *timerForDetectLoops;
     QTimer *timerForDetectOthers;
-    QTimer *timerForDetectOthersWhole;
+    QTimer *timerForDetectWhole;
     QTimer *timerForDetectTip;
     QTimer *timerForDetectCrossing;
     QTimer *timerForAutoExit;
@@ -96,7 +96,7 @@ public:
     QTimer* getTimerForDetectOthers();
     QTimer* getTimerForDetectTip();
     QTimer* getTimerForDetectCrossing();
-    QTimer* getTimerForDetectOthersWhole();
+    QTimer* getTimerForDetectWhole();
 
 };
 

@@ -14,7 +14,7 @@
 #include <QtGlobal>
 #include <math.h>
 //#include <unistd.h> //remove the unnecessary include file. //by PHC 20131228
-#include <basic_c_fun/basic_surf_objs.h>
+#include "basic_c_fun/basic_surf_objs.h"
 #include <string.h>
 #include <vector>
 #include <iostream>

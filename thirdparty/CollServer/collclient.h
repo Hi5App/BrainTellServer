@@ -2,8 +2,8 @@
 #define COLLCLIENT_H
 
 #include <QTcpSocket>
-#include <basic_c_fun/basic_surf_objs.h>
-#include <neuron_editing/neuron_format_converter.h>
+#include "basic_c_fun/basic_surf_objs.h"
+#include "neuron_editing/neuron_format_converter.h"
 #include <iostream>
 #include <QFile>
 
@@ -93,7 +93,7 @@ signals:
 
     void serverStartTimerForDetectLoops();
     void serverStartTimerForDetectOthers();
-    void serverStartTimerForDetectOthersWhole();
+    void serverStartTimerForDetectWhole();
     void serverStartTimerForDetectTip();
     void serverStartTimerForDetectCrossing();
     void serverStartTimerForHandleTip();

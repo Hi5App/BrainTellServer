@@ -34,7 +34,7 @@ CollServer* CollServer::curServer=nullptr;
 CollServer::CollServer(QString port,QString image,QString neuron,QString anoname,QString prefix,QObject *parent)
     :QTcpServer(parent),Port(port),Image(image),Neuron(neuron),AnoName(anoname),Prefix(prefix+"/data/"+image+"/"+neuron+"/"+anoname)
     ,timerForAutoSave(new QTimer(this)),timerForDetectLoops(new QTimer(this)), timerForDetectOthers(new QTimer(this)),timerForDetectTip(new QTimer(this)),
-    timerForDetectCrossing(new QTimer(this)),timerForAutoExit(new QTimer(this)),timerForDetectOthersWhole(new QTimer(this))
+    timerForDetectCrossing(new QTimer(this)),timerForAutoExit(new QTimer(this)),timerForDetectWhole(new QTimer(this))
 {
     qDebug()<<"MainThread:"<<QThread::currentThreadId();
     curServer=this;
@@ -50,7 +50,7 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     anopath=Prefix+"/"+AnoName+".ano";
 
     somaCoordinate=detectUtil->getSomaCoordinate(apopath);
-    detectUtil->getImageRES();
+//    detectUtil->getImageRES();
     // 3分钟执行一次
     timerForAutoSave->start(3*60*1000);
 //    timerForDetectTip->setSingleShot(true);
@@ -70,11 +70,9 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
 
     connect(timerForDetectLoops,&QTimer::timeout,detectUtil,&CollDetection::detectLoops);
     connect(timerForDetectOthers,&QTimer::timeout,detectUtil,&CollDetection::detectOthers);
-    connect(timerForDetectOthersWhole,&QTimer::timeout,detectUtil,&CollDetection::detectOthersWhole);
+    connect(timerForDetectWhole,&QTimer::timeout,detectUtil,&CollDetection::detectWholeAtStart);
     connect(timerForDetectTip,&QTimer::timeout,detectUtil,&CollDetection::detectTips);
     connect(timerForDetectCrossing,&QTimer::timeout,detectUtil,&CollDetection::detectCrossings);
-
-    connect(detectUtil->timerForFilterTip,&QTimer::timeout,detectUtil,&CollDetection::filterTip);
 
     connect(timerForAutoSave,&QTimer::timeout,this,&CollServer::autoSave);
     connect(timerForAutoExit,&QTimer::timeout,this,&CollServer::autoExit);
@@ -89,7 +87,7 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
         if(hashmap.size()!=0)
             emit curServer->clientSendmsgs2client(10);
     });
-    startTimerForDetectOthersWhole();
+    startTimerForDetectWhole();
 }
 
 CollServer::~CollServer(){
@@ -133,7 +131,7 @@ void CollServer::incomingConnection(qintptr handle){
 
     connect(client,&CollClient::serverStartTimerForDetectLoops,this,&CollServer::startTimerForDetectLoops);
     connect(client,&CollClient::serverStartTimerForDetectOthers,this,&CollServer::startTimerForDetectOthers);
-    connect(client,&CollClient::serverStartTimerForDetectOthersWhole,this,&CollServer::startTimerForDetectOthersWhole);
+    connect(client,&CollClient::serverStartTimerForDetectWhole,this,&CollServer::startTimerForDetectWhole);
     connect(client,&CollClient::serverStartTimerForDetectTip,this,&CollServer::startTimerForDetectTip);
     connect(client,&CollClient::serverStartTimerForDetectCrossing,this,&CollServer::startTimerForDetectCrossing);
     connect(client,&CollClient::detectUtilRemoveErrorSegs,detectUtil,&CollDetection::removeErrorSegs);
@@ -235,17 +233,17 @@ void CollServer::startTimerForDetectOthers(){
     timerForDetectOthers->start(1*60*1000);
 }
 
-void CollServer::startTimerForDetectOthersWhole(){
-    timerForDetectOthersWhole->setSingleShot(true);
-    timerForDetectOthersWhole->start(5*1000);
+void CollServer::startTimerForDetectWhole(){
+    timerForDetectWhole->setSingleShot(true);
+    timerForDetectWhole->start(5*1000);
 }
 
 void CollServer::startTimerForDetectTip(){
-    timerForDetectTip->start(24*60*60*1000);
+    timerForDetectTip->start(3*60*1000);
 }
 
 void CollServer::startTimerForDetectCrossing(){
-    timerForDetectCrossing->start(24*60*60*1000);
+    timerForDetectCrossing->start(3*60*1000);
 }
 
 bool CollServer::addmarkers(const QString msg){
@@ -320,6 +318,6 @@ QTimer* CollServer::getTimerForDetectCrossing(){
     return timerForDetectCrossing;
 }
 
-QTimer* CollServer::getTimerForDetectOthersWhole(){
-    return timerForDetectOthersWhole;
+QTimer* CollServer::getTimerForDetectWhole(){
+    return timerForDetectWhole;
 }

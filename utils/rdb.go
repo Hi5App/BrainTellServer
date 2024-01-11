@@ -433,9 +433,9 @@ func AllocatePort(ano string) (string, error) {
 		return "-1", errors.New("port Has in Use，please try again")
 	}
 
-	// 设定指定的key值和过期时间 SETEX KEY_NAME TIMEOUT VALUE 有效期30 min
+	// 设定指定的key值和过期时间 SETEX KEY_NAME TIMEOUT VALUE 有效期 1 min
 
-	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Ano+Port:%s;%s", ano, port), 3*10*60, ano))
+	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Ano+Port:%s;%s", ano, port), 1*60, ano))
 	if err != nil {
 		// log message
 		log.WithFields(log.Fields{

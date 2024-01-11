@@ -123,7 +123,7 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("----------collaborate: %s %s %s %s %s %s \n", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano)
 
 		log.Infoln(fmt.Sprintf("%s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
-		cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("nohup %s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
+		cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("nohup %s %s %s \"%s\" \"%s\" \"%s\" > collserver.out 2>&1 &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
 		if err := cmd.Start(); err != nil {
 			log.Error(err.Error())
 			fmt.Printf("----------collaborate: command error %s-------------------\n", err.Error())

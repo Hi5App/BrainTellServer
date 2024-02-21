@@ -81,6 +81,12 @@ func main() {
 	//http.HandleFunc("/game/dynamic/user/uploadrecord", services.GameUpdataRecord)
 	http.HandleFunc("/dynamic/game/swc/bppoint/insert", services.InsertBranchingPoints)
 
+	// 人脑组图像检查接口
+	// 获取检查图像的list
+	//http.HandleFunc("/dynamic/image/gethumanimagelist", services.GetHumanImageList)
+	// 上传人脑图像的检查结果
+	//http.HandleFunc("/dynamic/arbor/updatehumanarborresult", services.UpdateHumanArborResult)
+
 	log.WithFields(log.Fields{
 		"event": "start server",
 	}).Fatal(http.ListenAndServe(":8000", nil))

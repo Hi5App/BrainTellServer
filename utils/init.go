@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"golang.org/x/sync/semaphore"
+	"strconv"
 	"time"
 	"xorm.io/xorm"
 )
@@ -46,6 +47,11 @@ var AesKey string
 var availableCropProcess *semaphore.Weighted
 var Emails []string
 var QueueSize int
+
+// coll configs
+var MaxRoomConnections int
+var MaxJobs int
+var AIInterval int
 
 func LoadConfig() error {
 
@@ -103,6 +109,23 @@ func LoadConfig() error {
 	//没有这个key时，QueueSize=0
 	QueueSize = config.GetInt("queuesize")
 	Emails = config.GetStringSlice("emails")
+
+	// coll configs
+	MaxJobs = config.GetInt("collaboration.max_jobs")
+	MaxRoomConnections = config.GetInt("collaboration.max_connections") / MaxJobs
+	AIInterval = config.GetInt("collaboration.ai_interval")
+
+	log.WithFields(log.Fields{
+		"event": "Init coll config",
+	}).Infof("max jobs: %v, max room_con: %v, ai interval: %v\n", MaxJobs, MaxRoomConnections, AIInterval)
+
+	// 初始化redis中的数据
+	if err := InitRedisData(); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "Init Redis data failed",
+		}).Warnf("%v\n", err)
+	}
 	return nil
 }
 
@@ -141,5 +164,35 @@ func NewRedisPool(ip, port string) error {
 		IdleTimeout: 240 * time.Second,
 		Dial:        func() (redis.Conn, error) { return redis.Dial("tcp", ip+":"+port) },
 	}
+	return nil
+}
+
+func InitRedisData() error {
+	// 初始化redis数据
+	// todo 其他redis数据的初始化
+	conn := Pool.Get()
+	defer conn.Close()
+
+	// 初始化端口数据
+	_, err := conn.Do("DEL", "PORTQUEUE")
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Redis",
+			"desc":  "DELETE old PORT QUEUE failed",
+		}).Warnf("%v\n", err)
+	}
+
+	// 删除旧链接
+
+	for i := 0; i < MaxJobs*MaxRoomConnections; i++ {
+		_, err := conn.Do("RPUSH", "PORTQUEUE", strconv.Itoa(4000+i))
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event": "Redis",
+				"desc":  "Init PORT QUEUE failed",
+			}).Warnf("%v\n", err)
+		}
+	}
+
 	return nil
 }

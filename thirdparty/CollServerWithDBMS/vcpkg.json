@@ -1,0 +1,15 @@
+{
+  "name" : "collserver",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "3715d743ac08146d9b7714085c1babdba9f262d5",
+  "dependencies" : [ {
+    "name" : "protobuf",
+    "version>=" : "3.21.12"
+  }, {
+    "name" : "grpc",
+    "version>=" : "1.51.1#1"
+  }, {
+    "name" : "spdlog",
+    "version>=" : "1.12.0"
+  } ]
+}

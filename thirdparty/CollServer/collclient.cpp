@@ -1022,7 +1022,7 @@ void CollClient::onread()
                     myServer->mutex.unlock();
 
                     QString log;
-                    log=QDateTime::currentDateTime().toString(" yyyy/MM/dd hh:mm:ss ") + QString::number(myServer->receivedcnt) + " receive from " + username + ":" + QString(data);
+                    log=QDateTime::currentDateTime().toString(" yyyy/MM/dd hh:mm:ss ") + QString::number(myServer->receivedcnt) + " receive from " + username + " :" + QString(data);
 
                     qDebug()<<log;
 //                    qDebug()<<QString("client read message %1, %2").arg(username).arg(data).toStdString().c_str();

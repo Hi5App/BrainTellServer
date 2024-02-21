@@ -239,11 +239,11 @@ void CollServer::startTimerForDetectWhole(){
 }
 
 void CollServer::startTimerForDetectTip(){
-    timerForDetectTip->start(3*60*1000);
+    timerForDetectTip->start(24*60*60*1000);
 }
 
 void CollServer::startTimerForDetectCrossing(){
-    timerForDetectCrossing->start(3*60*1000);
+    timerForDetectCrossing->start(24*60*60*1000);
 }
 
 bool CollServer::addmarkers(const QString msg){

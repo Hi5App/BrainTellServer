@@ -1,0 +1,239 @@
+syntax = "proto3";
+
+option go_package = "DBMS/SwcDbmsCommon/Generated/go/proto/response";
+
+package proto;
+
+import public "google/protobuf/timestamp.proto";
+import "Message/Message.proto";
+
+message CreateUserResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    UserMetaInfoV1 UserInfo = 2;
+}
+
+message DeleteUserResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+}
+
+message UpdateUserResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    UserMetaInfoV1 UserInfo = 2;
+}
+
+message GetUserResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    UserMetaInfoV1 UserInfo = 2;
+}
+
+message GetAllUserResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    repeated UserMetaInfoV1 UserInfo = 2;
+}
+
+message UserLoginResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    UserMetaInfoV1 UserInfo = 2;
+    UserVerifyInfoV1 UserVerifyInfo = 3;
+}
+
+message UserLogoutResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+}
+
+message UserOnlineHeartBeatResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    UserVerifyInfoV1 UserVerifyInfo = 2;
+}
+
+message GetUserPermissionGroupResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    PermissionGroupMetaInfoV1 PermissionGroup = 2;
+}
+
+message GetPermissionGroupResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    PermissionGroupMetaInfoV1 PermissionGroup = 2;
+}
+
+message GetAllPermissionGroupResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    repeated PermissionGroupMetaInfoV1 PermissionGroupList = 2;
+}
+
+message ChangeUserPermissionGroupResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+}
+
+message CreateProjectResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    ProjectMetaInfoV1 ProjectInfo = 2;
+}
+
+message DeleteProjectResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    ProjectMetaInfoV1 ProjectInfo = 2;
+}
+
+message UpdateProjectResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    ProjectMetaInfoV1 ProjectInfo = 2;
+}
+
+message GetProjectResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    ProjectMetaInfoV1 ProjectInfo = 2;
+}
+
+message GetAllProjectResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    repeated ProjectMetaInfoV1 ProjectInfo = 2;
+}
+
+message CreateSwcResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    SwcMetaInfoV1 SwcInfo = 2;
+}
+
+message DeleteSwcResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    SwcMetaInfoV1 SwcInfo = 2;
+}
+
+message UpdateSwcResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    SwcMetaInfoV1 SwcInfo = 2;
+}
+
+message GetSwcMetaInfoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    SwcMetaInfoV1 SwcInfo = 2;
+}
+
+message GetAllSwcMetaInfoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    repeated SwcMetaInfoV1 SwcInfo = 2;
+}
+
+message CreateSwcSnapshotResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+}
+
+message GetAllSnapshotMetaInfoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    repeated SwcSnapshotMetaInfoV1 SwcSnapshotList = 2;
+}
+
+message GetSnapshotResponse{
+    ResponseMetaInfoV1 metaInfo = 2;
+    SwcDataV1 SwcNodeData = 3;
+}
+
+message GetAllIncrementOperationMetaInfoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    repeated SwcIncrementOperationMetaInfoV1 SwcIncrementOperationMetaInfo = 2;
+}
+
+message GetIncrementOperationResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    SwcIncrementOperationListV1 SwcIncrementOperationList = 2;
+}
+
+message CreateSwcNodeDataResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    repeated string CreatedNodesUuid = 2;
+}
+
+message DeleteSwcNodeDataResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+}
+
+message UpdateSwcNodeDataResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+}
+
+message GetSwcNodeDataResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    SwcDataV1 SwcNodeData = 2;
+}
+
+message GetSwcFullNodeDataResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    SwcDataV1 SwcNodeData = 2;
+}
+
+message GetSwcNodeDataListByTimeAndUserResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    SwcDataV1 SwcNodeData = 2;
+}
+
+message BackupFullDatabaseResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    bool InstantBackup = 2;
+    google.protobuf.Timestamp DelayBackupTime = 3;
+}
+
+message CreateDailyStatisticsResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    DailyStatisticsMetaInfoV1 DailyStatisticsInfo = 2;
+}
+
+message DeleteDailyStatisticsResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    DailyStatisticsMetaInfoV1 DailyStatisticsInfo = 2;
+}
+
+message UpdateDailyStatisticsResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    DailyStatisticsMetaInfoV1 DailyStatisticsInfo = 2;
+}
+
+message GetDailyStatisticsResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    DailyStatisticsMetaInfoV1 DailyStatisticsInfo = 2;
+}
+
+message GetAllDailyStatisticsResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    repeated DailyStatisticsMetaInfoV1 DailyStatisticsInfo = 2;
+}
+
+message CreateSwcAttachmentAnoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    string AnoAttachmentUuid = 2; 
+}
+
+message DeleteSwcAttachmentAnoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+}
+
+message UpdateSwcAttachmentAnoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+}
+
+message GetSwcAttachmentAnoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    SwcAttachmentAnoV1 SwcAttachmentAno = 2;
+}
+
+message CreateSwcAttachmentApoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    string ApoAttachmentUuid = 2; 
+}
+
+message DeleteSwcAttachmentApoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+}
+
+message UpdateSwcAttachmentApoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+}
+
+message GetSwcAttachmentApoResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+    repeated SwcAttachmentApoV1 SwcAttachmentApo = 2;
+}
+
+message RevertSwcVersionResponse{
+    ResponseMetaInfoV1 metaInfo = 1;
+}

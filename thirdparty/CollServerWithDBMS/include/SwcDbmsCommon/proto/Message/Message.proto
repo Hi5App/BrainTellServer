@@ -1,0 +1,206 @@
+syntax = "proto3";
+
+option go_package = "DBMS/SwcDbmsCommon/Generated/go/proto/message";
+
+package proto;
+
+import public "google/protobuf/timestamp.proto";
+
+message MetaInfoBase{
+    string _id = 1;
+    string DataAccessModelVersion = 2;
+    string Uuid = 3;
+}
+
+message UserMetaInfoV1{
+    MetaInfoBase Base = 1;
+    string Name = 2;
+    string Password = 3;
+    string Description = 4;
+    google.protobuf.Timestamp CreateTime = 5;
+    bytes HeadPhotoBinData = 6;
+    string UserPermissionGroup = 7;
+}
+
+message GlobalPermissionMetaInfoV1{
+    bool WritePermissionCreateProject = 1;
+    bool WritePermissionModifyProject = 2;
+    bool WritePermissionDeleteProject = 3;
+    bool ReadPerimissionQuery = 4;
+}
+
+message ProjectPermissionMetaInfoV1{
+    bool WritePermissionAddData = 1;
+    bool WritePermissionModifyData = 2;
+    bool WritePermissionDeleteData = 3;
+    bool ReadPerimissionQuery = 4;
+}
+
+message PermissionGroupMetaInfoV1{
+    MetaInfoBase Base = 1;
+    string Name = 2;
+    string Description = 3;
+    GlobalPermissionMetaInfoV1 GlobalPermission = 4;
+    ProjectPermissionMetaInfoV1 ProjectPermission = 5;
+
+}
+
+message UserPermissionOverrideMetaInfoV1{
+    ProjectPermissionMetaInfoV1 ProjectPermission = 1;
+    string UserName = 2;
+}
+
+message ProjectMetaInfoV1{
+    MetaInfoBase Base = 1;
+    string Name = 2;
+    string Description = 3;
+    string Creator = 4;
+    google.protobuf.Timestamp CreateTime = 5;
+    google.protobuf.Timestamp LastModifiedTime = 6;
+    repeated string SwcList = 7;
+    repeated UserPermissionOverrideMetaInfoV1 UserPermissionOverride = 8;
+    string WorkMode = 9;
+}
+
+message SwcSnapshotMetaInfoV1{
+    MetaInfoBase Base = 1;
+    string SwcSnapshotCollectionName = 2;
+    google.protobuf.Timestamp CreateTime = 3;
+    string Creator = 4;
+}
+
+message SwcIncrementOperationMetaInfoV1{
+    MetaInfoBase Base = 1;
+    string IncrementOperationCollectionName = 2;
+    string StartSnapshot = 3;
+    google.protobuf.Timestamp CreateTime = 4;
+}
+
+enum IncrementOperationV1{
+    Unknown = 0;
+    Create = 1;
+    Delete = 2;
+    Update = 3;
+}
+
+message SwcIncrementOperationV1{
+    MetaInfoBase Base = 1;
+    google.protobuf.Timestamp CreateTime = 2;
+    IncrementOperationV1 IncrementOperation = 3;
+    SwcDataV1 SwcData = 4;
+}
+
+message SwcIncrementOperationListV1{
+    repeated SwcIncrementOperationV1 SwcIncrementOperation = 1;
+}
+
+message SwcAttachmentAnoMetaInfoV1{
+    string AttachmentUuid = 1;
+}
+
+message SwcAttachmentApoMetaInfoV1{
+    string AttachmentUuid = 1;
+}
+
+message SwcMetaInfoV1{
+    MetaInfoBase Base = 1;
+    string Name = 2;
+    string Description = 3;
+    string Creator = 4;
+    string SwcType = 5;
+    google.protobuf.Timestamp CreateTime = 6;
+    google.protobuf.Timestamp LastModifiedTime = 7;
+    repeated SwcSnapshotMetaInfoV1 SwcSnapshotMetaInfoList = 8;
+    repeated SwcIncrementOperationMetaInfoV1 SwcIncrementOperationMetaInfoList = 9;
+    string CurrentIncrementOperationCollectionName = 10;
+    SwcAttachmentAnoMetaInfoV1 SwcAttachmentAnoMetaInfo = 11;
+    SwcAttachmentApoMetaInfoV1 SwcAttachmentApoMetaInfo = 12;
+}
+
+message SwcNodeInternalDataV1{
+    int32 N = 1;
+    int32 Type = 2;
+    float X = 3;
+    float Y = 4;
+    float Z = 5;
+    float Radius = 6;
+    int32 Parent = 7;
+    int32 Seg_id = 8;
+    int32 Level = 9;
+    int32 Mode = 10;
+    int32 Timestamp = 11;
+    int32 Feature_value = 12;
+}
+
+message SwcNodeDataV1{
+    MetaInfoBase Base = 1;
+    SwcNodeInternalDataV1 SwcNodeInternalData = 2;
+    string Creator = 3;
+    google.protobuf.Timestamp CreateTime = 4;
+    google.protobuf.Timestamp LastModifiedTime = 5;
+    string CheckerUserUuid = 6;
+}
+
+message SwcDataV1{
+    repeated SwcNodeDataV1 SwcData = 1;
+}
+
+message DailyStatisticsMetaInfoV1{
+    MetaInfoBase Base = 1;
+    string Name = 2;
+    string Description = 3;
+    string Day = 4;
+    int32 CreatedProjectNumber = 5;
+    int32 CreatedSwcNumber = 6;
+    int32 CreateSwcNodeNumber = 7;
+    int32 DeletedProjectNumber = 8;
+    int32 DeletedSwcNumber = 9;
+    int32 DeletedSwcNodeNumber = 10;
+    int32 ModifiedProjectNumber = 11;
+    int32 ModifiedSwcNumber = 12;
+    int32 ModifiedSwcNodeNumber = 13;
+    int32 ProjectQueryNumber = 14;
+    int32 SwcQueryNumber = 15;
+    int32 NodeQueryNumber = 16;
+    int32 ActiveUserNumber = 17;
+}
+
+message UserVerifyInfoV1{
+    string UserName = 1;
+    string UserToken = 2;
+}
+
+message RequestMetaInfoV1{
+    string ApiVersion = 1;
+}
+
+message ResponseMetaInfoV1{
+    bool Status = 1;
+    string Id = 2;
+    string Message = 3;
+}
+
+message SwcAttachmentAnoV1{
+    MetaInfoBase Base = 1;
+    string APOFILE = 2;
+    string SWCFILE = 3;
+}
+
+message SwcAttachmentApoV1{
+    MetaInfoBase Base = 1;
+    int32 N = 2;
+    string Orderinfo = 3;
+    string Name = 4;
+    string Comment = 5;
+    float Z = 6;
+    float X = 7;
+    float Y = 8;
+    float Pixmax = 9;
+    float Intensity = 10;
+    float Sdev = 11;
+    float Volsize = 12;
+    float Mass = 13;
+    int32 ColorR = 14;
+    int32 ColorG = 15;
+    int32 ColorB = 16;
+}

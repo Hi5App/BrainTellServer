@@ -10,7 +10,7 @@
 #include "detect_crossing/CrossingDetect.h"
 #include "detect_crossing/ResultWriter.h"
 
-XYZ CollDetection::maxRes = XYZ(0.0, 0.0, 0.0);
+XYZ CollDetection::maxRes = XYZ(0, 0, 0);
 XYZ CollDetection::subMaxRes;
 
 CollDetection::CollDetection(CollServer* curServer, QObject* parent):myServer(static_cast<CollServer*>(parent)){
@@ -77,7 +77,7 @@ XYZ CollDetection::getSomaCoordinate(QString apoPath){
 
 void CollDetection::detectWholeAtStart(){
     detectOthersWhole();
-    detectTipsWhole();
+//    detectTipsWhole();
 }
 
 void CollDetection::detectTips(){
@@ -1245,6 +1245,10 @@ void CollDetection::handleTip(vector<NeuronSWC>& tipPoints){
 //        emit myServer->clientSendMsgs({msg});
 //    }
 
+//    for(auto it=tipPoints.begin(); it!=tipPoints.end(); it++){
+//        qDebug()<<it->x<<" "<<it->y<<" "<<it->z;
+//    }
+
     if(tipPoints.size()!=0){
         QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
         QHttpPart filePart;
@@ -1306,7 +1310,8 @@ void CollDetection::handleTip(vector<NeuronSWC>& tipPoints){
         QJsonObject json;
         QString obj=myServer->getImage();
         json.insert("obj",obj);
-        json.insert("res", myServer->RES);
+//        json.insert("res", myServer->RES);
+        json.insert("swcNameWithNoSuffix", myServer->getAnoName());
         QJsonArray coorList;
         for(int i=0; i<tipPoints.size();i++){
             QJsonObject coor;
@@ -1386,9 +1391,9 @@ void CollDetection::handleTip(vector<NeuronSWC>& tipPoints){
                                             QJsonValue xValue = listArray.at(0);
                                             QJsonValue yValue = listArray.at(1);
                                             QJsonValue zValue = listArray.at(2);
-                                            x=xValue.toInt();
-                                            y=yValue.toInt();
-                                            z=zValue.toInt();
+                                            x=xValue.toDouble();
+                                            y=yValue.toDouble();
+                                            z=zValue.toDouble();
                                         }
                                     }
                                     if (info.contains("y_pred")) {
@@ -1514,7 +1519,8 @@ void CollDetection::handleCrossing(QJsonArray& infos){
         QJsonObject json;
         QString obj=myServer->getImage();
         json.insert("obj",obj);
-        json.insert("res", myServer->RES);
+//        json.insert("res", myServer->RES);
+        json.insert("swcNameWithNoSuffix", myServer->getAnoName());
         json.insert("infos",infos);
 
         QJsonDocument document;
@@ -1586,9 +1592,9 @@ void CollDetection::handleCrossing(QJsonArray& infos){
                                             QJsonValue xValue = listArray.at(0);
                                             QJsonValue yValue = listArray.at(1);
                                             QJsonValue zValue = listArray.at(2);
-                                            x=xValue.toInt();
-                                            y=yValue.toInt();
-                                            z=zValue.toInt();
+                                            x=xValue.toDouble();
+                                            y=yValue.toDouble();
+                                            z=zValue.toDouble();
                                         }
                                     }
                                     if (info.contains("y_pred")) {

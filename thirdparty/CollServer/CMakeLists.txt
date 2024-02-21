@@ -66,6 +66,7 @@ set(PROJECT_HEADERS
     detect_crossing/utilities.h
     detect_crossing/SwcReader.h
     detect_crossing/ResultWriter.h
+    
 )
 
 set(PROJECT_SOURCES

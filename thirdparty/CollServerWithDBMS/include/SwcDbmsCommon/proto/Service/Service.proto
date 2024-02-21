@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+option go_package = "DBMS/SwcDbmsCommon/Generated/go/proto/service";
+
+package proto;
+
+import public "google/protobuf/timestamp.proto";
+import "Message/Message.proto";
+import "Message/Request.proto";
+import "Message/Response.proto";
+
+
+service DBMS {
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+    rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
+    rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
+    rpc GetAllUser(GetAllUserRequest) returns (GetAllUserResponse){}
+
+    rpc UserLogin(UserLoginRequest) returns (UserLoginResponse) {}
+    rpc UserLogout(UserLogoutRequest) returns (UserLogoutResponse) {}
+    rpc UserOnlineHeartBeatNotifications(UserOnlineHeartBeatNotification) returns (UserOnlineHeartBeatResponse){}       
+
+    rpc GetUserPermissionGroup(GetUserPermissionGroupRequest) returns (GetUserPermissionGroupResponse){}
+    rpc GetPermissionGroup(GetPermissionGroupRequest) returns (GetPermissionGroupResponse){}
+    rpc GetAllPermissionGroup(GetAllPermissionGroupRequest) returns (GetAllPermissionGroupResponse){}
+    rpc ChangeUserPermissionGroup(ChangeUserPermissionGroupRequest) returns (ChangeUserPermissionGroupResponse){}
+    
+    rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse){}
+    rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse){}
+    rpc UpdateProject(UpdateProjectRequest) returns (UpdateProjectResponse){}
+    rpc GetProject(GetProjectRequest) returns (GetProjectResponse){}
+    rpc GetAllProject(GetAllProjectRequest) returns (GetAllProjectResponse){}
+   
+    rpc CreateSwc(CreateSwcRequest) returns (CreateSwcResponse){}
+    rpc DeleteSwc(DeleteSwcRequest) returns (DeleteSwcResponse){}
+    rpc UpdateSwc(UpdateSwcRequest) returns (UpdateSwcResponse){}
+    rpc GetSwcMetaInfo(GetSwcMetaInfoRequest) returns (GetSwcMetaInfoResponse){}
+    rpc GetAllSwcMetaInfo(GetAllSwcMetaInfoRequest) returns (GetAllSwcMetaInfoResponse){}
+    rpc CreateSwcSnapshot(CreateSwcSnapshotRequest) returns (CreateSwcSnapshotResponse){}
+    rpc GetAllSnapshotMetaInfo(GetAllSnapshotMetaInfoRequest) returns (GetAllSnapshotMetaInfoResponse){}
+    rpc GetSnapshot(GetSnapshotRequest) returns (GetSnapshotResponse){}
+    rpc GetAllIncrementOperationMetaInfo(GetAllIncrementOperationMetaInfoRequest) returns (GetAllIncrementOperationMetaInfoResponse){}
+    rpc GetIncrementOperation(GetIncrementOperationRequest) returns (GetIncrementOperationResponse){}
+
+    rpc CreateSwcNodeData(CreateSwcNodeDataRequest) returns (CreateSwcNodeDataResponse){}
+    rpc DeleteSwcNodeData(DeleteSwcNodeDataRequest) returns (DeleteSwcNodeDataResponse){}
+    rpc UpdateSwcNodeData(UpdateSwcNodeDataRequest) returns (UpdateSwcNodeDataResponse){}
+    rpc GetSwcNodeData(GetSwcNodeDataRequest) returns (GetSwcNodeDataResponse){}
+    rpc GetSwcFullNodeData(GetSwcFullNodeDataRequest) returns (GetSwcFullNodeDataResponse){}
+    rpc GetSwcNodeDataListByTimeAndUser(GetSwcNodeDataListByTimeAndUserRequest) returns (GetSwcNodeDataListByTimeAndUserResponse){}
+    rpc BackupFullDatabase(BackupFullDatabaseRequest) returns (BackupFullDatabaseResponse){}
+    rpc CreateDailyStatistics(CreateDailyStatisticsRequest) returns (CreateDailyStatisticsResponse){}
+    rpc DeleteDailyStatistics(DeleteDailyStatisticsRequest) returns (DeleteDailyStatisticsResponse){}
+    rpc UpdateDailyStatistics(UpdateDailyStatisticsRequest) returns (UpdateDailyStatisticsResponse){}
+    rpc GetDailyStatistics(GetDailyStatisticsRequest) returns (GetDailyStatisticsResponse){}
+    rpc GetAllDailyStatistics(GetAllDailyStatisticsRequest) returns (GetAllDailyStatisticsResponse){}
+
+    rpc CreateSwcAttachmentAno(CreateSwcAttachmentAnoRequest) returns (CreateSwcAttachmentAnoResponse){}
+    rpc DeleteSwcAttachmentAno(DeleteSwcAttachmentAnoRequest) returns (DeleteSwcAttachmentAnoResponse){}
+    rpc UpdateSwcAttachmentAno(UpdateSwcAttachmentAnoRequest) returns (UpdateSwcAttachmentAnoResponse){}
+    rpc GetSwcAttachmentAno(GetSwcAttachmentAnoRequest) returns (GetSwcAttachmentAnoResponse){}
+
+    rpc CreateSwcAttachmentApo(CreateSwcAttachmentApoRequest) returns (CreateSwcAttachmentApoResponse){}
+    rpc DeleteSwcAttachmentApo(DeleteSwcAttachmentApoRequest) returns (DeleteSwcAttachmentApoResponse){}
+    rpc UpdateSwcAttachmentApo(UpdateSwcAttachmentApoRequest) returns (UpdateSwcAttachmentApoResponse){}
+    rpc GetSwcAttachmentApo(GetSwcAttachmentApoRequest) returns (GetSwcAttachmentApoResponse){}
+
+    rpc RevertSwcVersion(RevertSwcVersionRequest) returns (RevertSwcVersionResponse){}
+}

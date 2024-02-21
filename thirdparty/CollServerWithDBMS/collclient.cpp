@@ -1217,6 +1217,8 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
             {
                 QString msg = "/WARN_FullNumberError:server";
                 sendmsgs({msg});
+                emit myServer->clientDisconnectFromHost(this);
+                return;
             }
 
             bool result=connectToDBMS();
@@ -1226,6 +1228,8 @@ void CollClient::preprocessmsgs(const QStringList &msgs)
             }else{
                 QString msg = "/WARN_DisconnectError:server";
                 sendmsgs({msg});
+                emit myServer->clientDisconnectFromHost(this);
+                return;
             }
             myServer->mutex.lock();
             receiveuser(ps[1], ps[2], ps[3], myServer->isFirstClient);

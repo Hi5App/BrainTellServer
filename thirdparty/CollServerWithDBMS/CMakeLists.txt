@@ -74,7 +74,7 @@ set(PROJECT_HEADERS
     detect_crossing/utilities.h
     detect_crossing/SwcReader.h
     detect_crossing/ResultWriter.h
-    
+    config/config.h
 )
 
 set(PROJECT_SOURCES
@@ -96,6 +96,7 @@ set(PROJECT_SOURCES
     detect_crossing/ConfigManager.cpp
     detect_crossing/CrossingDetect.cpp
     detect_crossing/ResultWriter.cpp
+    config/config.cpp
     include/SwcDbmsCommon/Generated/cpp/Message/Message.grpc.pb.cc
     include/SwcDbmsCommon/Generated/cpp/Message/Message.pb.cc
     include/SwcDbmsCommon/Generated/cpp/Message/Request.grpc.pb.cc

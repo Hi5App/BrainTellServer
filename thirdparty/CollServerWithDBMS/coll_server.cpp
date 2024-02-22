@@ -17,6 +17,7 @@
 #include "Service/Service.grpc.pb.h"
 #include "service/RpcCall.h"
 #include "service/WrappedCall.h"
+#include "config/config.h"
 #include <filesystem>
 
 extern QFile *logfile;
@@ -37,18 +38,26 @@ CollServer* CollServer::curServer=nullptr;
 //QMutex CollServer::mutex;
 //QString CollServer::RES;
 
-CollServer::CollServer(QString port,QString image,QString neuron,QString anoname,QString prefix,int maxUserNums,int modelDetectIntervals,QObject *parent)
+CollServer::CollServer(QString port,QString image,QString neuron,QString anoname,QString prefix,int maxUserNumsInt,int modelDetectIntervals,QObject *parent)
     :QTcpServer(parent),Port(port),Image(image),Neuron(neuron),AnoName(anoname),Prefix(prefix+"/testdata/"+image+"/"+neuron+"/"+anoname)
-    ,ModelDetectIntervals(modelDetectIntervals),MaxUserNums(maxUserNums),timerForAutoSave(new QTimer(this)),timerForDetectLoops(new QTimer(this)), timerForDetectOthers(new QTimer(this)),timerForDetectTip(new QTimer(this)),
+    ,MaxUserNums(maxUserNumsInt),ModelDetectIntervals(modelDetectIntervals),timerForAutoSave(new QTimer(this)),timerForDetectLoops(new QTimer(this)), timerForDetectOthers(new QTimer(this)),timerForDetectTip(new QTimer(this)),
     timerForDetectCrossing(new QTimer(this)),timerForAutoExit(new QTimer(this)),timerForDetectWhole(new QTimer(this))
 {
     qDebug()<<"MainThread:"<<QThread::currentThreadId();
     curServer=this;
-    detectUtil=new CollDetection(this,this);
 
-    string serverIP = "114.117.165.134";
-    string serverPort = "14251";
-    auto endPoint = serverIP + ":" + serverPort;
+    Config::getInstance().initialize("config.json");
+    Config::getInstance().readConfig();
+
+    serverIP = Config::getInstance().getConfig(Config::ConfigItem::eServerIP);
+    dbmsServerPort = Config::getInstance().getConfig(Config::ConfigItem::dbmsServerPort);
+    brainServerPort = Config::getInstance().getConfig(Config::ConfigItem::brainServerPort);
+    std::cout<<serverIP<<" "<<dbmsServerPort<<" "<<brainServerPort;
+
+    detectUtil=new CollDetection(this, serverIP, brainServerPort, this);
+//    string serverIP = "114.117.165.134";
+//    string serverPort = "14251";
+    auto endPoint = serverIP + ":" + dbmsServerPort;
     RpcCall::getInstance().initialize(endPoint);
     connectToDBMS();
 

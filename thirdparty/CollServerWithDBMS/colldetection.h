@@ -36,13 +36,14 @@ public:
     static XYZ subMaxRes;
     QTimer *timerForFilterTip;
 
-    explicit CollDetection(CollServer* curServer, QObject* parent=nullptr);
+    explicit CollDetection(CollServer* curServer, string serverIp, string brainServerPort, QObject* parent=nullptr);
     ~CollDetection(){}
     XYZ getSomaCoordinate(QString apoPath);
     vector<NeuronSWC> specStructsDetection(V_NeuronSWC_list& inputSegList, double dist_thresh=1.5);
     vector<NeuronSWC> loopDetection(V_NeuronSWC_list& inputSegList);
     vector<NeuronSWC> tipDetection(V_NeuronSWC_list inputSegList, bool flag, map<string, set<size_t>> allPoint2SegIdMap, double dist_thresh=30);
     QJsonArray crossingDetection();
+    vector<NeuronSWC> branchingDetection(V_NeuronSWC_list& inputSegList);
     void handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleNearBifurcation(vector<NeuronSWC>& bifurPoints, int& count);

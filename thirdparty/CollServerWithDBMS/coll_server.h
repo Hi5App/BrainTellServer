@@ -14,7 +14,7 @@ class CollServer:public QTcpServer
 {
     Q_OBJECT
 public:
-    CollServer(QString port,QString image,QString neuron,QString ananame,QString prefix,int maxUserNums,int modelDetectIntervals,QObject *parent=nullptr);
+    CollServer(QString port,QString image,QString neuron,QString ananame,QString prefix,int maxUserNumsInt,int modelDetectIntervals,QObject *parent=nullptr);
     virtual ~CollServer();
     void incomingConnection(qintptr handle);
 
@@ -61,6 +61,10 @@ public:
 
     bool isSomaExists;
     XYZ somaCoordinate;
+
+    string serverIP;
+    string dbmsServerPort;
+    string brainServerPort;
 
 signals:
 //    void clientAddMarker(QString);

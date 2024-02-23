@@ -48,6 +48,7 @@ double distance(const CellAPO &m1,const CellAPO &m2);
 double distance(const double x1, const double x2, const double y1, const double y2, const double z1, const double z2);
 double getSegLength(V_NeuronSWC &seg);
 double getPartOfSegLength(V_NeuronSWC &seg, int index);
+double getSegLengthBetweenIndexs(V_NeuronSWC &seg, int low, int high);
 int findnearest(const CellAPO &m,const QList<CellAPO> &markers);
 
 void init();

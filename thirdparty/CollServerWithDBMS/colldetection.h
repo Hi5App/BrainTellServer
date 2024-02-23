@@ -28,6 +28,7 @@ private:
     QString SuperUserHostAddress;
     QString BrainTellHostAddress;
     unordered_set<string> detectedTipPoints;
+    unordered_set<string> detectedBranchingPoints;
     set<set<string>> detectedCrossingPoints;
     vector<NeuronSWC> tipPoints;
 
@@ -43,12 +44,13 @@ public:
     vector<NeuronSWC> loopDetection(V_NeuronSWC_list& inputSegList);
     vector<NeuronSWC> tipDetection(V_NeuronSWC_list inputSegList, bool flag, map<string, set<size_t>> allPoint2SegIdMap, double dist_thresh=30);
     QJsonArray crossingDetection();
-    vector<NeuronSWC> branchingDetection(V_NeuronSWC_list& inputSegList);
+    vector<NeuronSWC> branchingDetection(V_NeuronSWC_list inputSegList, double dist_thresh=10);
     void handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleNearBifurcation(vector<NeuronSWC>& bifurPoints, int& count);
     void handleTip(vector<NeuronSWC>& tipPoints);
     void filterTip(vector<NeuronSWC>& markpoints);
+    void handleBranchingPoints(vector<NeuronSWC>& brainchingPoints, int& count);
     void handleCrossing(QJsonArray& json);
 
     void sortSWC(QString fileOpenName, QString fileSaveName, double thres=1000000000, V3DLONG rootid=1000000000);
@@ -68,6 +70,7 @@ public slots:
     void detectLoops();
     void detectTips();
     void detectTipsWhole();
+    void detectBranchingPoints();
     void detectCrossings();
     void detectOthersWhole();
     void removeErrorSegs(bool);

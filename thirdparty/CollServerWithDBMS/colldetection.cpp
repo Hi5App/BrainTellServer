@@ -80,6 +80,7 @@ XYZ CollDetection::getSomaCoordinate(QString apoPath){
 void CollDetection::detectWholeAtStart(){
 //    detectOthersWhole();
     detectTipsWhole();
+    detectBranchingPoints();
 }
 
 void CollDetection::detectTips(){
@@ -114,6 +115,12 @@ void CollDetection::detectTipsWhole(){
     tipPoints.clear();
     if(!myServer->getTimerForDetectTip()->isActive())
         myServer->startTimerForDetectTip();
+}
+
+void CollDetection::detectBranchingPoints(){
+    int count=0;
+    vector<NeuronSWC> outputSpecialPoints = branchingDetection(myServer->segments, 10);
+    handleBranchingPoints(outputSpecialPoints, count);
 }
 
 void CollDetection::detectCrossings(){
@@ -1008,246 +1015,203 @@ vector<NeuronSWC> CollDetection::tipDetection(V_NeuronSWC_list inputSegList, boo
     return outputSpecialPoints;
 }
 
-vector<NeuronSWC> CollDetection::branchingDetection(V_NeuronSWC_list& inputSegList){
+vector<NeuronSWC> CollDetection::branchingDetection(V_NeuronSWC_list inputSegList, double dist_thresh){
     vector<NeuronSWC> outputSpecialPoints;
     if(inputSegList.seg.size()==0)
         return outputSpecialPoints;
 
-//    if(maxRes.x==0 && maxRes.y==0 && maxRes.z==0)
-//        getImageMaxRES();
-//    map<string, bool> isEndPointMap;
-//    map<string, set<size_t> > wholeGrid2segIDmap;
+    if(maxRes.x==0 && maxRes.y==0 && maxRes.z==0)
+        getImageMaxRES();
+    map<string, bool> isEndPointMap;
+    map<string, set<size_t> > wholeGrid2segIDmap;
 
-//    for(size_t i=0; i<inputSegList.seg.size(); ++i){
-//        V_NeuronSWC seg = inputSegList.seg[i];
+    for(size_t i=0; i<inputSegList.seg.size(); ++i){
+        V_NeuronSWC seg = inputSegList.seg[i];
 
-//        for(size_t j=0; j<seg.row.size(); ++j){
-//            float xLabel = seg.row[j].x;
-//            float yLabel = seg.row[j].y;
-//            float zLabel = seg.row[j].z;
-//            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
-//            string gridKey = gridKeyQ.toStdString();
-//            wholeGrid2segIDmap[gridKey].insert(size_t(i));
+        for(size_t j=0; j<seg.row.size(); ++j){
+            float xLabel = seg.row[j].x;
+            float yLabel = seg.row[j].y;
+            float zLabel = seg.row[j].z;
+            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+            string gridKey = gridKeyQ.toStdString();
+            wholeGrid2segIDmap[gridKey].insert(size_t(i));
 
-//            if(j == 0 || j == seg.row.size() - 1){
-//                isEndPointMap[gridKey] = true;
-//            }
-//        }
-//    }
+            if(j == 0 || j == seg.row.size() - 1){
+                isEndPointMap[gridKey] = true;
+            }
+        }
+    }
 
-//    //末端点和分叉点
-//    vector<string> points;
-//    vector<set<int>> linksIndex;
-//    //    vector<vector<int>> linksIndexVec;
-//    map<string,int> pointsIndexMap;
+    //末端点和分叉点
+    vector<string> points;
+    vector<set<int>> linksIndex;
+    //    vector<vector<int>> linksIndexVec;
+    map<string,int> pointsIndexMap;
 
-//    for(size_t i=0; i<inputSegList.seg.size(); ++i){
-//        V_NeuronSWC seg = inputSegList.seg[i];
-//        for(size_t j=0; j<seg.row.size(); ++j){
-//            float xLabel = seg.row[j].x;
-//            float yLabel = seg.row[j].y;
-//            float zLabel = seg.row[j].z;
-//            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
-//            string gridKey = gridKeyQ.toStdString();
-//            if(j==0 || j==seg.row.size()-1){
-//                //在pointsIndexMap中找不到某个线的末端点
-//                if(pointsIndexMap.find(gridKey) == pointsIndexMap.end()){
-//                    points.push_back(gridKey);
-//                    linksIndex.push_back(set<int>());
-//                    //                    linksIndexVec.push_back(vector<int>());
-//                    pointsIndexMap[gridKey] = points.size() - 1;
-//                }
-//            }else{
-//                if(wholeGrid2segIDmap[gridKey].size()>1 &&
-//                    isEndPointMap.find(gridKey) != isEndPointMap.end() &&
-//                    pointsIndexMap.find(gridKey) == pointsIndexMap.end()){
-//                    points.push_back(gridKey);
-//                    linksIndex.push_back(set<int>());
-//                    //                    linksIndexVec.push_back(vector<int>());
-//                    pointsIndexMap[gridKey] = points.size() - 1;
-//                }
-//            }
-//        }
-//    }
+    for(size_t i=0; i<inputSegList.seg.size(); ++i){
+        V_NeuronSWC seg = inputSegList.seg[i];
+        for(size_t j=0; j<seg.row.size(); ++j){
+            float xLabel = seg.row[j].x;
+            float yLabel = seg.row[j].y;
+            float zLabel = seg.row[j].z;
+            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+            string gridKey = gridKeyQ.toStdString();
+            if(j==0 || j==seg.row.size()-1){
+                //在pointsIndexMap中找不到某个线的末端点
+                if(pointsIndexMap.find(gridKey) == pointsIndexMap.end()){
+                    points.push_back(gridKey);
+                    linksIndex.push_back(set<int>());
+                    //                    linksIndexVec.push_back(vector<int>());
+                    pointsIndexMap[gridKey] = points.size() - 1;
+                }
+            }else{
+                if(wholeGrid2segIDmap[gridKey].size()>1 &&
+                    isEndPointMap.find(gridKey) != isEndPointMap.end() &&
+                    pointsIndexMap.find(gridKey) == pointsIndexMap.end()){
+                    points.push_back(gridKey);
+                    linksIndex.push_back(set<int>());
+                    //                    linksIndexVec.push_back(vector<int>());
+                    pointsIndexMap[gridKey] = points.size() - 1;
+                }
+            }
+        }
+    }
 
-//    for(size_t i=0; i<inputSegList.seg.size(); ++i){
-//        V_NeuronSWC seg = inputSegList.seg[i];
-//        vector<int> segIndexs;
-//        set<int> segIndexsSet;
-//        segIndexs.clear();
-//        segIndexsSet.clear();
-//        for(size_t j=0; j<seg.row.size(); ++j){
-//            float xLabel = seg.row[j].x;
-//            float yLabel = seg.row[j].y;
-//            float zLabel = seg.row[j].z;
-//            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
-//            string gridKey = gridKeyQ.toStdString();
-//            if(pointsIndexMap.find(gridKey) != pointsIndexMap.end()){
-//                int index = pointsIndexMap[gridKey];
-//                if(segIndexsSet.find(index) == segIndexsSet.end()){
-//                    segIndexs.push_back(index);
-//                    segIndexsSet.insert(index);
-//                }
-//            }
-//        }
-//        //        qDebug()<<"i : "<<i<<"seg size: "<<seg.row.size()<<" segIndexsSize: "<<segIndexs.size();
-//        for(size_t j=0; j<segIndexs.size()-1; ++j){
-//            if(segIndexs[j] == 1 || segIndexs[j+1] == 1){
-//                qDebug()<<segIndexs[j]<<" "<<segIndexs[j+1];
-//            }
-//            linksIndex[segIndexs[j]].insert(segIndexs[j+1]);
-//            //            linksIndexVec[segIndexs[j]].push_back(segIndexs[j+1]);
-//            linksIndex[segIndexs[j+1]].insert(segIndexs[j]);
-//            //            linksIndexVec[segIndexs[j+1]].push_back(segIndexs[j]);
-//        }
-//    }
+    for(size_t i=0; i<inputSegList.seg.size(); ++i){
+        V_NeuronSWC seg = inputSegList.seg[i];
+        vector<int> segIndexs;
+        set<int> segIndexsSet;
+        segIndexs.clear();
+        segIndexsSet.clear();
+        for(size_t j=0; j<seg.row.size(); ++j){
+            float xLabel = seg.row[j].x;
+            float yLabel = seg.row[j].y;
+            float zLabel = seg.row[j].z;
+            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+            string gridKey = gridKeyQ.toStdString();
+            if(pointsIndexMap.find(gridKey) != pointsIndexMap.end()){
+                int index = pointsIndexMap[gridKey];
+                if(segIndexsSet.find(index) == segIndexsSet.end()){
+                    segIndexs.push_back(index);
+                    segIndexsSet.insert(index);
+                }
+            }
+        }
+        //        qDebug()<<"i : "<<i<<"seg size: "<<seg.row.size()<<" segIndexsSize: "<<segIndexs.size();
+        for(size_t j=0; j<segIndexs.size()-1; ++j){
+            if(segIndexs[j] == 1 || segIndexs[j+1] == 1){
+                qDebug()<<segIndexs[j]<<" "<<segIndexs[j+1];
+            }
+            linksIndex[segIndexs[j]].insert(segIndexs[j+1]);
+            //            linksIndexVec[segIndexs[j]].push_back(segIndexs[j+1]);
+            linksIndex[segIndexs[j+1]].insert(segIndexs[j]);
+            //            linksIndexVec[segIndexs[j+1]].push_back(segIndexs[j]);
+        }
+    }
 
-//    qDebug()<<"link map end";
+    for(size_t i=0; i<points.size(); ++i){
+        //        qDebug()<<i<<" link size: "<<linksIndex[i].size();
+        if(linksIndex[i].size() == 3){
+            bool isValid = true;
+            auto connectedSegsSet = wholeGrid2segIDmap[points[i]];
+            if(connectedSegsSet.size() == 3){
+                for(auto segIt=connectedSegsSet.begin(); segIt!=connectedSegsSet.end(); segIt++){
+                    double length = getSegLength(inputSegList.seg[*segIt]);
+                    float xLabel = inputSegList.seg[*segIt].row[0].x;
+                    float yLabel = inputSegList.seg[*segIt].row[0].y;
+                    float zLabel = inputSegList.seg[*segIt].row[0].z;
+                    QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+                    string gridKey = gridKeyQ.toStdString();
+                    if(gridKey==points[i]){
+                        xLabel = inputSegList.seg[*segIt].row[inputSegList.seg[*segIt].nrows()-1].x;
+                        yLabel = inputSegList.seg[*segIt].row[inputSegList.seg[*segIt].nrows()-1].y;
+                        zLabel = inputSegList.seg[*segIt].row[inputSegList.seg[*segIt].nrows()-1].z;
+                        gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+                        gridKey = gridKeyQ.toStdString();
+                    }
+                    if(length<dist_thresh && wholeGrid2segIDmap[gridKey].size()==1)
+                    {
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+            else if(connectedSegsSet.size() == 2){
+                int wholeSegIndex = -1;
+                int specialSegIndex = -1;
+                int middleIndex = -1;
+                for(auto segIt=connectedSegsSet.begin(); segIt!=connectedSegsSet.end(); segIt++){
+                    int index = getPointInSegIndex(points[i], inputSegList.seg[*segIt]);
+                    if(index == -1){
+                        isValid = false;
+                        break;
+                    }
+                    else if(index==0 || index==inputSegList.seg[*segIt].nrows()-1){
+                        wholeSegIndex = *segIt;
+                    }
+                    else if(index>0 && index<inputSegList.seg[*segIt].nrows()-1){
+                        specialSegIndex = *segIt;
+                        middleIndex = index;
+                    }
+                }
+                if(!isValid || wholeSegIndex==-1 || specialSegIndex==-1)
+                    continue;
 
-//    //detect tips
-//    set<string> tips;
+                double length1 = getSegLength(inputSegList.seg[wholeSegIndex]);
+                double length2 = getSegLengthBetweenIndexs(inputSegList.seg[specialSegIndex], 0, middleIndex);
+                double length3 = getSegLengthBetweenIndexs(inputSegList.seg[specialSegIndex], middleIndex, inputSegList.seg[specialSegIndex].nrows()-1);
 
-//    for(int i=0;i<inputSegList.seg.size();i++){
-//        V_NeuronSWC seg = inputSegList.seg[i];
-//        float xLabel1 = seg.row[0].x;
-//        float yLabel1 = seg.row[0].y;
-//        float zLabel1 = seg.row[0].z;
-//        QString gridKeyQ1 = QString::number(xLabel1) + "_" + QString::number(yLabel1) + "_" + QString::number(zLabel1);
-//        string gridKey1 = gridKeyQ1.toStdString();
-//        float xLabel2 = seg.row[seg.row.size()-1].x;
-//        float yLabel2 = seg.row[seg.row.size()-1].y;
-//        float zLabel2 = seg.row[seg.row.size()-1].z;
-//        QString gridKeyQ2 = QString::number(xLabel2) + "_" + QString::number(yLabel2) + "_" + QString::number(zLabel2);
-//        string gridKey2 = gridKeyQ2.toStdString();
-//        if(wholeGrid2segIDmap[gridKey1].size()==1 && allPoint2SegIdMap[gridKey1].size()==1 && wholeGrid2segIDmap[gridKey2].size()>1)
-//        {
-//            if(myServer->isSomaExists&&sqrt((xLabel1-myServer->somaCoordinate.x)*(xLabel1-myServer->somaCoordinate.x)+
-//                                               (yLabel1-myServer->somaCoordinate.y)*(yLabel1-myServer->somaCoordinate.y)+(zLabel1-myServer->somaCoordinate.z)*(zLabel1-myServer->somaCoordinate.z))>50)
-//                tips.insert(gridKey1);
-//            else if(!myServer->isSomaExists)
-//                tips.insert(gridKey1);
-//        }
-//        if(wholeGrid2segIDmap[gridKey2].size()==1 && allPoint2SegIdMap[gridKey2].size()==1 && wholeGrid2segIDmap[gridKey1].size()>1)
-//        {
-//            if(myServer->isSomaExists&&sqrt((xLabel2-myServer->somaCoordinate.x)*(xLabel2-myServer->somaCoordinate.x)+
-//                                               (yLabel2-myServer->somaCoordinate.y)*(yLabel2-myServer->somaCoordinate.y)+(zLabel2-myServer->somaCoordinate.z)*(zLabel2-myServer->somaCoordinate.z))>50)
-//                tips.insert(gridKey2);
-//            else if(!myServer->isSomaExists)
-//                tips.insert(gridKey2);
-//        }
-//    }
+                float xLabel = inputSegList.seg[wholeSegIndex].row[0].x;
+                float yLabel = inputSegList.seg[wholeSegIndex].row[0].y;
+                float zLabel = inputSegList.seg[wholeSegIndex].row[0].z;
+                QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+                string gridKey = gridKeyQ.toStdString();
+                if(gridKey==points[i]){
+                    xLabel = inputSegList.seg[wholeSegIndex].row[inputSegList.seg[wholeSegIndex].nrows()-1].x;
+                    yLabel = inputSegList.seg[wholeSegIndex].row[inputSegList.seg[wholeSegIndex].nrows()-1].y;
+                    zLabel = inputSegList.seg[wholeSegIndex].row[inputSegList.seg[wholeSegIndex].nrows()-1].z;
+                    gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+                    gridKey = gridKeyQ.toStdString();
+                }
+                if(length1<dist_thresh && wholeGrid2segIDmap[gridKey].size()==1)
+                    continue;
 
-//    for(auto it=tips.begin();it!=tips.end();it++){
-//        vector<size_t> visitedSegIds;
-//        size_t segId=*wholeGrid2segIDmap[*it].begin();
-//        visitedSegIds.push_back(segId);
-//        V_NeuronSWC seg = inputSegList.seg[segId];
-//        float xLabel0 = seg.row[0].x;
-//        float yLabel0 = seg.row[0].y;
-//        float zLabel0 = seg.row[0].z;
-//        QString gridKeyQ0 = QString::number(xLabel0) + "_" + QString::number(yLabel0) + "_" + QString::number(zLabel0);
-//        string gridKey0 = gridKeyQ0.toStdString();
-//        float tipBranchLength=0;
-//        bool isReverse=false;
-//        if(wholeGrid2segIDmap[gridKey0].size()!=1)
-//        {
-//            isReverse=true;
-//        }
-//        bool flag=true;
-//        while(true){
-//            int size=seg.row.size();
-//            vector<int> indexs(size);
-//            for(int m=0;m<size;m++)
-//                indexs[m]=m;
-//            if(isReverse)
-//                reverse(indexs.begin(),indexs.end());
-//            for(int i=0;i<size;i++){
-//                int index=indexs[i];
-//                float xLabel = seg.row[index].x;
-//                float yLabel = seg.row[index].y;
-//                float zLabel = seg.row[index].z;
-//                QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
-//                string gridKey = gridKeyQ.toStdString();
-//                vector<string>::iterator it2=find(points.begin(),points.end(),gridKey);
-//                if(it2!=points.end()){
-//                    int index2=it2-points.begin();
-//                    if(linksIndex[index2].size()>=3){
-//                        flag=false;
-//                        break;
-//                    }
-//                    else{
-//                        if(index==seg.row.size()-1)
-//                            break;
-//                        tipBranchLength+=distance(xLabel,seg.row[index+1].x,
-//                                                    yLabel,seg.row[index+1].y,
-//                                                    zLabel,seg.row[index+1].z);
-//                        if(tipBranchLength>=dist_thresh)
-//                            break;
-//                        continue;
-//                    }
-//                }
-//                tipBranchLength+=distance(xLabel,seg.row[index+1].x,
-//                                            yLabel,seg.row[index+1].y,
-//                                            zLabel,seg.row[index+1].z);
-//                if(tipBranchLength>=dist_thresh)
-//                    break;
-//            }
+                xLabel = inputSegList.seg[specialSegIndex].row[0].x;
+                yLabel = inputSegList.seg[specialSegIndex].row[0].y;
+                zLabel = inputSegList.seg[specialSegIndex].row[0].z;
+                gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+                gridKey = gridKeyQ.toStdString();
+                if(length2<dist_thresh && wholeGrid2segIDmap[gridKey].size()==1)
+                    continue;
 
-//            if(tipBranchLength>=dist_thresh||!flag)
-//                break;
-//            float xLabel = seg.row[indexs[size-1]].x;
-//            float yLabel = seg.row[indexs[size-1]].y;
-//            float zLabel = seg.row[indexs[size-1]].z;
-//            QString gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
-//            string gridKey = gridKeyQ.toStdString();
-//            if(wholeGrid2segIDmap[gridKey].size()!=2)
-//            {
-//                tipBranchLength=0;
-//                break;
-//            }
-//            for(auto segIt=wholeGrid2segIDmap[gridKey].begin(); segIt!=wholeGrid2segIDmap[gridKey].end(); segIt++){
-//                if(segId != *segIt)
-//                {
-//                    segId = *segIt;
-//                    break;
-//                }
-//            }
+                xLabel = inputSegList.seg[specialSegIndex].row[inputSegList.seg[specialSegIndex].nrows()-1].x;
+                yLabel = inputSegList.seg[specialSegIndex].row[inputSegList.seg[specialSegIndex].nrows()-1].y;
+                zLabel = inputSegList.seg[specialSegIndex].row[inputSegList.seg[specialSegIndex].nrows()-1].z;
+                gridKeyQ = QString::number(xLabel) + "_" + QString::number(yLabel) + "_" + QString::number(zLabel);
+                gridKey = gridKeyQ.toStdString();
+                if(length3<dist_thresh && wholeGrid2segIDmap[gridKey].size()==1)
+                    continue;
+            }
 
-//            if(find(visitedSegIds.begin(),visitedSegIds.end(),segId)==visitedSegIds.end())
-//                visitedSegIds.push_back(segId);
-//            else
-//            {
-//                tipBranchLength=0;
-//                break;
-//            }
-//            seg = inputSegList.seg[segId];
-//            float xLabel2 = seg.row[0].x;
-//            float yLabel2 = seg.row[0].y;
-//            float zLabel2 = seg.row[0].z;
-//            QString gridKeyQ2 = QString::number(xLabel2) + "_" + QString::number(yLabel2) + "_" + QString::number(zLabel2);
-//            string gridKey2 = gridKeyQ2.toStdString();
-//            if(gridKey2!=gridKey)
-//                isReverse=true;
-//            else
-//                isReverse=false;
-//        }
-//        if(tipBranchLength>=dist_thresh){
-//            NeuronSWC s;
-//            stringToXYZ(*it,s.x,s.y,s.z);
-//            s.type = 10;
-//            if(s.x>33&&s.x+33<maxRes.x&&s.y>33&&s.y+33<maxRes.y&&s.z>33&&s.z+33<maxRes.z)
-//            {
-//                QString qKey = QString::number(s.x) + "_" + QString::number(s.y) + "_" + QString::number(s.z);
-//                string key = qKey.toStdString();
-//                if(detectedTipPoints.find(key) == detectedTipPoints.end())
-//                {
-//                    detectedTipPoints.insert(key);
-//                    outputSpecialPoints.push_back(s);
-//                }
-//            }
-//        }
+            if(!isValid)
+                continue;
 
-//    }
+            NeuronSWC s;
+            stringToXYZ(points[i],s.x,s.y,s.z);
+            s.type = 7;
+            if(s.x>65&&s.x+65<maxRes.x&&s.y>65&&s.y+65<maxRes.y&&s.z>65&&s.z+65<maxRes.z)
+            {
+                QString qKey = QString::number(s.x) + "_" + QString::number(s.y) + "_" + QString::number(s.z);
+                string key = qKey.toStdString();
+                if(detectedBranchingPoints.find(key) == detectedBranchingPoints.end())
+                {
+                    detectedBranchingPoints.insert(key);
+                    outputSpecialPoints.push_back(s);
+                }
+            }
+        }
+    }
+    return outputSpecialPoints;
 }
 
 QJsonArray CollDetection::crossingDetection(){
@@ -1716,6 +1680,174 @@ void CollDetection::filterTip(vector<NeuronSWC>& markPoints){
         }else{
             iter++;
         }
+    }
+}
+
+void CollDetection::handleBranchingPoints(vector<NeuronSWC>& brainchingPoints, int& count){
+//    QString tobeSendMsg=QString("/WARN_BranchingError:server 0,");
+//    QStringList result;
+
+//    for(int i=0;i<brainchingPoints.size();i++){
+//        RGB8 color = getColorFromType(brainchingPoints[i].type);
+//        QString curMarker=QString("%1 %2 %3 %4 %5 %6").arg(color.r).arg(color.g).arg(color.b).arg(brainchingPoints[i].x).arg(brainchingPoints[i].y).arg(brainchingPoints[i].z);
+
+//        QString msg=QString("/WARN_BranchingError:server,"+curMarker);
+//        bool isSucess=myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_BranchingError:").size()));
+//        if(isSucess){
+//            result.push_back(curMarker);
+//            count++;
+//        }
+//    }
+
+//    tobeSendMsg = tobeSendMsg + result.join(",");
+
+//    if(count!=0)
+//        emit myServer->clientSendMsgs({tobeSendMsg});
+//    qDebug()<<"Server finish /WARN_BranchingError";
+//    return;
+
+    if(brainchingPoints.size()!=0){
+        QJsonObject json;
+        QString obj=myServer->getImage();
+        json.insert("obj",obj);
+        //        json.insert("res", myServer->RES);
+        QJsonArray coorList;
+        for(int i=0; i<brainchingPoints.size();i++){
+            QJsonObject coor;
+            coor.insert("x", brainchingPoints[i].x);
+            coor.insert("y", brainchingPoints[i].y);
+            coor.insert("z", brainchingPoints[i].z);
+            coorList.append(coor);
+        }
+        json.insert("coors",coorList);
+        json.insert("swcName",QString::fromStdString(myServer->swcName));
+        QJsonDocument document;
+        document.setObject(json);
+        QString str=QString(document.toJson());
+        QByteArray byteArray=str.toUtf8();
+
+        // 创建一个QNetworkRequest对象，设置URL和请求方法
+        QNetworkRequest request(QUrl(SuperUserHostAddress+"/detect/branching"));
+        request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+        //        request.setRawHeader("Content-Type", "multipart/form-data; boundary=" + multiPart->boundary());
+
+        // 发送HTTP POST请求
+        QNetworkReply* reply = accessManager->post(request, byteArray);
+
+        QEventLoop eventLoop;
+        connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
+        eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+
+        if(reply->error())
+        {
+            qDebug() << "ERROR!";
+            qDebug() << reply->errorString();
+        }
+        int code=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug()<<"handleBranchingPoints "<<code;
+        QByteArray responseData = reply->readAll();
+        vector<NeuronSWC> markPoints;
+        if(code==200)
+        {
+            //解析json
+            QJsonParseError json_error;
+            QJsonDocument doucment = QJsonDocument::fromJson(responseData, &json_error);
+            if (json_error.error == QJsonParseError::NoError) {
+                if (doucment.isObject()) {
+                    const QJsonObject obj = doucment.object();
+                    qDebug() << obj;
+                    QString objCode;
+                    QString objMsg;
+                    if (obj.contains("code")) {
+                        QJsonValue value = obj.value("code");
+                        if (value.isString()) {
+                            objCode= value.toString();
+                            qDebug() << "code : " << objCode;
+                        }
+                    }
+                    if (obj.contains("msg")) {
+                        QJsonValue value = obj.value("msg");
+                        if (value.isString()) {
+                            QString objMsg = value.toString();
+                            qDebug() << "msg : " << objMsg;
+                        }
+                    }
+                    if (obj.contains("data")&&objCode=="200") {
+                        QJsonValue value = obj.value("data");
+                        if (value.isArray()) {  // Version 的 value 是数组
+                            QJsonArray array = value.toArray();
+                            int nSize = array.size();
+                            for (int i = 0; i < nSize; ++i) {
+                                QJsonValue mapValue = array.at(i);
+                                if (mapValue.isObject()) {
+                                    QJsonObject info = mapValue.toObject();
+                                    float x,y,z;
+                                    int y_pred;
+                                    if (info.contains("coors")) {
+                                        QJsonValue listValue = info.value("coors");
+                                        if (listValue.isArray()) {
+                                            QJsonArray listArray = listValue.toArray();
+                                            QJsonValue xValue = listArray.at(0);
+                                            QJsonValue yValue = listArray.at(1);
+                                            QJsonValue zValue = listArray.at(2);
+                                            x=xValue.toDouble();
+                                            y=yValue.toDouble();
+                                            z=zValue.toDouble();
+                                        }
+                                    }
+                                    if (info.contains("y_pred")) {
+                                        QJsonValue predValue = info.value("y_pred");
+                                        y_pred = predValue.toInt();
+                                        if(y_pred == 1)
+                                            qDebug()<<i<<": "<<y_pred;
+                                    }
+                                    if(y_pred==1){
+                                        NeuronSWC s;
+                                        s.x=x;
+                                        s.y=y;
+                                        s.z=z;
+                                        s.type=7;
+                                        markPoints.push_back(s);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            std::cerr<<"handle branching error!";
+        }
+
+        QString tobeSendMsg=QString("/WARN_BranchingError:server,");
+        QStringList result;
+
+        for(int i=0;i<markPoints.size();i++){
+            RGB8 color = getColorFromType(markPoints[i].type);
+            QString curMarker=QString("%1 %2 %3 %4 %5 %6").arg(color.r).arg(color.g).arg(color.b).arg(markPoints[i].x).arg(markPoints[i].y).arg(markPoints[i].z);
+
+            QString msg=QString("/WARN_BranchingError:server,"+curMarker);
+            bool isSucess=myServer->addmarkers(msg.trimmed().right(msg.size()-QString("/WARN_BranchingError:").size()));
+            if(isSucess){
+                result.push_back(curMarker);
+                count++;
+            }
+        }
+
+        tobeSendMsg = tobeSendMsg + result.join(",");
+
+        if(count!=0)
+            emit myServer->clientSendMsgs({tobeSendMsg});
+
+        qDebug()<<"Server finish /WARN_BranchingError";
+
+        //        if(markPoints.size()!=0)
+        //            myServer->imediateSave();
+
+        //清理资源
+        reply->deleteLater();
     }
 }
 

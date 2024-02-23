@@ -41,7 +41,7 @@ CollServer* CollServer::curServer=nullptr;
 CollServer::CollServer(QString port,QString image,QString neuron,QString anoname,QString prefix,int maxUserNumsInt,int modelDetectIntervals,QObject *parent)
     :QTcpServer(parent),Port(port),Image(image),Neuron(neuron),AnoName(anoname),Prefix(prefix+"/testdata/"+image+"/"+neuron+"/"+anoname)
     ,MaxUserNums(maxUserNumsInt),ModelDetectIntervals(modelDetectIntervals),timerForAutoSave(new QTimer(this)),timerForDetectLoops(new QTimer(this)), timerForDetectOthers(new QTimer(this)),timerForDetectTip(new QTimer(this)),
-    timerForDetectCrossing(new QTimer(this)),timerForAutoExit(new QTimer(this)),timerForDetectWhole(new QTimer(this))
+    timerForDetectCrossing(new QTimer(this)),timerForDetectBranching(new QTimer(this)),timerForAutoExit(new QTimer(this)),timerForDetectWhole(new QTimer(this))
 {
     qDebug()<<"MainThread:"<<QThread::currentThreadId();
     curServer=this;
@@ -52,13 +52,15 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     serverIP = Config::getInstance().getConfig(Config::ConfigItem::eServerIP);
     dbmsServerPort = Config::getInstance().getConfig(Config::ConfigItem::dbmsServerPort);
     brainServerPort = Config::getInstance().getConfig(Config::ConfigItem::brainServerPort);
-    std::cout<<serverIP<<" "<<dbmsServerPort<<" "<<brainServerPort;
+    apiVersion = Config::getInstance().getConfig(Config::ConfigItem::apiVersion);
+    std::cout<<serverIP<<" "<<dbmsServerPort<<" "<<brainServerPort<<" "<<apiVersion;
 
     detectUtil=new CollDetection(this, serverIP, brainServerPort, this);
 //    string serverIP = "114.117.165.134";
 //    string serverPort = "14251";
     auto endPoint = serverIP + ":" + dbmsServerPort;
     RpcCall::getInstance().initialize(endPoint);
+    RpcCall::ApiVersion = apiVersion;
     connectToDBMS();
 
     m_HeartBeatTimer = new QTimer(this);
@@ -133,6 +135,7 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     connect(timerForDetectOthers,&QTimer::timeout,detectUtil,&CollDetection::detectOthers);
     connect(timerForDetectWhole,&QTimer::timeout,detectUtil,&CollDetection::detectWholeAtStart);
     connect(timerForDetectTip,&QTimer::timeout,detectUtil,&CollDetection::detectTips);
+    connect(timerForDetectBranching,&QTimer::timeout,detectUtil,&CollDetection::detectBranchingPoints);
     connect(timerForDetectCrossing,&QTimer::timeout,detectUtil,&CollDetection::detectCrossings);
 
     connect(timerForAutoSave,&QTimer::timeout,this,&CollServer::autoSave);
@@ -196,6 +199,7 @@ void CollServer::incomingConnection(qintptr handle){
     connect(client,&CollClient::serverStartTimerForDetectOthers,this,&CollServer::startTimerForDetectOthers);
     connect(client,&CollClient::serverStartTimerForDetectWhole,this,&CollServer::startTimerForDetectWhole);
     connect(client,&CollClient::serverStartTimerForDetectTip,this,&CollServer::startTimerForDetectTip);
+    connect(client,&CollClient::serverStartTimerForDetectBranching,this,&CollServer::startTimerForDetectBranching);
     connect(client,&CollClient::serverStartTimerForDetectCrossing,this,&CollServer::startTimerForDetectCrossing);
     connect(client,&CollClient::detectUtilRemoveErrorSegs,detectUtil,&CollDetection::removeErrorSegs);
 
@@ -326,6 +330,10 @@ void CollServer::startTimerForDetectTip(){
     timerForDetectTip->start(ModelDetectIntervals*1000);
 }
 
+void CollServer::startTimerForDetectBranching(){
+    timerForDetectBranching->start(ModelDetectIntervals*1000);
+}
+
 void CollServer::startTimerForDetectCrossing(){
     timerForDetectCrossing->start(24*60*60*1000);
 }
@@ -396,6 +404,10 @@ QTimer* CollServer::getTimerForDetectOthers(){
 
 QTimer* CollServer::getTimerForDetectTip(){
     return timerForDetectTip;
+}
+
+QTimer* CollServer::getTimerForDetectBranching(){
+    return timerForDetectBranching;
 }
 
 QTimer* CollServer::getTimerForDetectCrossing(){

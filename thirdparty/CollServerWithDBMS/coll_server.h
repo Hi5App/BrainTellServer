@@ -65,6 +65,7 @@ public:
     string serverIP;
     string dbmsServerPort;
     string brainServerPort;
+    string apiVersion;
 
 signals:
 //    void clientAddMarker(QString);
@@ -85,6 +86,7 @@ public slots:
     void startTimerForDetectLoops();
     void startTimerForDetectOthers();
     void startTimerForDetectTip();
+    void startTimerForDetectBranching();
     void startTimerForDetectCrossing();
     void startTimerForDetectWhole();
 
@@ -101,6 +103,7 @@ private:
     QTimer *timerForDetectOthers;
     QTimer *timerForDetectWhole;
     QTimer *timerForDetectTip;
+    QTimer *timerForDetectBranching;
     QTimer *timerForDetectCrossing;
     QTimer *timerForAutoExit;
 
@@ -118,6 +121,7 @@ public:
     QTimer* getTimerForDetectLoops();
     QTimer* getTimerForDetectOthers();
     QTimer* getTimerForDetectTip();
+    QTimer *getTimerForDetectBranching();
     QTimer* getTimerForDetectCrossing();
     QTimer* getTimerForDetectWhole();
     bool connectToDBMS();

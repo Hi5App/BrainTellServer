@@ -344,6 +344,14 @@ double getPartOfSegLength(V_NeuronSWC &seg, int index){
     return sum;
 }
 
+double getSegLengthBetweenIndexs(V_NeuronSWC &seg, int low, int high){
+    double sum=0;
+    for(int i=low; i<high; i++){
+        sum+=distance(seg.row[i].x,seg.row[i+1].x,seg.row[i].y,seg.row[i+1].y,seg.row[i].z,seg.row[i+1].z);
+    }
+    return sum;
+}
+
 int findnearest(const CellAPO &m,const QList<CellAPO> &markers)
 {
     int index=-1;

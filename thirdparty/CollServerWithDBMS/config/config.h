@@ -12,7 +12,8 @@ public:
     enum class ConfigItem {
         eServerIP,
         dbmsServerPort,
-        brainServerPort
+        brainServerPort,
+        apiVersion
     };
 
     static Config &getInstance() {
@@ -60,6 +61,13 @@ public:
         case ConfigItem::brainServerPort: {
             if(m_AppConfig.contains("brainServerPort")){
                 return m_AppConfig["brainServerPort"];
+            } else{
+                return "";
+            }
+        }
+        case ConfigItem::apiVersion: {
+            if(m_AppConfig.contains("apiVersion")){
+                return m_AppConfig["apiVersion"];
             } else{
                 return "";
             }

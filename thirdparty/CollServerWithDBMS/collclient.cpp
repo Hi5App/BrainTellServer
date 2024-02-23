@@ -1653,6 +1653,8 @@ void CollClient::startCollaborate(){
         emit serverStartTimerForDetectOthers();
     //    if(!myServer->getTimerForDetectTip()->isActive())
     //        emit serverStartTimerForDetectTip();
+    if(!myServer->getTimerForDetectBranching()->isActive())
+        emit serverStartTimerForDetectBranching();
     if(!myServer->getTimerForDetectCrossing()->isActive())
         emit serverStartTimerForDetectCrossing();
 }

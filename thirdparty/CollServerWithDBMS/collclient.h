@@ -113,8 +113,8 @@ signals:
     void serverStartTimerForDetectOthers();
     void serverStartTimerForDetectWhole();
     void serverStartTimerForDetectTip();
+    void serverStartTimerForDetectBranching();
     void serverStartTimerForDetectCrossing();
-    void serverStartTimerForHandleTip();
     void detectUtilRemoveErrorSegs(bool);
 
 };

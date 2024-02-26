@@ -15,79 +15,79 @@ func main() {
 			"event": "Load Config",
 		}).Fatal()
 	}
-	//services.SendPerformance()
+	services.SendPerformance()
 
-	//http.HandleFunc("/test/", func(w http.ResponseWriter, r *http.Request) {
-	//	fmt.Fprintln(w, "test")
+	//http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
+	//	fmt.Fprintln(w, "dynamic")
 	//})
 	//user service
-	http.HandleFunc("/test/user/register", services.Register)
-	http.HandleFunc("/test/user/login", services.Login)
-	http.HandleFunc("/test/user/setuserscore", services.SetUserScore)       //todo
-	http.HandleFunc("/test/user/updatepasswd", services.UpdatePasswd)       //todo
-	http.HandleFunc("/test/user/resetpasswd", services.ResetPasswd)         //todo
-	http.HandleFunc("/test/user/registernetease", services.RegisterNetease) //todo
-	http.HandleFunc("/test/user/getuserperformance", services.GetUserPerformance)
+	http.HandleFunc("/dynamic/user/register", services.Register)
+	http.HandleFunc("/dynamic/user/login", services.Login)
+	http.HandleFunc("/dynamic/user/setuserscore", services.SetUserScore)       //todo
+	http.HandleFunc("/dynamic/user/updatepasswd", services.UpdatePasswd)       //todo
+	http.HandleFunc("/dynamic/user/resetpasswd", services.ResetPasswd)         //todo
+	http.HandleFunc("/dynamic/user/registernetease", services.RegisterNetease) //todo
+	http.HandleFunc("/dynamic/user/getuserperformance", services.GetUserPerformance)
 	//add soma service
-	http.HandleFunc("/test/soma/getpotentiallocation", services.GetPotentialSomaLocation)
-	http.HandleFunc("/test/soma/getsomalist", services.GetSomaList)
-	http.HandleFunc("/test/soma/updatesomalist", services.UpdateSomaList)
+	http.HandleFunc("/dynamic/soma/getpotentiallocation", services.GetPotentialSomaLocation)
+	http.HandleFunc("/dynamic/soma/getsomalist", services.GetSomaList)
+	http.HandleFunc("/dynamic/soma/updatesomalist", services.UpdateSomaList)
 	//check arbor service
-	http.HandleFunc("/test/arbor/getarbor", services.GetArbor)
-	http.HandleFunc("/test/arbor/queryarborresult", services.QueryArborResult)
-	http.HandleFunc("/test/arbor/updatearborresult", services.UpdateArborResult)
+	http.HandleFunc("/dynamic/arbor/getarbor", services.GetArbor)
+	http.HandleFunc("/dynamic/arbor/queryarborresult", services.QueryArborResult)
+	http.HandleFunc("/dynamic/arbor/updatearborresult", services.UpdateArborResult)
 	//增加一些
-	http.HandleFunc("/test/arbordetail/insert", services.InsertArborDetail)
+	http.HandleFunc("/dynamic/arbordetail/insert", services.InsertArborDetail)
 	//删一些
-	http.HandleFunc("/test/arbordetail/delete", services.DeleteArbordetail)
+	http.HandleFunc("/dynamic/arbordetail/delete", services.DeleteArbordetail)
 	//查一个
-	http.HandleFunc("/test/arbordetail/query", services.QueryArborDetail)
+	http.HandleFunc("/dynamic/arbordetail/query", services.QueryArborDetail)
 
 	//// bouton check service
-	http.HandleFunc("/test/arbor/getboutonarbor", services.GetBoutonArbor)
-	http.HandleFunc("/test/arbor/getboutonarborimage", services.GetBoutonArborImage) // 临时的bouton获取服务，直接获取bouton的image文件
-	http.HandleFunc("/test/arbor/updateboutonarborresult", services.UpdateBoutonArborResult)
-	http.HandleFunc("/test/arbor/queryboutonarborresult", services.QueryBoutonArborResult)
+	http.HandleFunc("/dynamic/arbor/getboutonarbor", services.GetBoutonArbor)
+	http.HandleFunc("/dynamic/arbor/getboutonarborimage", services.GetBoutonArborImage) // 临时的bouton获取服务，直接获取bouton的image文件
+	http.HandleFunc("/dynamic/arbor/updateboutonarborresult", services.UpdateBoutonArborResult)
+	http.HandleFunc("/dynamic/arbor/queryboutonarborresult", services.QueryBoutonArborResult)
 
 	//// bouton detail的相关操作
-	http.HandleFunc("/test/boutonarbordetail/insert", services.InsertBoutonArborDetail)
-	http.HandleFunc("/test/boutonarbordetail/delete", services.DeleteBoutonArbordetail)
-	http.HandleFunc("/test/boutonarbordetail/query", services.QueryBoutonArborDetail)
+	http.HandleFunc("/dynamic/boutonarbordetail/insert", services.InsertBoutonArborDetail)
+	http.HandleFunc("/dynamic/boutonarbordetail/delete", services.DeleteBoutonArbordetail)
+	http.HandleFunc("/dynamic/boutonarbordetail/query", services.QueryBoutonArborDetail)
 
 	//collaborate service
-	http.HandleFunc("/test/collaborate/getanoimage", services.GetAnoImage)
-	http.HandleFunc("/test/collaborate/getanoneuron", services.GetAnoNeuron)
-	http.HandleFunc("/test/collaborate/getano", services.GetAno)
+	http.HandleFunc("/dynamic/collaborate/getanoimage", services.GetAnoImage)
+	http.HandleFunc("/dynamic/collaborate/getanoneuron", services.GetAnoNeuron)
+	http.HandleFunc("/dynamic/collaborate/getano", services.GetAno)
 
 	//给某个ano文件分配端口
-	http.HandleFunc("/test/collaborate/inheritother", services.InheritOther)
-	http.HandleFunc("/test/collaborate/createnewanofromzero", services.CreateFromZero)
-	http.HandleFunc("/test/collaborate/createnewanofromother", services.CreateFromOther)
+	http.HandleFunc("/dynamic/collaborate/inheritother", services.InheritOther)
+	http.HandleFunc("/dynamic/collaborate/createnewanofromzero", services.CreateFromZero)
+	http.HandleFunc("/dynamic/collaborate/createnewanofromother", services.CreateFromOther)
 
 	//image service
-	http.HandleFunc("/test/image/getimagelist", services.GetImageList)
+	http.HandleFunc("/dynamic/image/getimagelist", services.GetImageList)
 	//获取裁剪后的图像文件.v3dpbd
-	http.HandleFunc("/test/image/cropimage", services.CropImage)
+	http.HandleFunc("/dynamic/image/cropimage", services.CropImage)
 	//获取裁剪后的eswc文件
-	http.HandleFunc("/test/swc/cropswc", services.CropSWC)
-	http.HandleFunc("/test/apo/cropapo", services.CropApo)
+	http.HandleFunc("/dynamic/swc/cropswc", services.CropSWC)
+	http.HandleFunc("/dynamic/apo/cropapo", services.CropApo)
 	//resource service
-	http.HandleFunc("/test/musics", services.GetMusicList)
-	http.HandleFunc("/test/updateapk", services.GetLatestApk)
+	http.HandleFunc("/dynamic/musics", services.GetMusicList)
+	http.HandleFunc("/dynamic/updateapk", services.GetLatestApk)
 
 	// game server
-	//http.HandleFunc("/game/test/user/register", services.GameRegister)
-	http.HandleFunc("/test/game/user/login", services.GameLogin)
-	//http.HandleFunc("/game/test/user/uploadrecord", services.GameUpdataRecord)
-	http.HandleFunc("/test/game/swc/bppoint/insert", services.InsertBranchingPoints)
+	//http.HandleFunc("/game/dynamic/user/register", services.GameRegister)
+	http.HandleFunc("/dynamic/game/user/login", services.GameLogin)
+	//http.HandleFunc("/game/dynamic/user/uploadrecord", services.GameUpdataRecord)
+	http.HandleFunc("/dynamic/game/swc/bppoint/insert", services.InsertBranchingPoints)
 
 	// 人脑组图像检查接口
 	// 获取检查图像的list
-	//http.HandleFunc("/test/image/gethumanimagelist", services.GetHumanImageList)
+	//http.HandleFunc("/dynamic/image/gethumanimagelist", services.GetHumanImageList)
 	// 上传人脑图像的检查结果
-	//http.HandleFunc("/test/arbor/updatehumanarborresult", services.UpdateHumanArborResult)
+	//http.HandleFunc("/dynamic/arbor/updatehumanarborresult", services.UpdateHumanArborResult)
 
 	log.WithFields(log.Fields{
 		"event": "start server",
-	}).Fatal(http.ListenAndServe(":8001", nil))
+	}).Fatal(http.ListenAndServe(":8000", nil))
 }

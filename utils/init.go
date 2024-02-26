@@ -56,7 +56,7 @@ var AIInterval int
 func LoadConfig() error {
 
 	//配置系统日志
-	path := "./testlogs/systemlog"
+	path := "./logs/systemlog"
 	writer, _ := rotatelogs.New(
 		path+".%Y%m%d%H%M",
 		rotatelogs.WithLinkName(path),
@@ -104,7 +104,7 @@ func LoadConfig() error {
 	DataPath = MainPath + "/testdata"
 	Tmpdir = MainPath + "/tmp"
 	ImageDir = MainPath + "/image"
-	CollaborateBinPath = MainPath + "/collaborate/CollServerTest"
+	CollaborateBinPath = MainPath + "/collaborate/CollServer"
 	availableCropProcess = semaphore.NewWeighted(config.GetInt64("cropprocess"))
 	//没有这个key时，QueueSize=0
 	QueueSize = config.GetInt("queuesize")

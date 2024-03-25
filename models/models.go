@@ -1,6 +1,7 @@
 package models
 
 import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
 
@@ -109,18 +110,44 @@ type TSomainfo struct {
 	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('更新时间') TIMESTAMP updated"`
 }
 
-type TUserinfo struct {
-	Id        int       `xorm:"not null pk autoincr INT"`
-	Name      string    `xorm:"not null unique VARCHAR(100)"`
-	Email     string    `xorm:"not null unique VARCHAR(100)"`
-	Nickname  string    `xorm:"not null VARCHAR(100)"`
-	Passwd    string    `xorm:"not null VARCHAR(100)"`
-	Score     int       `xorm:"not null default 0 index INT"`
-	Appkey    string    `xorm:"not null default '' comment('网易云信appkey') VARCHAR(100)"`
-	Isdeleted int       `xorm:"not null default 0 INT"`
-	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
-	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
+type MetaInfoBase struct {
+	Id                     primitive.ObjectID `bson:"_id"`
+	DataAccessModelVersion string             `bson:"DataAccessModelVersion"`
+	Uuid                   string             `bson:"uuid"`
 }
+
+type BrainTellServerMysqlDBCompatibleData struct {
+	Email     string `bson:"email"`
+	NickName  string `bson:"nickname"`
+	Score     int    `bson:"score"`
+	Appkey    string `bson:"appkey"`
+	Isdeleted int    `bson:"isdeleted"`
+}
+
+type UserMetaInfoV1 struct {
+	Base                MetaInfoBase                         `bson:"Base,inline"`
+	Name                string                               `bson:"Name"`
+	Password            string                               `bson:"Password"`
+	Description         string                               `bson:"Description"`
+	CreateTime          time.Time                            `bson:"CreateTime"`
+	HeadPhotoBinData    []byte                               `bson:"HeadPhotoBinData"`
+	UserPermissionGroup string                               `bson:"UserPermissionGroup"`
+	UserId              int32                                `bson:"UserId"`
+	CompatibleData      BrainTellServerMysqlDBCompatibleData `bson:"CompatibleData"`
+}
+
+//type TUserinfo struct {
+//	Id        int       `xorm:"not null pk autoincr INT"`
+//	Name      string    `xorm:"not null unique VARCHAR(100)"`
+//	Email     string    `xorm:"not null unique VARCHAR(100)"`
+//	Nickname  string    `xorm:"not null VARCHAR(100)"`
+//	Passwd    string    `xorm:"not null VARCHAR(100)"`
+//	Score     int       `xorm:"not null default 0 index INT"`
+//	Appkey    string    `xorm:"not null default '' comment('网易云信appkey') VARCHAR(100)"`
+//	Isdeleted int       `xorm:"not null default 0 INT"`
+//	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+//	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
+//}
 
 type TGameUserinfo struct {
 	Id        int       `xorm:"not null pk autoincr unique INT"`

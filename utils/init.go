@@ -1,12 +1,15 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/sync/semaphore"
 	"strconv"
 	"time"
@@ -35,6 +38,18 @@ type Config struct {
 	Emails      []string
 }
 
+type MongoDbConnectionCreateInfo struct {
+	Host     string
+	Port     int32
+	User     string
+	Password string
+}
+
+type MongoDbConnectionInfo struct {
+	Client *mongo.Client
+	Err    error
+}
+
 var DB *xorm.Engine
 var Pool *redis.Pool
 var MainPath string
@@ -47,6 +62,8 @@ var AesKey string
 var availableCropProcess *semaphore.Weighted
 var Emails []string
 var QueueSize int
+
+var UserDB *mongo.Collection
 
 // coll configs
 var MaxRoomConnections int
@@ -195,4 +212,32 @@ func InitRedisData() error {
 	}
 
 	return nil
+}
+
+func InitializeMongodbConnection(createInfo MongoDbConnectionCreateInfo) {
+	url := "mongodb://" + createInfo.Host + ":" + strconv.Itoa(int(createInfo.Port))
+	var connectionInfo MongoDbConnectionInfo
+
+	credential := options.Credential{
+		Username: createInfo.User,
+		Password: createInfo.Password,
+	}
+	clientOpts := options.Client().ApplyURI(url).
+		SetAuth(credential).SetConnectTimeout(10 * time.Second)
+
+	connectionInfo.Client, connectionInfo.Err = mongo.Connect(context.TODO(), clientOpts)
+	if connectionInfo.Err != nil {
+		log.Fatal(connectionInfo.Err)
+	}
+
+	var err = connectionInfo.Client.Ping(context.TODO(), nil)
+
+	if err != nil {
+		log.Fatal(err)
+		panic("Connect to mongodb failed!")
+	}
+
+	metaInfoDb := connectionInfo.Client.Database("MetaInfoDataBase")
+	UserDB = metaInfoDb.Collection("UserMetaInfoCollection")
+	log.Printf("Connect to mongodb successfully!")
 }

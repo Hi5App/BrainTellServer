@@ -15,6 +15,16 @@ func main() {
 			"event": "Load Config",
 		}).Fatal()
 	}
+
+	// connect to mongodb for user data management
+	createInfo := utils.MongoDbConnectionCreateInfo{
+		Host:     "127.0.0.1",
+		Port:     27017,
+		User:     "defaultuser",
+		Password: "defaultpassword",
+	}
+	utils.InitializeMongodbConnection(createInfo)
+
 	services.SendPerformance()
 
 	//http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {

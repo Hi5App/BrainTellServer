@@ -9,28 +9,24 @@ import (
 )
 
 func main() {
-	err := utils.LoadConfig()
+	//var configName = "config"
+	var configName = "config_dev"
+	err := utils.LoadConfig(configName)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"event": "Load Config",
 		}).Fatal()
 	}
 
-	// connect to mongodb for user data management
-	createInfo := utils.MongoDbConnectionCreateInfo{
-		Host:     "127.0.0.1",
-		Port:     27017,
-		User:     "defaultuser",
-		Password: "defaultpassword",
-	}
-	utils.InitializeMongodbConnection(createInfo)
-
 	services.SendPerformance()
 
 	BrainTellServerApiService := services.NewBrainTellServerApiService()
 	BrainTellServerApiController := services.NewBrainTellServerApiController(BrainTellServerApiService)
-
 	router := services.NewRouter(BrainTellServerApiController)
+
+	// GetRatingImageFileGet - 获取打分的图片文件
+	services.HandleRatingStaticImageFile(router)
+
 	//http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
 	//	fmt.Fprintln(w, "dynamic")
 	//})

@@ -70,8 +70,10 @@ var MaxRoomConnections int
 var MaxJobs int
 var AIInterval int
 
-func LoadConfig() error {
+// rating service
+var RatingImagePath string
 
+func LoadConfig(configName string) error {
 	//配置系统日志
 	path := "./logs/systemlog"
 	writer, _ := rotatelogs.New(
@@ -91,7 +93,7 @@ func LoadConfig() error {
 	//读取系统配置文件
 	config := viper.New()
 	config.AddConfigPath("./")
-	config.SetConfigName("config")
+	config.SetConfigName(configName)
 	config.SetConfigType("json")
 
 	if err := config.ReadInConfig(); err != nil {
@@ -131,6 +133,19 @@ func LoadConfig() error {
 	MaxJobs = config.GetInt("collaboration.max_jobs")
 	MaxRoomConnections = config.GetInt("collaboration.max_connections") / MaxJobs
 	AIInterval = config.GetInt("collaboration.ai_interval")
+
+	// mongodb connection
+	// connect to mongodb for user data management
+	createInfo := MongoDbConnectionCreateInfo{
+		Host:     config.GetString("mongodb.ip"),
+		Port:     int32(config.GetInt("mongodb.port")),
+		User:     config.GetString("mongodb.user"),
+		Password: config.GetString("mongodb.password"),
+	}
+	InitializeMongodbConnection(createInfo)
+
+	// rating service config
+	RatingImagePath = config.GetString("ratingservice.ratingimagepath")
 
 	log.WithFields(log.Fields{
 		"event": "Init coll config",

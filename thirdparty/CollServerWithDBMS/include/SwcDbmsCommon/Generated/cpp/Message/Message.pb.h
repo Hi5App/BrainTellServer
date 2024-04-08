@@ -47,6 +47,9 @@ struct TableStruct_Message_2fMessage_2eproto {
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Message_2fMessage_2eproto;
 namespace proto {
+class BrainTellServerMysqlDBCompatibleData;
+struct BrainTellServerMysqlDBCompatibleDataDefaultTypeInternal;
+extern BrainTellServerMysqlDBCompatibleDataDefaultTypeInternal _BrainTellServerMysqlDBCompatibleData_default_instance_;
 class DailyStatisticsMetaInfoV1;
 struct DailyStatisticsMetaInfoV1DefaultTypeInternal;
 extern DailyStatisticsMetaInfoV1DefaultTypeInternal _DailyStatisticsMetaInfoV1_default_instance_;
@@ -118,6 +121,7 @@ struct UserVerifyInfoV1DefaultTypeInternal;
 extern UserVerifyInfoV1DefaultTypeInternal _UserVerifyInfoV1_default_instance_;
 }  // namespace proto
 PROTOBUF_NAMESPACE_OPEN
+template<> ::proto::BrainTellServerMysqlDBCompatibleData* Arena::CreateMaybeMessage<::proto::BrainTellServerMysqlDBCompatibleData>(Arena*);
 template<> ::proto::DailyStatisticsMetaInfoV1* Arena::CreateMaybeMessage<::proto::DailyStatisticsMetaInfoV1>(Arena*);
 template<> ::proto::GlobalPermissionMetaInfoV1* Arena::CreateMaybeMessage<::proto::GlobalPermissionMetaInfoV1>(Arena*);
 template<> ::proto::MetaInfoBase* Arena::CreateMaybeMessage<::proto::MetaInfoBase>(Arena*);
@@ -358,6 +362,213 @@ class MetaInfoBase final :
 };
 // -------------------------------------------------------------------
 
+class BrainTellServerMysqlDBCompatibleData final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proto.BrainTellServerMysqlDBCompatibleData) */ {
+ public:
+  inline BrainTellServerMysqlDBCompatibleData() : BrainTellServerMysqlDBCompatibleData(nullptr) {}
+  ~BrainTellServerMysqlDBCompatibleData() override;
+  explicit PROTOBUF_CONSTEXPR BrainTellServerMysqlDBCompatibleData(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  BrainTellServerMysqlDBCompatibleData(const BrainTellServerMysqlDBCompatibleData& from);
+  BrainTellServerMysqlDBCompatibleData(BrainTellServerMysqlDBCompatibleData&& from) noexcept
+    : BrainTellServerMysqlDBCompatibleData() {
+    *this = ::std::move(from);
+  }
+
+  inline BrainTellServerMysqlDBCompatibleData& operator=(const BrainTellServerMysqlDBCompatibleData& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BrainTellServerMysqlDBCompatibleData& operator=(BrainTellServerMysqlDBCompatibleData&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BrainTellServerMysqlDBCompatibleData& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BrainTellServerMysqlDBCompatibleData* internal_default_instance() {
+    return reinterpret_cast<const BrainTellServerMysqlDBCompatibleData*>(
+               &_BrainTellServerMysqlDBCompatibleData_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(BrainTellServerMysqlDBCompatibleData& a, BrainTellServerMysqlDBCompatibleData& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BrainTellServerMysqlDBCompatibleData* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BrainTellServerMysqlDBCompatibleData* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  BrainTellServerMysqlDBCompatibleData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<BrainTellServerMysqlDBCompatibleData>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const BrainTellServerMysqlDBCompatibleData& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const BrainTellServerMysqlDBCompatibleData& from) {
+    BrainTellServerMysqlDBCompatibleData::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(BrainTellServerMysqlDBCompatibleData* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "proto.BrainTellServerMysqlDBCompatibleData";
+  }
+  protected:
+  explicit BrainTellServerMysqlDBCompatibleData(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kEmailFieldNumber = 1,
+    kNickNameFieldNumber = 2,
+    kAppKeyFieldNumber = 4,
+    kScoreFieldNumber = 3,
+    kIsDeletedFieldNumber = 5,
+  };
+  // string Email = 1;
+  void clear_email();
+  const std::string& email() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_email(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_email();
+  PROTOBUF_NODISCARD std::string* release_email();
+  void set_allocated_email(std::string* email);
+  private:
+  const std::string& _internal_email() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_email(const std::string& value);
+  std::string* _internal_mutable_email();
+  public:
+
+  // string NickName = 2;
+  void clear_nickname();
+  const std::string& nickname() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_nickname(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_nickname();
+  PROTOBUF_NODISCARD std::string* release_nickname();
+  void set_allocated_nickname(std::string* nickname);
+  private:
+  const std::string& _internal_nickname() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_nickname(const std::string& value);
+  std::string* _internal_mutable_nickname();
+  public:
+
+  // string AppKey = 4;
+  void clear_appkey();
+  const std::string& appkey() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_appkey(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_appkey();
+  PROTOBUF_NODISCARD std::string* release_appkey();
+  void set_allocated_appkey(std::string* appkey);
+  private:
+  const std::string& _internal_appkey() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_appkey(const std::string& value);
+  std::string* _internal_mutable_appkey();
+  public:
+
+  // int32 Score = 3;
+  void clear_score();
+  int32_t score() const;
+  void set_score(int32_t value);
+  private:
+  int32_t _internal_score() const;
+  void _internal_set_score(int32_t value);
+  public:
+
+  // int32 IsDeleted = 5;
+  void clear_isdeleted();
+  int32_t isdeleted() const;
+  void set_isdeleted(int32_t value);
+  private:
+  int32_t _internal_isdeleted() const;
+  void _internal_set_isdeleted(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:proto.BrainTellServerMysqlDBCompatibleData)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr email_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr nickname_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr appkey_;
+    int32_t score_;
+    int32_t isdeleted_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_Message_2fMessage_2eproto;
+};
+// -------------------------------------------------------------------
+
 class UserMetaInfoV1 final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proto.UserMetaInfoV1) */ {
  public:
@@ -406,7 +617,7 @@ class UserMetaInfoV1 final :
                &_UserMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    2;
 
   friend void swap(UserMetaInfoV1& a, UserMetaInfoV1& b) {
     a.Swap(&b);
@@ -486,6 +697,8 @@ class UserMetaInfoV1 final :
     kUserPermissionGroupFieldNumber = 7,
     kBaseFieldNumber = 1,
     kCreateTimeFieldNumber = 5,
+    kCompatibleDataFieldNumber = 9,
+    kUserIdFieldNumber = 8,
   };
   // string Name = 2;
   void clear_name();
@@ -593,6 +806,33 @@ class UserMetaInfoV1 final :
       ::PROTOBUF_NAMESPACE_ID::Timestamp* createtime);
   ::PROTOBUF_NAMESPACE_ID::Timestamp* unsafe_arena_release_createtime();
 
+  // .proto.BrainTellServerMysqlDBCompatibleData CompatibleData = 9;
+  bool has_compatibledata() const;
+  private:
+  bool _internal_has_compatibledata() const;
+  public:
+  void clear_compatibledata();
+  const ::proto::BrainTellServerMysqlDBCompatibleData& compatibledata() const;
+  PROTOBUF_NODISCARD ::proto::BrainTellServerMysqlDBCompatibleData* release_compatibledata();
+  ::proto::BrainTellServerMysqlDBCompatibleData* mutable_compatibledata();
+  void set_allocated_compatibledata(::proto::BrainTellServerMysqlDBCompatibleData* compatibledata);
+  private:
+  const ::proto::BrainTellServerMysqlDBCompatibleData& _internal_compatibledata() const;
+  ::proto::BrainTellServerMysqlDBCompatibleData* _internal_mutable_compatibledata();
+  public:
+  void unsafe_arena_set_allocated_compatibledata(
+      ::proto::BrainTellServerMysqlDBCompatibleData* compatibledata);
+  ::proto::BrainTellServerMysqlDBCompatibleData* unsafe_arena_release_compatibledata();
+
+  // int32 UserId = 8;
+  void clear_userid();
+  int32_t userid() const;
+  void set_userid(int32_t value);
+  private:
+  int32_t _internal_userid() const;
+  void _internal_set_userid(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:proto.UserMetaInfoV1)
  private:
   class _Internal;
@@ -608,6 +848,8 @@ class UserMetaInfoV1 final :
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userpermissiongroup_;
     ::proto::MetaInfoBase* base_;
     ::PROTOBUF_NAMESPACE_ID::Timestamp* createtime_;
+    ::proto::BrainTellServerMysqlDBCompatibleData* compatibledata_;
+    int32_t userid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -663,7 +905,7 @@ class GlobalPermissionMetaInfoV1 final :
                &_GlobalPermissionMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    3;
 
   friend void swap(GlobalPermissionMetaInfoV1& a, GlobalPermissionMetaInfoV1& b) {
     a.Swap(&b);
@@ -844,7 +1086,7 @@ class ProjectPermissionMetaInfoV1 final :
                &_ProjectPermissionMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    4;
 
   friend void swap(ProjectPermissionMetaInfoV1& a, ProjectPermissionMetaInfoV1& b) {
     a.Swap(&b);
@@ -1025,7 +1267,7 @@ class PermissionGroupMetaInfoV1 final :
                &_PermissionGroupMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    5;
 
   friend void swap(PermissionGroupMetaInfoV1& a, PermissionGroupMetaInfoV1& b) {
     a.Swap(&b);
@@ -1254,7 +1496,7 @@ class UserPermissionOverrideMetaInfoV1 final :
                &_UserPermissionOverrideMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    6;
 
   friend void swap(UserPermissionOverrideMetaInfoV1& a, UserPermissionOverrideMetaInfoV1& b) {
     a.Swap(&b);
@@ -1427,7 +1669,7 @@ class ProjectMetaInfoV1 final :
                &_ProjectMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    7;
 
   friend void swap(ProjectMetaInfoV1& a, ProjectMetaInfoV1& b) {
     a.Swap(&b);
@@ -1734,7 +1976,7 @@ class SwcSnapshotMetaInfoV1 final :
                &_SwcSnapshotMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    8;
 
   friend void swap(SwcSnapshotMetaInfoV1& a, SwcSnapshotMetaInfoV1& b) {
     a.Swap(&b);
@@ -1943,7 +2185,7 @@ class SwcIncrementOperationMetaInfoV1 final :
                &_SwcIncrementOperationMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    9;
 
   friend void swap(SwcIncrementOperationMetaInfoV1& a, SwcIncrementOperationMetaInfoV1& b) {
     a.Swap(&b);
@@ -2152,7 +2394,7 @@ class SwcIncrementOperationV1 final :
                &_SwcIncrementOperationV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    10;
 
   friend void swap(SwcIncrementOperationV1& a, SwcIncrementOperationV1& b) {
     a.Swap(&b);
@@ -2360,7 +2602,7 @@ class SwcIncrementOperationListV1 final :
                &_SwcIncrementOperationListV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    11;
 
   friend void swap(SwcIncrementOperationListV1& a, SwcIncrementOperationListV1& b) {
     a.Swap(&b);
@@ -2517,7 +2759,7 @@ class SwcAttachmentAnoMetaInfoV1 final :
                &_SwcAttachmentAnoMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    12;
 
   friend void swap(SwcAttachmentAnoMetaInfoV1& a, SwcAttachmentAnoMetaInfoV1& b) {
     a.Swap(&b);
@@ -2670,7 +2912,7 @@ class SwcAttachmentApoMetaInfoV1 final :
                &_SwcAttachmentApoMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    13;
 
   friend void swap(SwcAttachmentApoMetaInfoV1& a, SwcAttachmentApoMetaInfoV1& b) {
     a.Swap(&b);
@@ -2823,7 +3065,7 @@ class SwcMetaInfoV1 final :
                &_SwcMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    14;
 
   friend void swap(SwcMetaInfoV1& a, SwcMetaInfoV1& b) {
     a.Swap(&b);
@@ -3180,7 +3422,7 @@ class SwcNodeInternalDataV1 final :
                &_SwcNodeInternalDataV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    15;
 
   friend void swap(SwcNodeInternalDataV1& a, SwcNodeInternalDataV1& b) {
     a.Swap(&b);
@@ -3449,7 +3691,7 @@ class SwcNodeDataV1 final :
                &_SwcNodeDataV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    16;
 
   friend void swap(SwcNodeDataV1& a, SwcNodeDataV1& b) {
     a.Swap(&b);
@@ -3698,7 +3940,7 @@ class SwcDataV1 final :
                &_SwcDataV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    17;
 
   friend void swap(SwcDataV1& a, SwcDataV1& b) {
     a.Swap(&b);
@@ -3855,7 +4097,7 @@ class DailyStatisticsMetaInfoV1 final :
                &_DailyStatisticsMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    17;
+    18;
 
   friend void swap(DailyStatisticsMetaInfoV1& a, DailyStatisticsMetaInfoV1& b) {
     a.Swap(&b);
@@ -4203,7 +4445,7 @@ class UserVerifyInfoV1 final :
                &_UserVerifyInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    18;
+    19;
 
   friend void swap(UserVerifyInfoV1& a, UserVerifyInfoV1& b) {
     a.Swap(&b);
@@ -4278,6 +4520,7 @@ class UserVerifyInfoV1 final :
   enum : int {
     kUserNameFieldNumber = 1,
     kUserTokenFieldNumber = 2,
+    kUserPasswordFieldNumber = 3,
   };
   // string UserName = 1;
   void clear_username();
@@ -4307,6 +4550,20 @@ class UserVerifyInfoV1 final :
   std::string* _internal_mutable_usertoken();
   public:
 
+  // string UserPassword = 3;
+  void clear_userpassword();
+  const std::string& userpassword() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_userpassword(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_userpassword();
+  PROTOBUF_NODISCARD std::string* release_userpassword();
+  void set_allocated_userpassword(std::string* userpassword);
+  private:
+  const std::string& _internal_userpassword() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_userpassword(const std::string& value);
+  std::string* _internal_mutable_userpassword();
+  public:
+
   // @@protoc_insertion_point(class_scope:proto.UserVerifyInfoV1)
  private:
   class _Internal;
@@ -4317,6 +4574,7 @@ class UserVerifyInfoV1 final :
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr username_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr usertoken_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userpassword_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -4372,7 +4630,7 @@ class RequestMetaInfoV1 final :
                &_RequestMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    19;
+    20;
 
   friend void swap(RequestMetaInfoV1& a, RequestMetaInfoV1& b) {
     a.Swap(&b);
@@ -4525,7 +4783,7 @@ class ResponseMetaInfoV1 final :
                &_ResponseMetaInfoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    20;
+    21;
 
   friend void swap(ResponseMetaInfoV1& a, ResponseMetaInfoV1& b) {
     a.Swap(&b);
@@ -4705,7 +4963,7 @@ class SwcAttachmentAnoV1 final :
                &_SwcAttachmentAnoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    21;
+    22;
 
   friend void swap(SwcAttachmentAnoV1& a, SwcAttachmentAnoV1& b) {
     a.Swap(&b);
@@ -4894,7 +5152,7 @@ class SwcAttachmentApoV1 final :
                &_SwcAttachmentApoV1_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    22;
+    23;
 
   friend void swap(SwcAttachmentApoV1& a, SwcAttachmentApoV1& b) {
     a.Swap(&b);
@@ -5344,6 +5602,200 @@ inline void MetaInfoBase::set_allocated_uuid(std::string* uuid) {
 
 // -------------------------------------------------------------------
 
+// BrainTellServerMysqlDBCompatibleData
+
+// string Email = 1;
+inline void BrainTellServerMysqlDBCompatibleData::clear_email() {
+  _impl_.email_.ClearToEmpty();
+}
+inline const std::string& BrainTellServerMysqlDBCompatibleData::email() const {
+  // @@protoc_insertion_point(field_get:proto.BrainTellServerMysqlDBCompatibleData.Email)
+  return _internal_email();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BrainTellServerMysqlDBCompatibleData::set_email(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.email_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proto.BrainTellServerMysqlDBCompatibleData.Email)
+}
+inline std::string* BrainTellServerMysqlDBCompatibleData::mutable_email() {
+  std::string* _s = _internal_mutable_email();
+  // @@protoc_insertion_point(field_mutable:proto.BrainTellServerMysqlDBCompatibleData.Email)
+  return _s;
+}
+inline const std::string& BrainTellServerMysqlDBCompatibleData::_internal_email() const {
+  return _impl_.email_.Get();
+}
+inline void BrainTellServerMysqlDBCompatibleData::_internal_set_email(const std::string& value) {
+  
+  _impl_.email_.Set(value, GetArenaForAllocation());
+}
+inline std::string* BrainTellServerMysqlDBCompatibleData::_internal_mutable_email() {
+  
+  return _impl_.email_.Mutable(GetArenaForAllocation());
+}
+inline std::string* BrainTellServerMysqlDBCompatibleData::release_email() {
+  // @@protoc_insertion_point(field_release:proto.BrainTellServerMysqlDBCompatibleData.Email)
+  return _impl_.email_.Release();
+}
+inline void BrainTellServerMysqlDBCompatibleData::set_allocated_email(std::string* email) {
+  if (email != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.email_.SetAllocated(email, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.email_.IsDefault()) {
+    _impl_.email_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proto.BrainTellServerMysqlDBCompatibleData.Email)
+}
+
+// string NickName = 2;
+inline void BrainTellServerMysqlDBCompatibleData::clear_nickname() {
+  _impl_.nickname_.ClearToEmpty();
+}
+inline const std::string& BrainTellServerMysqlDBCompatibleData::nickname() const {
+  // @@protoc_insertion_point(field_get:proto.BrainTellServerMysqlDBCompatibleData.NickName)
+  return _internal_nickname();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BrainTellServerMysqlDBCompatibleData::set_nickname(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.nickname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proto.BrainTellServerMysqlDBCompatibleData.NickName)
+}
+inline std::string* BrainTellServerMysqlDBCompatibleData::mutable_nickname() {
+  std::string* _s = _internal_mutable_nickname();
+  // @@protoc_insertion_point(field_mutable:proto.BrainTellServerMysqlDBCompatibleData.NickName)
+  return _s;
+}
+inline const std::string& BrainTellServerMysqlDBCompatibleData::_internal_nickname() const {
+  return _impl_.nickname_.Get();
+}
+inline void BrainTellServerMysqlDBCompatibleData::_internal_set_nickname(const std::string& value) {
+  
+  _impl_.nickname_.Set(value, GetArenaForAllocation());
+}
+inline std::string* BrainTellServerMysqlDBCompatibleData::_internal_mutable_nickname() {
+  
+  return _impl_.nickname_.Mutable(GetArenaForAllocation());
+}
+inline std::string* BrainTellServerMysqlDBCompatibleData::release_nickname() {
+  // @@protoc_insertion_point(field_release:proto.BrainTellServerMysqlDBCompatibleData.NickName)
+  return _impl_.nickname_.Release();
+}
+inline void BrainTellServerMysqlDBCompatibleData::set_allocated_nickname(std::string* nickname) {
+  if (nickname != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.nickname_.SetAllocated(nickname, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.nickname_.IsDefault()) {
+    _impl_.nickname_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proto.BrainTellServerMysqlDBCompatibleData.NickName)
+}
+
+// int32 Score = 3;
+inline void BrainTellServerMysqlDBCompatibleData::clear_score() {
+  _impl_.score_ = 0;
+}
+inline int32_t BrainTellServerMysqlDBCompatibleData::_internal_score() const {
+  return _impl_.score_;
+}
+inline int32_t BrainTellServerMysqlDBCompatibleData::score() const {
+  // @@protoc_insertion_point(field_get:proto.BrainTellServerMysqlDBCompatibleData.Score)
+  return _internal_score();
+}
+inline void BrainTellServerMysqlDBCompatibleData::_internal_set_score(int32_t value) {
+  
+  _impl_.score_ = value;
+}
+inline void BrainTellServerMysqlDBCompatibleData::set_score(int32_t value) {
+  _internal_set_score(value);
+  // @@protoc_insertion_point(field_set:proto.BrainTellServerMysqlDBCompatibleData.Score)
+}
+
+// string AppKey = 4;
+inline void BrainTellServerMysqlDBCompatibleData::clear_appkey() {
+  _impl_.appkey_.ClearToEmpty();
+}
+inline const std::string& BrainTellServerMysqlDBCompatibleData::appkey() const {
+  // @@protoc_insertion_point(field_get:proto.BrainTellServerMysqlDBCompatibleData.AppKey)
+  return _internal_appkey();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BrainTellServerMysqlDBCompatibleData::set_appkey(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.appkey_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proto.BrainTellServerMysqlDBCompatibleData.AppKey)
+}
+inline std::string* BrainTellServerMysqlDBCompatibleData::mutable_appkey() {
+  std::string* _s = _internal_mutable_appkey();
+  // @@protoc_insertion_point(field_mutable:proto.BrainTellServerMysqlDBCompatibleData.AppKey)
+  return _s;
+}
+inline const std::string& BrainTellServerMysqlDBCompatibleData::_internal_appkey() const {
+  return _impl_.appkey_.Get();
+}
+inline void BrainTellServerMysqlDBCompatibleData::_internal_set_appkey(const std::string& value) {
+  
+  _impl_.appkey_.Set(value, GetArenaForAllocation());
+}
+inline std::string* BrainTellServerMysqlDBCompatibleData::_internal_mutable_appkey() {
+  
+  return _impl_.appkey_.Mutable(GetArenaForAllocation());
+}
+inline std::string* BrainTellServerMysqlDBCompatibleData::release_appkey() {
+  // @@protoc_insertion_point(field_release:proto.BrainTellServerMysqlDBCompatibleData.AppKey)
+  return _impl_.appkey_.Release();
+}
+inline void BrainTellServerMysqlDBCompatibleData::set_allocated_appkey(std::string* appkey) {
+  if (appkey != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.appkey_.SetAllocated(appkey, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.appkey_.IsDefault()) {
+    _impl_.appkey_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proto.BrainTellServerMysqlDBCompatibleData.AppKey)
+}
+
+// int32 IsDeleted = 5;
+inline void BrainTellServerMysqlDBCompatibleData::clear_isdeleted() {
+  _impl_.isdeleted_ = 0;
+}
+inline int32_t BrainTellServerMysqlDBCompatibleData::_internal_isdeleted() const {
+  return _impl_.isdeleted_;
+}
+inline int32_t BrainTellServerMysqlDBCompatibleData::isdeleted() const {
+  // @@protoc_insertion_point(field_get:proto.BrainTellServerMysqlDBCompatibleData.IsDeleted)
+  return _internal_isdeleted();
+}
+inline void BrainTellServerMysqlDBCompatibleData::_internal_set_isdeleted(int32_t value) {
+  
+  _impl_.isdeleted_ = value;
+}
+inline void BrainTellServerMysqlDBCompatibleData::set_isdeleted(int32_t value) {
+  _internal_set_isdeleted(value);
+  // @@protoc_insertion_point(field_set:proto.BrainTellServerMysqlDBCompatibleData.IsDeleted)
+}
+
+// -------------------------------------------------------------------
+
 // UserMetaInfoV1
 
 // .proto.MetaInfoBase Base = 1;
@@ -5769,6 +6221,116 @@ inline void UserMetaInfoV1::set_allocated_userpermissiongroup(std::string* userp
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:proto.UserMetaInfoV1.UserPermissionGroup)
+}
+
+// int32 UserId = 8;
+inline void UserMetaInfoV1::clear_userid() {
+  _impl_.userid_ = 0;
+}
+inline int32_t UserMetaInfoV1::_internal_userid() const {
+  return _impl_.userid_;
+}
+inline int32_t UserMetaInfoV1::userid() const {
+  // @@protoc_insertion_point(field_get:proto.UserMetaInfoV1.UserId)
+  return _internal_userid();
+}
+inline void UserMetaInfoV1::_internal_set_userid(int32_t value) {
+  
+  _impl_.userid_ = value;
+}
+inline void UserMetaInfoV1::set_userid(int32_t value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:proto.UserMetaInfoV1.UserId)
+}
+
+// .proto.BrainTellServerMysqlDBCompatibleData CompatibleData = 9;
+inline bool UserMetaInfoV1::_internal_has_compatibledata() const {
+  return this != internal_default_instance() && _impl_.compatibledata_ != nullptr;
+}
+inline bool UserMetaInfoV1::has_compatibledata() const {
+  return _internal_has_compatibledata();
+}
+inline void UserMetaInfoV1::clear_compatibledata() {
+  if (GetArenaForAllocation() == nullptr && _impl_.compatibledata_ != nullptr) {
+    delete _impl_.compatibledata_;
+  }
+  _impl_.compatibledata_ = nullptr;
+}
+inline const ::proto::BrainTellServerMysqlDBCompatibleData& UserMetaInfoV1::_internal_compatibledata() const {
+  const ::proto::BrainTellServerMysqlDBCompatibleData* p = _impl_.compatibledata_;
+  return p != nullptr ? *p : reinterpret_cast<const ::proto::BrainTellServerMysqlDBCompatibleData&>(
+      ::proto::_BrainTellServerMysqlDBCompatibleData_default_instance_);
+}
+inline const ::proto::BrainTellServerMysqlDBCompatibleData& UserMetaInfoV1::compatibledata() const {
+  // @@protoc_insertion_point(field_get:proto.UserMetaInfoV1.CompatibleData)
+  return _internal_compatibledata();
+}
+inline void UserMetaInfoV1::unsafe_arena_set_allocated_compatibledata(
+    ::proto::BrainTellServerMysqlDBCompatibleData* compatibledata) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.compatibledata_);
+  }
+  _impl_.compatibledata_ = compatibledata;
+  if (compatibledata) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:proto.UserMetaInfoV1.CompatibleData)
+}
+inline ::proto::BrainTellServerMysqlDBCompatibleData* UserMetaInfoV1::release_compatibledata() {
+  
+  ::proto::BrainTellServerMysqlDBCompatibleData* temp = _impl_.compatibledata_;
+  _impl_.compatibledata_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::proto::BrainTellServerMysqlDBCompatibleData* UserMetaInfoV1::unsafe_arena_release_compatibledata() {
+  // @@protoc_insertion_point(field_release:proto.UserMetaInfoV1.CompatibleData)
+  
+  ::proto::BrainTellServerMysqlDBCompatibleData* temp = _impl_.compatibledata_;
+  _impl_.compatibledata_ = nullptr;
+  return temp;
+}
+inline ::proto::BrainTellServerMysqlDBCompatibleData* UserMetaInfoV1::_internal_mutable_compatibledata() {
+  
+  if (_impl_.compatibledata_ == nullptr) {
+    auto* p = CreateMaybeMessage<::proto::BrainTellServerMysqlDBCompatibleData>(GetArenaForAllocation());
+    _impl_.compatibledata_ = p;
+  }
+  return _impl_.compatibledata_;
+}
+inline ::proto::BrainTellServerMysqlDBCompatibleData* UserMetaInfoV1::mutable_compatibledata() {
+  ::proto::BrainTellServerMysqlDBCompatibleData* _msg = _internal_mutable_compatibledata();
+  // @@protoc_insertion_point(field_mutable:proto.UserMetaInfoV1.CompatibleData)
+  return _msg;
+}
+inline void UserMetaInfoV1::set_allocated_compatibledata(::proto::BrainTellServerMysqlDBCompatibleData* compatibledata) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.compatibledata_;
+  }
+  if (compatibledata) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(compatibledata);
+    if (message_arena != submessage_arena) {
+      compatibledata = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, compatibledata, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.compatibledata_ = compatibledata;
+  // @@protoc_insertion_point(field_set_allocated:proto.UserMetaInfoV1.CompatibleData)
 }
 
 // -------------------------------------------------------------------
@@ -10159,6 +10721,56 @@ inline void UserVerifyInfoV1::set_allocated_usertoken(std::string* usertoken) {
   // @@protoc_insertion_point(field_set_allocated:proto.UserVerifyInfoV1.UserToken)
 }
 
+// string UserPassword = 3;
+inline void UserVerifyInfoV1::clear_userpassword() {
+  _impl_.userpassword_.ClearToEmpty();
+}
+inline const std::string& UserVerifyInfoV1::userpassword() const {
+  // @@protoc_insertion_point(field_get:proto.UserVerifyInfoV1.UserPassword)
+  return _internal_userpassword();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void UserVerifyInfoV1::set_userpassword(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.userpassword_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proto.UserVerifyInfoV1.UserPassword)
+}
+inline std::string* UserVerifyInfoV1::mutable_userpassword() {
+  std::string* _s = _internal_mutable_userpassword();
+  // @@protoc_insertion_point(field_mutable:proto.UserVerifyInfoV1.UserPassword)
+  return _s;
+}
+inline const std::string& UserVerifyInfoV1::_internal_userpassword() const {
+  return _impl_.userpassword_.Get();
+}
+inline void UserVerifyInfoV1::_internal_set_userpassword(const std::string& value) {
+  
+  _impl_.userpassword_.Set(value, GetArenaForAllocation());
+}
+inline std::string* UserVerifyInfoV1::_internal_mutable_userpassword() {
+  
+  return _impl_.userpassword_.Mutable(GetArenaForAllocation());
+}
+inline std::string* UserVerifyInfoV1::release_userpassword() {
+  // @@protoc_insertion_point(field_release:proto.UserVerifyInfoV1.UserPassword)
+  return _impl_.userpassword_.Release();
+}
+inline void UserVerifyInfoV1::set_allocated_userpassword(std::string* userpassword) {
+  if (userpassword != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.userpassword_.SetAllocated(userpassword, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.userpassword_.IsDefault()) {
+    _impl_.userpassword_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proto.UserVerifyInfoV1.UserPassword)
+}
+
 // -------------------------------------------------------------------
 
 // RequestMetaInfoV1
@@ -11018,6 +11630,8 @@ inline void SwcAttachmentApoV1::set_colorb(int32_t value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

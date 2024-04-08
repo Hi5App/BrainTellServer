@@ -47,9 +47,6 @@ struct TableStruct_Message_2fResponse_2eproto {
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Message_2fResponse_2eproto;
 namespace proto {
-class BackupFullDatabaseResponse;
-struct BackupFullDatabaseResponseDefaultTypeInternal;
-extern BackupFullDatabaseResponseDefaultTypeInternal _BackupFullDatabaseResponse_default_instance_;
 class ChangeUserPermissionGroupResponse;
 struct ChangeUserPermissionGroupResponseDefaultTypeInternal;
 extern ChangeUserPermissionGroupResponseDefaultTypeInternal _ChangeUserPermissionGroupResponse_default_instance_;
@@ -193,7 +190,6 @@ struct UserOnlineHeartBeatResponseDefaultTypeInternal;
 extern UserOnlineHeartBeatResponseDefaultTypeInternal _UserOnlineHeartBeatResponse_default_instance_;
 }  // namespace proto
 PROTOBUF_NAMESPACE_OPEN
-template<> ::proto::BackupFullDatabaseResponse* Arena::CreateMaybeMessage<::proto::BackupFullDatabaseResponse>(Arena*);
 template<> ::proto::ChangeUserPermissionGroupResponse* Arena::CreateMaybeMessage<::proto::ChangeUserPermissionGroupResponse>(Arena*);
 template<> ::proto::CreateDailyStatisticsResponse* Arena::CreateMaybeMessage<::proto::CreateDailyStatisticsResponse>(Arena*);
 template<> ::proto::CreateProjectResponse* Arena::CreateMaybeMessage<::proto::CreateProjectResponse>(Arena*);
@@ -3336,9 +3332,39 @@ class CreateSwcResponse final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kAnoAttachmentUuidFieldNumber = 3,
+    kApoAttachmentUuidFieldNumber = 4,
     kMetaInfoFieldNumber = 1,
     kSwcInfoFieldNumber = 2,
   };
+  // string AnoAttachmentUuid = 3;
+  void clear_anoattachmentuuid();
+  const std::string& anoattachmentuuid() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_anoattachmentuuid(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_anoattachmentuuid();
+  PROTOBUF_NODISCARD std::string* release_anoattachmentuuid();
+  void set_allocated_anoattachmentuuid(std::string* anoattachmentuuid);
+  private:
+  const std::string& _internal_anoattachmentuuid() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_anoattachmentuuid(const std::string& value);
+  std::string* _internal_mutable_anoattachmentuuid();
+  public:
+
+  // string ApoAttachmentUuid = 4;
+  void clear_apoattachmentuuid();
+  const std::string& apoattachmentuuid() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_apoattachmentuuid(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_apoattachmentuuid();
+  PROTOBUF_NODISCARD std::string* release_apoattachmentuuid();
+  void set_allocated_apoattachmentuuid(std::string* apoattachmentuuid);
+  private:
+  const std::string& _internal_apoattachmentuuid() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_apoattachmentuuid(const std::string& value);
+  std::string* _internal_mutable_apoattachmentuuid();
+  public:
+
   // .proto.ResponseMetaInfoV1 metaInfo = 1;
   bool has_metainfo() const;
   private:
@@ -3383,6 +3409,8 @@ class CreateSwcResponse final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr anoattachmentuuid_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr apoattachmentuuid_;
     ::proto::ResponseMetaInfoV1* metainfo_;
     ::proto::SwcMetaInfoV1* swcinfo_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -5993,194 +6021,6 @@ class GetSwcNodeDataListByTimeAndUserResponse final :
 };
 // -------------------------------------------------------------------
 
-class BackupFullDatabaseResponse final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proto.BackupFullDatabaseResponse) */ {
- public:
-  inline BackupFullDatabaseResponse() : BackupFullDatabaseResponse(nullptr) {}
-  ~BackupFullDatabaseResponse() override;
-  explicit PROTOBUF_CONSTEXPR BackupFullDatabaseResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  BackupFullDatabaseResponse(const BackupFullDatabaseResponse& from);
-  BackupFullDatabaseResponse(BackupFullDatabaseResponse&& from) noexcept
-    : BackupFullDatabaseResponse() {
-    *this = ::std::move(from);
-  }
-
-  inline BackupFullDatabaseResponse& operator=(const BackupFullDatabaseResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline BackupFullDatabaseResponse& operator=(BackupFullDatabaseResponse&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const BackupFullDatabaseResponse& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const BackupFullDatabaseResponse* internal_default_instance() {
-    return reinterpret_cast<const BackupFullDatabaseResponse*>(
-               &_BackupFullDatabaseResponse_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    33;
-
-  friend void swap(BackupFullDatabaseResponse& a, BackupFullDatabaseResponse& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(BackupFullDatabaseResponse* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(BackupFullDatabaseResponse* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  BackupFullDatabaseResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<BackupFullDatabaseResponse>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const BackupFullDatabaseResponse& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const BackupFullDatabaseResponse& from) {
-    BackupFullDatabaseResponse::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(BackupFullDatabaseResponse* other);
-
-  private:
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "proto.BackupFullDatabaseResponse";
-  }
-  protected:
-  explicit BackupFullDatabaseResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kMetaInfoFieldNumber = 1,
-    kDelayBackupTimeFieldNumber = 3,
-    kInstantBackupFieldNumber = 2,
-  };
-  // .proto.ResponseMetaInfoV1 metaInfo = 1;
-  bool has_metainfo() const;
-  private:
-  bool _internal_has_metainfo() const;
-  public:
-  void clear_metainfo();
-  const ::proto::ResponseMetaInfoV1& metainfo() const;
-  PROTOBUF_NODISCARD ::proto::ResponseMetaInfoV1* release_metainfo();
-  ::proto::ResponseMetaInfoV1* mutable_metainfo();
-  void set_allocated_metainfo(::proto::ResponseMetaInfoV1* metainfo);
-  private:
-  const ::proto::ResponseMetaInfoV1& _internal_metainfo() const;
-  ::proto::ResponseMetaInfoV1* _internal_mutable_metainfo();
-  public:
-  void unsafe_arena_set_allocated_metainfo(
-      ::proto::ResponseMetaInfoV1* metainfo);
-  ::proto::ResponseMetaInfoV1* unsafe_arena_release_metainfo();
-
-  // .google.protobuf.Timestamp DelayBackupTime = 3;
-  bool has_delaybackuptime() const;
-  private:
-  bool _internal_has_delaybackuptime() const;
-  public:
-  void clear_delaybackuptime();
-  const ::PROTOBUF_NAMESPACE_ID::Timestamp& delaybackuptime() const;
-  PROTOBUF_NODISCARD ::PROTOBUF_NAMESPACE_ID::Timestamp* release_delaybackuptime();
-  ::PROTOBUF_NAMESPACE_ID::Timestamp* mutable_delaybackuptime();
-  void set_allocated_delaybackuptime(::PROTOBUF_NAMESPACE_ID::Timestamp* delaybackuptime);
-  private:
-  const ::PROTOBUF_NAMESPACE_ID::Timestamp& _internal_delaybackuptime() const;
-  ::PROTOBUF_NAMESPACE_ID::Timestamp* _internal_mutable_delaybackuptime();
-  public:
-  void unsafe_arena_set_allocated_delaybackuptime(
-      ::PROTOBUF_NAMESPACE_ID::Timestamp* delaybackuptime);
-  ::PROTOBUF_NAMESPACE_ID::Timestamp* unsafe_arena_release_delaybackuptime();
-
-  // bool InstantBackup = 2;
-  void clear_instantbackup();
-  bool instantbackup() const;
-  void set_instantbackup(bool value);
-  private:
-  bool _internal_instantbackup() const;
-  void _internal_set_instantbackup(bool value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:proto.BackupFullDatabaseResponse)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  struct Impl_ {
-    ::proto::ResponseMetaInfoV1* metainfo_;
-    ::PROTOBUF_NAMESPACE_ID::Timestamp* delaybackuptime_;
-    bool instantbackup_;
-    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_Message_2fResponse_2eproto;
-};
-// -------------------------------------------------------------------
-
 class CreateDailyStatisticsResponse final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proto.CreateDailyStatisticsResponse) */ {
  public:
@@ -6229,7 +6069,7 @@ class CreateDailyStatisticsResponse final :
                &_CreateDailyStatisticsResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    34;
+    33;
 
   friend void swap(CreateDailyStatisticsResponse& a, CreateDailyStatisticsResponse& b) {
     a.Swap(&b);
@@ -6406,7 +6246,7 @@ class DeleteDailyStatisticsResponse final :
                &_DeleteDailyStatisticsResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    35;
+    34;
 
   friend void swap(DeleteDailyStatisticsResponse& a, DeleteDailyStatisticsResponse& b) {
     a.Swap(&b);
@@ -6583,7 +6423,7 @@ class UpdateDailyStatisticsResponse final :
                &_UpdateDailyStatisticsResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    36;
+    35;
 
   friend void swap(UpdateDailyStatisticsResponse& a, UpdateDailyStatisticsResponse& b) {
     a.Swap(&b);
@@ -6760,7 +6600,7 @@ class GetDailyStatisticsResponse final :
                &_GetDailyStatisticsResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    37;
+    36;
 
   friend void swap(GetDailyStatisticsResponse& a, GetDailyStatisticsResponse& b) {
     a.Swap(&b);
@@ -6937,7 +6777,7 @@ class GetAllDailyStatisticsResponse final :
                &_GetAllDailyStatisticsResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    38;
+    37;
 
   friend void swap(GetAllDailyStatisticsResponse& a, GetAllDailyStatisticsResponse& b) {
     a.Swap(&b);
@@ -7114,7 +6954,7 @@ class CreateSwcAttachmentAnoResponse final :
                &_CreateSwcAttachmentAnoResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    39;
+    38;
 
   friend void swap(CreateSwcAttachmentAnoResponse& a, CreateSwcAttachmentAnoResponse& b) {
     a.Swap(&b);
@@ -7287,7 +7127,7 @@ class DeleteSwcAttachmentAnoResponse final :
                &_DeleteSwcAttachmentAnoResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    40;
+    39;
 
   friend void swap(DeleteSwcAttachmentAnoResponse& a, DeleteSwcAttachmentAnoResponse& b) {
     a.Swap(&b);
@@ -7444,7 +7284,7 @@ class UpdateSwcAttachmentAnoResponse final :
                &_UpdateSwcAttachmentAnoResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    41;
+    40;
 
   friend void swap(UpdateSwcAttachmentAnoResponse& a, UpdateSwcAttachmentAnoResponse& b) {
     a.Swap(&b);
@@ -7601,7 +7441,7 @@ class GetSwcAttachmentAnoResponse final :
                &_GetSwcAttachmentAnoResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    42;
+    41;
 
   friend void swap(GetSwcAttachmentAnoResponse& a, GetSwcAttachmentAnoResponse& b) {
     a.Swap(&b);
@@ -7778,7 +7618,7 @@ class CreateSwcAttachmentApoResponse final :
                &_CreateSwcAttachmentApoResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    43;
+    42;
 
   friend void swap(CreateSwcAttachmentApoResponse& a, CreateSwcAttachmentApoResponse& b) {
     a.Swap(&b);
@@ -7951,7 +7791,7 @@ class DeleteSwcAttachmentApoResponse final :
                &_DeleteSwcAttachmentApoResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    44;
+    43;
 
   friend void swap(DeleteSwcAttachmentApoResponse& a, DeleteSwcAttachmentApoResponse& b) {
     a.Swap(&b);
@@ -8108,7 +7948,7 @@ class UpdateSwcAttachmentApoResponse final :
                &_UpdateSwcAttachmentApoResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    45;
+    44;
 
   friend void swap(UpdateSwcAttachmentApoResponse& a, UpdateSwcAttachmentApoResponse& b) {
     a.Swap(&b);
@@ -8265,7 +8105,7 @@ class GetSwcAttachmentApoResponse final :
                &_GetSwcAttachmentApoResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    46;
+    45;
 
   friend void swap(GetSwcAttachmentApoResponse& a, GetSwcAttachmentApoResponse& b) {
     a.Swap(&b);
@@ -8442,7 +8282,7 @@ class RevertSwcVersionResponse final :
                &_RevertSwcVersionResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    47;
+    46;
 
   friend void swap(RevertSwcVersionResponse& a, RevertSwcVersionResponse& b) {
     a.Swap(&b);
@@ -11374,6 +11214,106 @@ inline void CreateSwcResponse::set_allocated_swcinfo(::proto::SwcMetaInfoV1* swc
   // @@protoc_insertion_point(field_set_allocated:proto.CreateSwcResponse.SwcInfo)
 }
 
+// string AnoAttachmentUuid = 3;
+inline void CreateSwcResponse::clear_anoattachmentuuid() {
+  _impl_.anoattachmentuuid_.ClearToEmpty();
+}
+inline const std::string& CreateSwcResponse::anoattachmentuuid() const {
+  // @@protoc_insertion_point(field_get:proto.CreateSwcResponse.AnoAttachmentUuid)
+  return _internal_anoattachmentuuid();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void CreateSwcResponse::set_anoattachmentuuid(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.anoattachmentuuid_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proto.CreateSwcResponse.AnoAttachmentUuid)
+}
+inline std::string* CreateSwcResponse::mutable_anoattachmentuuid() {
+  std::string* _s = _internal_mutable_anoattachmentuuid();
+  // @@protoc_insertion_point(field_mutable:proto.CreateSwcResponse.AnoAttachmentUuid)
+  return _s;
+}
+inline const std::string& CreateSwcResponse::_internal_anoattachmentuuid() const {
+  return _impl_.anoattachmentuuid_.Get();
+}
+inline void CreateSwcResponse::_internal_set_anoattachmentuuid(const std::string& value) {
+  
+  _impl_.anoattachmentuuid_.Set(value, GetArenaForAllocation());
+}
+inline std::string* CreateSwcResponse::_internal_mutable_anoattachmentuuid() {
+  
+  return _impl_.anoattachmentuuid_.Mutable(GetArenaForAllocation());
+}
+inline std::string* CreateSwcResponse::release_anoattachmentuuid() {
+  // @@protoc_insertion_point(field_release:proto.CreateSwcResponse.AnoAttachmentUuid)
+  return _impl_.anoattachmentuuid_.Release();
+}
+inline void CreateSwcResponse::set_allocated_anoattachmentuuid(std::string* anoattachmentuuid) {
+  if (anoattachmentuuid != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.anoattachmentuuid_.SetAllocated(anoattachmentuuid, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.anoattachmentuuid_.IsDefault()) {
+    _impl_.anoattachmentuuid_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proto.CreateSwcResponse.AnoAttachmentUuid)
+}
+
+// string ApoAttachmentUuid = 4;
+inline void CreateSwcResponse::clear_apoattachmentuuid() {
+  _impl_.apoattachmentuuid_.ClearToEmpty();
+}
+inline const std::string& CreateSwcResponse::apoattachmentuuid() const {
+  // @@protoc_insertion_point(field_get:proto.CreateSwcResponse.ApoAttachmentUuid)
+  return _internal_apoattachmentuuid();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void CreateSwcResponse::set_apoattachmentuuid(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.apoattachmentuuid_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proto.CreateSwcResponse.ApoAttachmentUuid)
+}
+inline std::string* CreateSwcResponse::mutable_apoattachmentuuid() {
+  std::string* _s = _internal_mutable_apoattachmentuuid();
+  // @@protoc_insertion_point(field_mutable:proto.CreateSwcResponse.ApoAttachmentUuid)
+  return _s;
+}
+inline const std::string& CreateSwcResponse::_internal_apoattachmentuuid() const {
+  return _impl_.apoattachmentuuid_.Get();
+}
+inline void CreateSwcResponse::_internal_set_apoattachmentuuid(const std::string& value) {
+  
+  _impl_.apoattachmentuuid_.Set(value, GetArenaForAllocation());
+}
+inline std::string* CreateSwcResponse::_internal_mutable_apoattachmentuuid() {
+  
+  return _impl_.apoattachmentuuid_.Mutable(GetArenaForAllocation());
+}
+inline std::string* CreateSwcResponse::release_apoattachmentuuid() {
+  // @@protoc_insertion_point(field_release:proto.CreateSwcResponse.ApoAttachmentUuid)
+  return _impl_.apoattachmentuuid_.Release();
+}
+inline void CreateSwcResponse::set_allocated_apoattachmentuuid(std::string* apoattachmentuuid) {
+  if (apoattachmentuuid != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.apoattachmentuuid_.SetAllocated(apoattachmentuuid, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.apoattachmentuuid_.IsDefault()) {
+    _impl_.apoattachmentuuid_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proto.CreateSwcResponse.ApoAttachmentUuid)
+}
+
 // -------------------------------------------------------------------
 
 // DeleteSwcResponse
@@ -13577,200 +13517,6 @@ inline void GetSwcNodeDataListByTimeAndUserResponse::set_allocated_swcnodedata(:
 
 // -------------------------------------------------------------------
 
-// BackupFullDatabaseResponse
-
-// .proto.ResponseMetaInfoV1 metaInfo = 1;
-inline bool BackupFullDatabaseResponse::_internal_has_metainfo() const {
-  return this != internal_default_instance() && _impl_.metainfo_ != nullptr;
-}
-inline bool BackupFullDatabaseResponse::has_metainfo() const {
-  return _internal_has_metainfo();
-}
-inline const ::proto::ResponseMetaInfoV1& BackupFullDatabaseResponse::_internal_metainfo() const {
-  const ::proto::ResponseMetaInfoV1* p = _impl_.metainfo_;
-  return p != nullptr ? *p : reinterpret_cast<const ::proto::ResponseMetaInfoV1&>(
-      ::proto::_ResponseMetaInfoV1_default_instance_);
-}
-inline const ::proto::ResponseMetaInfoV1& BackupFullDatabaseResponse::metainfo() const {
-  // @@protoc_insertion_point(field_get:proto.BackupFullDatabaseResponse.metaInfo)
-  return _internal_metainfo();
-}
-inline void BackupFullDatabaseResponse::unsafe_arena_set_allocated_metainfo(
-    ::proto::ResponseMetaInfoV1* metainfo) {
-  if (GetArenaForAllocation() == nullptr) {
-    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.metainfo_);
-  }
-  _impl_.metainfo_ = metainfo;
-  if (metainfo) {
-    
-  } else {
-    
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:proto.BackupFullDatabaseResponse.metaInfo)
-}
-inline ::proto::ResponseMetaInfoV1* BackupFullDatabaseResponse::release_metainfo() {
-  
-  ::proto::ResponseMetaInfoV1* temp = _impl_.metainfo_;
-  _impl_.metainfo_ = nullptr;
-#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
-  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
-  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
-#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
-    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  }
-#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
-  return temp;
-}
-inline ::proto::ResponseMetaInfoV1* BackupFullDatabaseResponse::unsafe_arena_release_metainfo() {
-  // @@protoc_insertion_point(field_release:proto.BackupFullDatabaseResponse.metaInfo)
-  
-  ::proto::ResponseMetaInfoV1* temp = _impl_.metainfo_;
-  _impl_.metainfo_ = nullptr;
-  return temp;
-}
-inline ::proto::ResponseMetaInfoV1* BackupFullDatabaseResponse::_internal_mutable_metainfo() {
-  
-  if (_impl_.metainfo_ == nullptr) {
-    auto* p = CreateMaybeMessage<::proto::ResponseMetaInfoV1>(GetArenaForAllocation());
-    _impl_.metainfo_ = p;
-  }
-  return _impl_.metainfo_;
-}
-inline ::proto::ResponseMetaInfoV1* BackupFullDatabaseResponse::mutable_metainfo() {
-  ::proto::ResponseMetaInfoV1* _msg = _internal_mutable_metainfo();
-  // @@protoc_insertion_point(field_mutable:proto.BackupFullDatabaseResponse.metaInfo)
-  return _msg;
-}
-inline void BackupFullDatabaseResponse::set_allocated_metainfo(::proto::ResponseMetaInfoV1* metainfo) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
-    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.metainfo_);
-  }
-  if (metainfo) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(metainfo));
-    if (message_arena != submessage_arena) {
-      metainfo = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, metainfo, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  _impl_.metainfo_ = metainfo;
-  // @@protoc_insertion_point(field_set_allocated:proto.BackupFullDatabaseResponse.metaInfo)
-}
-
-// bool InstantBackup = 2;
-inline void BackupFullDatabaseResponse::clear_instantbackup() {
-  _impl_.instantbackup_ = false;
-}
-inline bool BackupFullDatabaseResponse::_internal_instantbackup() const {
-  return _impl_.instantbackup_;
-}
-inline bool BackupFullDatabaseResponse::instantbackup() const {
-  // @@protoc_insertion_point(field_get:proto.BackupFullDatabaseResponse.InstantBackup)
-  return _internal_instantbackup();
-}
-inline void BackupFullDatabaseResponse::_internal_set_instantbackup(bool value) {
-  
-  _impl_.instantbackup_ = value;
-}
-inline void BackupFullDatabaseResponse::set_instantbackup(bool value) {
-  _internal_set_instantbackup(value);
-  // @@protoc_insertion_point(field_set:proto.BackupFullDatabaseResponse.InstantBackup)
-}
-
-// .google.protobuf.Timestamp DelayBackupTime = 3;
-inline bool BackupFullDatabaseResponse::_internal_has_delaybackuptime() const {
-  return this != internal_default_instance() && _impl_.delaybackuptime_ != nullptr;
-}
-inline bool BackupFullDatabaseResponse::has_delaybackuptime() const {
-  return _internal_has_delaybackuptime();
-}
-inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& BackupFullDatabaseResponse::_internal_delaybackuptime() const {
-  const ::PROTOBUF_NAMESPACE_ID::Timestamp* p = _impl_.delaybackuptime_;
-  return p != nullptr ? *p : reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Timestamp&>(
-      ::PROTOBUF_NAMESPACE_ID::_Timestamp_default_instance_);
-}
-inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& BackupFullDatabaseResponse::delaybackuptime() const {
-  // @@protoc_insertion_point(field_get:proto.BackupFullDatabaseResponse.DelayBackupTime)
-  return _internal_delaybackuptime();
-}
-inline void BackupFullDatabaseResponse::unsafe_arena_set_allocated_delaybackuptime(
-    ::PROTOBUF_NAMESPACE_ID::Timestamp* delaybackuptime) {
-  if (GetArenaForAllocation() == nullptr) {
-    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.delaybackuptime_);
-  }
-  _impl_.delaybackuptime_ = delaybackuptime;
-  if (delaybackuptime) {
-    
-  } else {
-    
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:proto.BackupFullDatabaseResponse.DelayBackupTime)
-}
-inline ::PROTOBUF_NAMESPACE_ID::Timestamp* BackupFullDatabaseResponse::release_delaybackuptime() {
-  
-  ::PROTOBUF_NAMESPACE_ID::Timestamp* temp = _impl_.delaybackuptime_;
-  _impl_.delaybackuptime_ = nullptr;
-#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
-  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
-  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
-#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
-    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  }
-#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
-  return temp;
-}
-inline ::PROTOBUF_NAMESPACE_ID::Timestamp* BackupFullDatabaseResponse::unsafe_arena_release_delaybackuptime() {
-  // @@protoc_insertion_point(field_release:proto.BackupFullDatabaseResponse.DelayBackupTime)
-  
-  ::PROTOBUF_NAMESPACE_ID::Timestamp* temp = _impl_.delaybackuptime_;
-  _impl_.delaybackuptime_ = nullptr;
-  return temp;
-}
-inline ::PROTOBUF_NAMESPACE_ID::Timestamp* BackupFullDatabaseResponse::_internal_mutable_delaybackuptime() {
-  
-  if (_impl_.delaybackuptime_ == nullptr) {
-    auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Timestamp>(GetArenaForAllocation());
-    _impl_.delaybackuptime_ = p;
-  }
-  return _impl_.delaybackuptime_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::Timestamp* BackupFullDatabaseResponse::mutable_delaybackuptime() {
-  ::PROTOBUF_NAMESPACE_ID::Timestamp* _msg = _internal_mutable_delaybackuptime();
-  // @@protoc_insertion_point(field_mutable:proto.BackupFullDatabaseResponse.DelayBackupTime)
-  return _msg;
-}
-inline void BackupFullDatabaseResponse::set_allocated_delaybackuptime(::PROTOBUF_NAMESPACE_ID::Timestamp* delaybackuptime) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
-    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.delaybackuptime_);
-  }
-  if (delaybackuptime) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(delaybackuptime));
-    if (message_arena != submessage_arena) {
-      delaybackuptime = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, delaybackuptime, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  _impl_.delaybackuptime_ = delaybackuptime;
-  // @@protoc_insertion_point(field_set_allocated:proto.BackupFullDatabaseResponse.DelayBackupTime)
-}
-
-// -------------------------------------------------------------------
-
 // CreateDailyStatisticsResponse
 
 // .proto.ResponseMetaInfoV1 metaInfo = 1;
@@ -15617,8 +15363,6 @@ inline void RevertSwcVersionResponse::set_allocated_metainfo(::proto::ResponseMe
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

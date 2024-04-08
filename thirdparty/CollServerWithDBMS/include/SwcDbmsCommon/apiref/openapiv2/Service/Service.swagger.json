@@ -16,38 +16,6 @@
     "application/json"
   ],
   "paths": {
-    "/proto.DBMS/BackupFullDatabase": {
-      "post": {
-        "operationId": "DBMS_BackupFullDatabase",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/protoBackupFullDatabaseResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/protoBackupFullDatabaseRequest"
-            }
-          }
-        ],
-        "tags": [
-          "DBMS"
-        ]
-      }
-    },
     "/proto.DBMS/ChangeUserPermissionGroup": {
       "post": {
         "operationId": "DBMS_ChangeUserPermissionGroup",
@@ -1554,36 +1522,25 @@
     }
   },
   "definitions": {
-    "protoBackupFullDatabaseRequest": {
+    "protoBrainTellServerMysqlDBCompatibleData": {
       "type": "object",
       "properties": {
-        "metaInfo": {
-          "$ref": "#/definitions/protoRequestMetaInfoV1"
+        "Email": {
+          "type": "string"
         },
-        "UserVerifyInfo": {
-          "$ref": "#/definitions/protoUserVerifyInfoV1"
+        "NickName": {
+          "type": "string"
         },
-        "InstantBackup": {
-          "type": "boolean"
+        "Score": {
+          "type": "integer",
+          "format": "int32"
         },
-        "DelayBackupTime": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "protoBackupFullDatabaseResponse": {
-      "type": "object",
-      "properties": {
-        "metaInfo": {
-          "$ref": "#/definitions/protoResponseMetaInfoV1"
+        "AppKey": {
+          "type": "string"
         },
-        "InstantBackup": {
-          "type": "boolean"
-        },
-        "DelayBackupTime": {
-          "type": "string",
-          "format": "date-time"
+        "IsDeleted": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -1764,6 +1721,16 @@
         },
         "SwcInfo": {
           "$ref": "#/definitions/protoSwcMetaInfoV1"
+        },
+        "SwcAttachmentAno": {
+          "$ref": "#/definitions/protoSwcAttachmentAnoV1"
+        },
+        "SwcAttachmentApo": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoSwcAttachmentApoV1"
+          }
         }
       }
     },
@@ -1775,6 +1742,12 @@
         },
         "SwcInfo": {
           "$ref": "#/definitions/protoSwcMetaInfoV1"
+        },
+        "AnoAttachmentUuid": {
+          "type": "string"
+        },
+        "ApoAttachmentUuid": {
+          "type": "string"
         }
       }
     },
@@ -3323,6 +3296,13 @@
         },
         "UserPermissionGroup": {
           "type": "string"
+        },
+        "UserId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "CompatibleData": {
+          "$ref": "#/definitions/protoBrainTellServerMysqlDBCompatibleData"
         }
       }
     },
@@ -3370,6 +3350,9 @@
           "type": "string"
         },
         "UserToken": {
+          "type": "string"
+        },
+        "UserPassword": {
           "type": "string"
         }
       }

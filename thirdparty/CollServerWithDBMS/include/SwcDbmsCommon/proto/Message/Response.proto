@@ -93,6 +93,8 @@ message GetAllProjectResponse{
 message CreateSwcResponse{
     ResponseMetaInfoV1 metaInfo = 1;
     SwcMetaInfoV1 SwcInfo = 2;
+    string AnoAttachmentUuid = 3; 
+    string ApoAttachmentUuid = 4; 
 }
 
 message DeleteSwcResponse{
@@ -165,12 +167,6 @@ message GetSwcFullNodeDataResponse{
 message GetSwcNodeDataListByTimeAndUserResponse{
     ResponseMetaInfoV1 metaInfo = 1;
     SwcDataV1 SwcNodeData = 2;
-}
-
-message BackupFullDatabaseResponse{
-    ResponseMetaInfoV1 metaInfo = 1;
-    bool InstantBackup = 2;
-    google.protobuf.Timestamp DelayBackupTime = 3;
 }
 
 message CreateDailyStatisticsResponse{

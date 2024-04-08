@@ -259,7 +259,9 @@ struct GetAllProjectResponseDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetAllProjectResponseDefaultTypeInternal _GetAllProjectResponse_default_instance_;
 PROTOBUF_CONSTEXPR CreateSwcResponse::CreateSwcResponse(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.metainfo_)*/nullptr
+    /*decltype(_impl_.anoattachmentuuid_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.apoattachmentuuid_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.metainfo_)*/nullptr
   , /*decltype(_impl_.swcinfo_)*/nullptr
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct CreateSwcResponseDefaultTypeInternal {
@@ -478,21 +480,6 @@ struct GetSwcNodeDataListByTimeAndUserResponseDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetSwcNodeDataListByTimeAndUserResponseDefaultTypeInternal _GetSwcNodeDataListByTimeAndUserResponse_default_instance_;
-PROTOBUF_CONSTEXPR BackupFullDatabaseResponse::BackupFullDatabaseResponse(
-    ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.metainfo_)*/nullptr
-  , /*decltype(_impl_.delaybackuptime_)*/nullptr
-  , /*decltype(_impl_.instantbackup_)*/false
-  , /*decltype(_impl_._cached_size_)*/{}} {}
-struct BackupFullDatabaseResponseDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR BackupFullDatabaseResponseDefaultTypeInternal()
-      : _instance(::_pbi::ConstantInitialized{}) {}
-  ~BackupFullDatabaseResponseDefaultTypeInternal() {}
-  union {
-    BackupFullDatabaseResponse _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BackupFullDatabaseResponseDefaultTypeInternal _BackupFullDatabaseResponse_default_instance_;
 PROTOBUF_CONSTEXPR CreateDailyStatisticsResponse::CreateDailyStatisticsResponse(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.metainfo_)*/nullptr
@@ -685,7 +672,7 @@ struct RevertSwcVersionResponseDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RevertSwcVersionResponseDefaultTypeInternal _RevertSwcVersionResponse_default_instance_;
 }  // namespace proto
-static ::_pb::Metadata file_level_metadata_Message_2fResponse_2eproto[48];
+static ::_pb::Metadata file_level_metadata_Message_2fResponse_2eproto[47];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_Message_2fResponse_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_Message_2fResponse_2eproto = nullptr;
 
@@ -832,6 +819,8 @@ const uint32_t TableStruct_Message_2fResponse_2eproto::offsets[] PROTOBUF_SECTIO
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::proto::CreateSwcResponse, _impl_.metainfo_),
   PROTOBUF_FIELD_OFFSET(::proto::CreateSwcResponse, _impl_.swcinfo_),
+  PROTOBUF_FIELD_OFFSET(::proto::CreateSwcResponse, _impl_.anoattachmentuuid_),
+  PROTOBUF_FIELD_OFFSET(::proto::CreateSwcResponse, _impl_.apoattachmentuuid_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::proto::DeleteSwcResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -949,15 +938,6 @@ const uint32_t TableStruct_Message_2fResponse_2eproto::offsets[] PROTOBUF_SECTIO
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::proto::GetSwcNodeDataListByTimeAndUserResponse, _impl_.metainfo_),
   PROTOBUF_FIELD_OFFSET(::proto::GetSwcNodeDataListByTimeAndUserResponse, _impl_.swcnodedata_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::proto::BackupFullDatabaseResponse, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::proto::BackupFullDatabaseResponse, _impl_.metainfo_),
-  PROTOBUF_FIELD_OFFSET(::proto::BackupFullDatabaseResponse, _impl_.instantbackup_),
-  PROTOBUF_FIELD_OFFSET(::proto::BackupFullDatabaseResponse, _impl_.delaybackuptime_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::proto::CreateDailyStatisticsResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -1085,36 +1065,35 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 118, -1, -1, sizeof(::proto::GetProjectResponse)},
   { 126, -1, -1, sizeof(::proto::GetAllProjectResponse)},
   { 134, -1, -1, sizeof(::proto::CreateSwcResponse)},
-  { 142, -1, -1, sizeof(::proto::DeleteSwcResponse)},
-  { 150, -1, -1, sizeof(::proto::UpdateSwcResponse)},
-  { 158, -1, -1, sizeof(::proto::GetSwcMetaInfoResponse)},
-  { 166, -1, -1, sizeof(::proto::GetAllSwcMetaInfoResponse)},
-  { 174, -1, -1, sizeof(::proto::CreateSwcSnapshotResponse)},
-  { 181, -1, -1, sizeof(::proto::GetAllSnapshotMetaInfoResponse)},
-  { 189, -1, -1, sizeof(::proto::GetSnapshotResponse)},
-  { 197, -1, -1, sizeof(::proto::GetAllIncrementOperationMetaInfoResponse)},
-  { 205, -1, -1, sizeof(::proto::GetIncrementOperationResponse)},
-  { 213, -1, -1, sizeof(::proto::CreateSwcNodeDataResponse)},
-  { 221, -1, -1, sizeof(::proto::DeleteSwcNodeDataResponse)},
-  { 228, -1, -1, sizeof(::proto::UpdateSwcNodeDataResponse)},
-  { 235, -1, -1, sizeof(::proto::GetSwcNodeDataResponse)},
-  { 243, -1, -1, sizeof(::proto::GetSwcFullNodeDataResponse)},
-  { 251, -1, -1, sizeof(::proto::GetSwcNodeDataListByTimeAndUserResponse)},
-  { 259, -1, -1, sizeof(::proto::BackupFullDatabaseResponse)},
-  { 268, -1, -1, sizeof(::proto::CreateDailyStatisticsResponse)},
-  { 276, -1, -1, sizeof(::proto::DeleteDailyStatisticsResponse)},
-  { 284, -1, -1, sizeof(::proto::UpdateDailyStatisticsResponse)},
-  { 292, -1, -1, sizeof(::proto::GetDailyStatisticsResponse)},
-  { 300, -1, -1, sizeof(::proto::GetAllDailyStatisticsResponse)},
-  { 308, -1, -1, sizeof(::proto::CreateSwcAttachmentAnoResponse)},
-  { 316, -1, -1, sizeof(::proto::DeleteSwcAttachmentAnoResponse)},
-  { 323, -1, -1, sizeof(::proto::UpdateSwcAttachmentAnoResponse)},
-  { 330, -1, -1, sizeof(::proto::GetSwcAttachmentAnoResponse)},
-  { 338, -1, -1, sizeof(::proto::CreateSwcAttachmentApoResponse)},
-  { 346, -1, -1, sizeof(::proto::DeleteSwcAttachmentApoResponse)},
-  { 353, -1, -1, sizeof(::proto::UpdateSwcAttachmentApoResponse)},
-  { 360, -1, -1, sizeof(::proto::GetSwcAttachmentApoResponse)},
-  { 368, -1, -1, sizeof(::proto::RevertSwcVersionResponse)},
+  { 144, -1, -1, sizeof(::proto::DeleteSwcResponse)},
+  { 152, -1, -1, sizeof(::proto::UpdateSwcResponse)},
+  { 160, -1, -1, sizeof(::proto::GetSwcMetaInfoResponse)},
+  { 168, -1, -1, sizeof(::proto::GetAllSwcMetaInfoResponse)},
+  { 176, -1, -1, sizeof(::proto::CreateSwcSnapshotResponse)},
+  { 183, -1, -1, sizeof(::proto::GetAllSnapshotMetaInfoResponse)},
+  { 191, -1, -1, sizeof(::proto::GetSnapshotResponse)},
+  { 199, -1, -1, sizeof(::proto::GetAllIncrementOperationMetaInfoResponse)},
+  { 207, -1, -1, sizeof(::proto::GetIncrementOperationResponse)},
+  { 215, -1, -1, sizeof(::proto::CreateSwcNodeDataResponse)},
+  { 223, -1, -1, sizeof(::proto::DeleteSwcNodeDataResponse)},
+  { 230, -1, -1, sizeof(::proto::UpdateSwcNodeDataResponse)},
+  { 237, -1, -1, sizeof(::proto::GetSwcNodeDataResponse)},
+  { 245, -1, -1, sizeof(::proto::GetSwcFullNodeDataResponse)},
+  { 253, -1, -1, sizeof(::proto::GetSwcNodeDataListByTimeAndUserResponse)},
+  { 261, -1, -1, sizeof(::proto::CreateDailyStatisticsResponse)},
+  { 269, -1, -1, sizeof(::proto::DeleteDailyStatisticsResponse)},
+  { 277, -1, -1, sizeof(::proto::UpdateDailyStatisticsResponse)},
+  { 285, -1, -1, sizeof(::proto::GetDailyStatisticsResponse)},
+  { 293, -1, -1, sizeof(::proto::GetAllDailyStatisticsResponse)},
+  { 301, -1, -1, sizeof(::proto::CreateSwcAttachmentAnoResponse)},
+  { 309, -1, -1, sizeof(::proto::DeleteSwcAttachmentAnoResponse)},
+  { 316, -1, -1, sizeof(::proto::UpdateSwcAttachmentAnoResponse)},
+  { 323, -1, -1, sizeof(::proto::GetSwcAttachmentAnoResponse)},
+  { 331, -1, -1, sizeof(::proto::CreateSwcAttachmentApoResponse)},
+  { 339, -1, -1, sizeof(::proto::DeleteSwcAttachmentApoResponse)},
+  { 346, -1, -1, sizeof(::proto::UpdateSwcAttachmentApoResponse)},
+  { 353, -1, -1, sizeof(::proto::GetSwcAttachmentApoResponse)},
+  { 361, -1, -1, sizeof(::proto::RevertSwcVersionResponse)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -1151,7 +1130,6 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::proto::_GetSwcNodeDataResponse_default_instance_._instance,
   &::proto::_GetSwcFullNodeDataResponse_default_instance_._instance,
   &::proto::_GetSwcNodeDataListByTimeAndUserResponse_default_instance_._instance,
-  &::proto::_BackupFullDatabaseResponse_default_instance_._instance,
   &::proto::_CreateDailyStatisticsResponse_default_instance_._instance,
   &::proto::_DeleteDailyStatisticsResponse_default_instance_._instance,
   &::proto::_UpdateDailyStatisticsResponse_default_instance_._instance,
@@ -1219,96 +1197,93 @@ const char descriptor_table_protodef_Message_2fResponse_2eproto[] PROTOBUF_SECTI
   "ojectMetaInfoV1\"s\n\025GetAllProjectResponse"
   "\022+\n\010metaInfo\030\001 \001(\0132\031.proto.ResponseMetaI"
   "nfoV1\022-\n\013ProjectInfo\030\002 \003(\0132\030.proto.Proje"
-  "ctMetaInfoV1\"g\n\021CreateSwcResponse\022+\n\010met"
+  "ctMetaInfoV1\"\235\001\n\021CreateSwcResponse\022+\n\010me"
+  "taInfo\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022"
+  "%\n\007SwcInfo\030\002 \001(\0132\024.proto.SwcMetaInfoV1\022\031"
+  "\n\021AnoAttachmentUuid\030\003 \001(\t\022\031\n\021ApoAttachme"
+  "ntUuid\030\004 \001(\t\"g\n\021DeleteSwcResponse\022+\n\010met"
   "aInfo\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022%"
   "\n\007SwcInfo\030\002 \001(\0132\024.proto.SwcMetaInfoV1\"g\n"
-  "\021DeleteSwcResponse\022+\n\010metaInfo\030\001 \001(\0132\031.p"
+  "\021UpdateSwcResponse\022+\n\010metaInfo\030\001 \001(\0132\031.p"
   "roto.ResponseMetaInfoV1\022%\n\007SwcInfo\030\002 \001(\013"
-  "2\024.proto.SwcMetaInfoV1\"g\n\021UpdateSwcRespo"
-  "nse\022+\n\010metaInfo\030\001 \001(\0132\031.proto.ResponseMe"
-  "taInfoV1\022%\n\007SwcInfo\030\002 \001(\0132\024.proto.SwcMet"
-  "aInfoV1\"l\n\026GetSwcMetaInfoResponse\022+\n\010met"
-  "aInfo\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022%"
-  "\n\007SwcInfo\030\002 \001(\0132\024.proto.SwcMetaInfoV1\"o\n"
-  "\031GetAllSwcMetaInfoResponse\022+\n\010metaInfo\030\001"
-  " \001(\0132\031.proto.ResponseMetaInfoV1\022%\n\007SwcIn"
-  "fo\030\002 \003(\0132\024.proto.SwcMetaInfoV1\"H\n\031Create"
-  "SwcSnapshotResponse\022+\n\010metaInfo\030\001 \001(\0132\031."
-  "proto.ResponseMetaInfoV1\"\204\001\n\036GetAllSnaps"
-  "hotMetaInfoResponse\022+\n\010metaInfo\030\001 \001(\0132\031."
-  "proto.ResponseMetaInfoV1\0225\n\017SwcSnapshotL"
-  "ist\030\002 \003(\0132\034.proto.SwcSnapshotMetaInfoV1\""
-  "i\n\023GetSnapshotResponse\022+\n\010metaInfo\030\002 \001(\013"
-  "2\031.proto.ResponseMetaInfoV1\022%\n\013SwcNodeDa"
-  "ta\030\003 \001(\0132\020.proto.SwcDataV1\"\246\001\n(GetAllInc"
-  "rementOperationMetaInfoResponse\022+\n\010metaI"
-  "nfo\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022M\n\035"
-  "SwcIncrementOperationMetaInfo\030\002 \003(\0132&.pr"
-  "oto.SwcIncrementOperationMetaInfoV1\"\223\001\n\035"
-  "GetIncrementOperationResponse\022+\n\010metaInf"
-  "o\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022E\n\031Sw"
-  "cIncrementOperationList\030\002 \001(\0132\".proto.Sw"
-  "cIncrementOperationListV1\"b\n\031CreateSwcNo"
-  "deDataResponse\022+\n\010metaInfo\030\001 \001(\0132\031.proto"
-  ".ResponseMetaInfoV1\022\030\n\020CreatedNodesUuid\030"
-  "\002 \003(\t\"H\n\031DeleteSwcNodeDataResponse\022+\n\010me"
+  "2\024.proto.SwcMetaInfoV1\"l\n\026GetSwcMetaInfo"
+  "Response\022+\n\010metaInfo\030\001 \001(\0132\031.proto.Respo"
+  "nseMetaInfoV1\022%\n\007SwcInfo\030\002 \001(\0132\024.proto.S"
+  "wcMetaInfoV1\"o\n\031GetAllSwcMetaInfoRespons"
+  "e\022+\n\010metaInfo\030\001 \001(\0132\031.proto.ResponseMeta"
+  "InfoV1\022%\n\007SwcInfo\030\002 \003(\0132\024.proto.SwcMetaI"
+  "nfoV1\"H\n\031CreateSwcSnapshotResponse\022+\n\010me"
   "taInfo\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\""
-  "H\n\031UpdateSwcNodeDataResponse\022+\n\010metaInfo"
-  "\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\"l\n\026Get"
-  "SwcNodeDataResponse\022+\n\010metaInfo\030\001 \001(\0132\031."
-  "proto.ResponseMetaInfoV1\022%\n\013SwcNodeData\030"
-  "\002 \001(\0132\020.proto.SwcDataV1\"p\n\032GetSwcFullNod"
-  "eDataResponse\022+\n\010metaInfo\030\001 \001(\0132\031.proto."
-  "ResponseMetaInfoV1\022%\n\013SwcNodeData\030\002 \001(\0132"
-  "\020.proto.SwcDataV1\"}\n\'GetSwcNodeDataListB"
-  "yTimeAndUserResponse\022+\n\010metaInfo\030\001 \001(\0132\031"
-  ".proto.ResponseMetaInfoV1\022%\n\013SwcNodeData"
-  "\030\002 \001(\0132\020.proto.SwcDataV1\"\225\001\n\032BackupFullD"
-  "atabaseResponse\022+\n\010metaInfo\030\001 \001(\0132\031.prot"
-  "o.ResponseMetaInfoV1\022\025\n\rInstantBackup\030\002 "
-  "\001(\010\0223\n\017DelayBackupTime\030\003 \001(\0132\032.google.pr"
-  "otobuf.Timestamp\"\213\001\n\035CreateDailyStatisti"
-  "csResponse\022+\n\010metaInfo\030\001 \001(\0132\031.proto.Res"
-  "ponseMetaInfoV1\022=\n\023DailyStatisticsInfo\030\002"
-  " \001(\0132 .proto.DailyStatisticsMetaInfoV1\"\213"
-  "\001\n\035DeleteDailyStatisticsResponse\022+\n\010meta"
-  "Info\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022=\n"
-  "\023DailyStatisticsInfo\030\002 \001(\0132 .proto.Daily"
-  "StatisticsMetaInfoV1\"\213\001\n\035UpdateDailyStat"
-  "isticsResponse\022+\n\010metaInfo\030\001 \001(\0132\031.proto"
-  ".ResponseMetaInfoV1\022=\n\023DailyStatisticsIn"
-  "fo\030\002 \001(\0132 .proto.DailyStatisticsMetaInfo"
-  "V1\"\210\001\n\032GetDailyStatisticsResponse\022+\n\010met"
+  "\204\001\n\036GetAllSnapshotMetaInfoResponse\022+\n\010me"
+  "taInfo\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022"
+  "5\n\017SwcSnapshotList\030\002 \003(\0132\034.proto.SwcSnap"
+  "shotMetaInfoV1\"i\n\023GetSnapshotResponse\022+\n"
+  "\010metaInfo\030\002 \001(\0132\031.proto.ResponseMetaInfo"
+  "V1\022%\n\013SwcNodeData\030\003 \001(\0132\020.proto.SwcDataV"
+  "1\"\246\001\n(GetAllIncrementOperationMetaInfoRe"
+  "sponse\022+\n\010metaInfo\030\001 \001(\0132\031.proto.Respons"
+  "eMetaInfoV1\022M\n\035SwcIncrementOperationMeta"
+  "Info\030\002 \003(\0132&.proto.SwcIncrementOperation"
+  "MetaInfoV1\"\223\001\n\035GetIncrementOperationResp"
+  "onse\022+\n\010metaInfo\030\001 \001(\0132\031.proto.ResponseM"
+  "etaInfoV1\022E\n\031SwcIncrementOperationList\030\002"
+  " \001(\0132\".proto.SwcIncrementOperationListV1"
+  "\"b\n\031CreateSwcNodeDataResponse\022+\n\010metaInf"
+  "o\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022\030\n\020Cr"
+  "eatedNodesUuid\030\002 \003(\t\"H\n\031DeleteSwcNodeDat"
+  "aResponse\022+\n\010metaInfo\030\001 \001(\0132\031.proto.Resp"
+  "onseMetaInfoV1\"H\n\031UpdateSwcNodeDataRespo"
+  "nse\022+\n\010metaInfo\030\001 \001(\0132\031.proto.ResponseMe"
+  "taInfoV1\"l\n\026GetSwcNodeDataResponse\022+\n\010me"
+  "taInfo\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022"
+  "%\n\013SwcNodeData\030\002 \001(\0132\020.proto.SwcDataV1\"p"
+  "\n\032GetSwcFullNodeDataResponse\022+\n\010metaInfo"
+  "\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022%\n\013Swc"
+  "NodeData\030\002 \001(\0132\020.proto.SwcDataV1\"}\n\'GetS"
+  "wcNodeDataListByTimeAndUserResponse\022+\n\010m"
+  "etaInfo\030\001 \001(\0132\031.proto.ResponseMetaInfoV1"
+  "\022%\n\013SwcNodeData\030\002 \001(\0132\020.proto.SwcDataV1\""
+  "\213\001\n\035CreateDailyStatisticsResponse\022+\n\010met"
   "aInfo\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022="
   "\n\023DailyStatisticsInfo\030\002 \001(\0132 .proto.Dail"
-  "yStatisticsMetaInfoV1\"\213\001\n\035GetAllDailySta"
+  "yStatisticsMetaInfoV1\"\213\001\n\035DeleteDailySta"
   "tisticsResponse\022+\n\010metaInfo\030\001 \001(\0132\031.prot"
   "o.ResponseMetaInfoV1\022=\n\023DailyStatisticsI"
-  "nfo\030\002 \003(\0132 .proto.DailyStatisticsMetaInf"
-  "oV1\"h\n\036CreateSwcAttachmentAnoResponse\022+\n"
+  "nfo\030\002 \001(\0132 .proto.DailyStatisticsMetaInf"
+  "oV1\"\213\001\n\035UpdateDailyStatisticsResponse\022+\n"
   "\010metaInfo\030\001 \001(\0132\031.proto.ResponseMetaInfo"
-  "V1\022\031\n\021AnoAttachmentUuid\030\002 \001(\t\"M\n\036DeleteS"
-  "wcAttachmentAnoResponse\022+\n\010metaInfo\030\001 \001("
-  "\0132\031.proto.ResponseMetaInfoV1\"M\n\036UpdateSw"
-  "cAttachmentAnoResponse\022+\n\010metaInfo\030\001 \001(\013"
-  "2\031.proto.ResponseMetaInfoV1\"\177\n\033GetSwcAtt"
-  "achmentAnoResponse\022+\n\010metaInfo\030\001 \001(\0132\031.p"
-  "roto.ResponseMetaInfoV1\0223\n\020SwcAttachment"
-  "Ano\030\002 \001(\0132\031.proto.SwcAttachmentAnoV1\"h\n\036"
-  "CreateSwcAttachmentApoResponse\022+\n\010metaIn"
-  "fo\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022\031\n\021A"
-  "poAttachmentUuid\030\002 \001(\t\"M\n\036DeleteSwcAttac"
-  "hmentApoResponse\022+\n\010metaInfo\030\001 \001(\0132\031.pro"
-  "to.ResponseMetaInfoV1\"M\n\036UpdateSwcAttach"
-  "mentApoResponse\022+\n\010metaInfo\030\001 \001(\0132\031.prot"
-  "o.ResponseMetaInfoV1\"\177\n\033GetSwcAttachment"
-  "ApoResponse\022+\n\010metaInfo\030\001 \001(\0132\031.proto.Re"
-  "sponseMetaInfoV1\0223\n\020SwcAttachmentApo\030\002 \003"
-  "(\0132\031.proto.SwcAttachmentApoV1\"G\n\030RevertS"
-  "wcVersionResponse\022+\n\010metaInfo\030\001 \001(\0132\031.pr"
-  "oto.ResponseMetaInfoV1B0Z.DBMS/SwcDbmsCo"
-  "mmon/Generated/go/proto/responseP\000b\006prot"
-  "o3"
+  "V1\022=\n\023DailyStatisticsInfo\030\002 \001(\0132 .proto."
+  "DailyStatisticsMetaInfoV1\"\210\001\n\032GetDailySt"
+  "atisticsResponse\022+\n\010metaInfo\030\001 \001(\0132\031.pro"
+  "to.ResponseMetaInfoV1\022=\n\023DailyStatistics"
+  "Info\030\002 \001(\0132 .proto.DailyStatisticsMetaIn"
+  "foV1\"\213\001\n\035GetAllDailyStatisticsResponse\022+"
+  "\n\010metaInfo\030\001 \001(\0132\031.proto.ResponseMetaInf"
+  "oV1\022=\n\023DailyStatisticsInfo\030\002 \003(\0132 .proto"
+  ".DailyStatisticsMetaInfoV1\"h\n\036CreateSwcA"
+  "ttachmentAnoResponse\022+\n\010metaInfo\030\001 \001(\0132\031"
+  ".proto.ResponseMetaInfoV1\022\031\n\021AnoAttachme"
+  "ntUuid\030\002 \001(\t\"M\n\036DeleteSwcAttachmentAnoRe"
+  "sponse\022+\n\010metaInfo\030\001 \001(\0132\031.proto.Respons"
+  "eMetaInfoV1\"M\n\036UpdateSwcAttachmentAnoRes"
+  "ponse\022+\n\010metaInfo\030\001 \001(\0132\031.proto.Response"
+  "MetaInfoV1\"\177\n\033GetSwcAttachmentAnoRespons"
+  "e\022+\n\010metaInfo\030\001 \001(\0132\031.proto.ResponseMeta"
+  "InfoV1\0223\n\020SwcAttachmentAno\030\002 \001(\0132\031.proto"
+  ".SwcAttachmentAnoV1\"h\n\036CreateSwcAttachme"
+  "ntApoResponse\022+\n\010metaInfo\030\001 \001(\0132\031.proto."
+  "ResponseMetaInfoV1\022\031\n\021ApoAttachmentUuid\030"
+  "\002 \001(\t\"M\n\036DeleteSwcAttachmentApoResponse\022"
+  "+\n\010metaInfo\030\001 \001(\0132\031.proto.ResponseMetaIn"
+  "foV1\"M\n\036UpdateSwcAttachmentApoResponse\022+"
+  "\n\010metaInfo\030\001 \001(\0132\031.proto.ResponseMetaInf"
+  "oV1\"\177\n\033GetSwcAttachmentApoResponse\022+\n\010me"
+  "taInfo\030\001 \001(\0132\031.proto.ResponseMetaInfoV1\022"
+  "3\n\020SwcAttachmentApo\030\002 \003(\0132\031.proto.SwcAtt"
+  "achmentApoV1\"G\n\030RevertSwcVersionResponse"
+  "\022+\n\010metaInfo\030\001 \001(\0132\031.proto.ResponseMetaI"
+  "nfoV1B0Z.DBMS/SwcDbmsCommon/Generated/go"
+  "/proto/responseP\000b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_Message_2fResponse_2eproto_deps[2] = {
   &::descriptor_table_Message_2fMessage_2eproto,
@@ -1316,9 +1291,9 @@ static const ::_pbi::DescriptorTable* const descriptor_table_Message_2fResponse_
 };
 static ::_pbi::once_flag descriptor_table_Message_2fResponse_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_Message_2fResponse_2eproto = {
-    false, false, 5562, descriptor_table_protodef_Message_2fResponse_2eproto,
+    false, false, 5465, descriptor_table_protodef_Message_2fResponse_2eproto,
     "Message/Response.proto",
-    &descriptor_table_Message_2fResponse_2eproto_once, descriptor_table_Message_2fResponse_2eproto_deps, 2, 48,
+    &descriptor_table_Message_2fResponse_2eproto_once, descriptor_table_Message_2fResponse_2eproto_deps, 2, 47,
     schemas, file_default_instances, TableStruct_Message_2fResponse_2eproto::offsets,
     file_level_metadata_Message_2fResponse_2eproto, file_level_enum_descriptors_Message_2fResponse_2eproto,
     file_level_service_descriptors_Message_2fResponse_2eproto,
@@ -5482,11 +5457,29 @@ CreateSwcResponse::CreateSwcResponse(const CreateSwcResponse& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   CreateSwcResponse* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.metainfo_){nullptr}
+      decltype(_impl_.anoattachmentuuid_){}
+    , decltype(_impl_.apoattachmentuuid_){}
+    , decltype(_impl_.metainfo_){nullptr}
     , decltype(_impl_.swcinfo_){nullptr}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.anoattachmentuuid_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.anoattachmentuuid_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_anoattachmentuuid().empty()) {
+    _this->_impl_.anoattachmentuuid_.Set(from._internal_anoattachmentuuid(), 
+      _this->GetArenaForAllocation());
+  }
+  _impl_.apoattachmentuuid_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.apoattachmentuuid_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_apoattachmentuuid().empty()) {
+    _this->_impl_.apoattachmentuuid_.Set(from._internal_apoattachmentuuid(), 
+      _this->GetArenaForAllocation());
+  }
   if (from._internal_has_metainfo()) {
     _this->_impl_.metainfo_ = new ::proto::ResponseMetaInfoV1(*from._impl_.metainfo_);
   }
@@ -5501,10 +5494,20 @@ inline void CreateSwcResponse::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.metainfo_){nullptr}
+      decltype(_impl_.anoattachmentuuid_){}
+    , decltype(_impl_.apoattachmentuuid_){}
+    , decltype(_impl_.metainfo_){nullptr}
     , decltype(_impl_.swcinfo_){nullptr}
     , /*decltype(_impl_._cached_size_)*/{}
   };
+  _impl_.anoattachmentuuid_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.anoattachmentuuid_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.apoattachmentuuid_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.apoattachmentuuid_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 CreateSwcResponse::~CreateSwcResponse() {
@@ -5518,6 +5521,8 @@ CreateSwcResponse::~CreateSwcResponse() {
 
 inline void CreateSwcResponse::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.anoattachmentuuid_.Destroy();
+  _impl_.apoattachmentuuid_.Destroy();
   if (this != internal_default_instance()) delete _impl_.metainfo_;
   if (this != internal_default_instance()) delete _impl_.swcinfo_;
 }
@@ -5532,6 +5537,8 @@ void CreateSwcResponse::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  _impl_.anoattachmentuuid_.ClearToEmpty();
+  _impl_.apoattachmentuuid_.ClearToEmpty();
   if (GetArenaForAllocation() == nullptr && _impl_.metainfo_ != nullptr) {
     delete _impl_.metainfo_;
   }
@@ -5562,6 +5569,26 @@ const char* CreateSwcResponse::_InternalParse(const char* ptr, ::_pbi::ParseCont
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_swcinfo(), ptr);
           CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // string AnoAttachmentUuid = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+          auto str = _internal_mutable_anoattachmentuuid();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "proto.CreateSwcResponse.AnoAttachmentUuid"));
+        } else
+          goto handle_unusual;
+        continue;
+      // string ApoAttachmentUuid = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+          auto str = _internal_mutable_apoattachmentuuid();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "proto.CreateSwcResponse.ApoAttachmentUuid"));
         } else
           goto handle_unusual;
         continue;
@@ -5608,6 +5635,26 @@ uint8_t* CreateSwcResponse::_InternalSerialize(
         _Internal::swcinfo(this).GetCachedSize(), target, stream);
   }
 
+  // string AnoAttachmentUuid = 3;
+  if (!this->_internal_anoattachmentuuid().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_anoattachmentuuid().data(), static_cast<int>(this->_internal_anoattachmentuuid().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proto.CreateSwcResponse.AnoAttachmentUuid");
+    target = stream->WriteStringMaybeAliased(
+        3, this->_internal_anoattachmentuuid(), target);
+  }
+
+  // string ApoAttachmentUuid = 4;
+  if (!this->_internal_apoattachmentuuid().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_apoattachmentuuid().data(), static_cast<int>(this->_internal_apoattachmentuuid().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proto.CreateSwcResponse.ApoAttachmentUuid");
+    target = stream->WriteStringMaybeAliased(
+        4, this->_internal_apoattachmentuuid(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -5623,6 +5670,20 @@ size_t CreateSwcResponse::ByteSizeLong() const {
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // string AnoAttachmentUuid = 3;
+  if (!this->_internal_anoattachmentuuid().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_anoattachmentuuid());
+  }
+
+  // string ApoAttachmentUuid = 4;
+  if (!this->_internal_apoattachmentuuid().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_apoattachmentuuid());
+  }
 
   // .proto.ResponseMetaInfoV1 metaInfo = 1;
   if (this->_internal_has_metainfo()) {
@@ -5656,6 +5717,12 @@ void CreateSwcResponse::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, cons
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (!from._internal_anoattachmentuuid().empty()) {
+    _this->_internal_set_anoattachmentuuid(from._internal_anoattachmentuuid());
+  }
+  if (!from._internal_apoattachmentuuid().empty()) {
+    _this->_internal_set_apoattachmentuuid(from._internal_apoattachmentuuid());
+  }
   if (from._internal_has_metainfo()) {
     _this->_internal_mutable_metainfo()->::proto::ResponseMetaInfoV1::MergeFrom(
         from._internal_metainfo());
@@ -5680,7 +5747,17 @@ bool CreateSwcResponse::IsInitialized() const {
 
 void CreateSwcResponse::InternalSwap(CreateSwcResponse* other) {
   using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.anoattachmentuuid_, lhs_arena,
+      &other->_impl_.anoattachmentuuid_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.apoattachmentuuid_, lhs_arena,
+      &other->_impl_.apoattachmentuuid_, rhs_arena
+  );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(CreateSwcResponse, _impl_.swcinfo_)
       + sizeof(CreateSwcResponse::_impl_.swcinfo_)
@@ -9248,283 +9325,6 @@ void GetSwcNodeDataListByTimeAndUserResponse::InternalSwap(GetSwcNodeDataListByT
 
 // ===================================================================
 
-class BackupFullDatabaseResponse::_Internal {
- public:
-  static const ::proto::ResponseMetaInfoV1& metainfo(const BackupFullDatabaseResponse* msg);
-  static const ::PROTOBUF_NAMESPACE_ID::Timestamp& delaybackuptime(const BackupFullDatabaseResponse* msg);
-};
-
-const ::proto::ResponseMetaInfoV1&
-BackupFullDatabaseResponse::_Internal::metainfo(const BackupFullDatabaseResponse* msg) {
-  return *msg->_impl_.metainfo_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Timestamp&
-BackupFullDatabaseResponse::_Internal::delaybackuptime(const BackupFullDatabaseResponse* msg) {
-  return *msg->_impl_.delaybackuptime_;
-}
-void BackupFullDatabaseResponse::clear_metainfo() {
-  if (GetArenaForAllocation() == nullptr && _impl_.metainfo_ != nullptr) {
-    delete _impl_.metainfo_;
-  }
-  _impl_.metainfo_ = nullptr;
-}
-void BackupFullDatabaseResponse::clear_delaybackuptime() {
-  if (GetArenaForAllocation() == nullptr && _impl_.delaybackuptime_ != nullptr) {
-    delete _impl_.delaybackuptime_;
-  }
-  _impl_.delaybackuptime_ = nullptr;
-}
-BackupFullDatabaseResponse::BackupFullDatabaseResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                         bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:proto.BackupFullDatabaseResponse)
-}
-BackupFullDatabaseResponse::BackupFullDatabaseResponse(const BackupFullDatabaseResponse& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  BackupFullDatabaseResponse* const _this = this; (void)_this;
-  new (&_impl_) Impl_{
-      decltype(_impl_.metainfo_){nullptr}
-    , decltype(_impl_.delaybackuptime_){nullptr}
-    , decltype(_impl_.instantbackup_){}
-    , /*decltype(_impl_._cached_size_)*/{}};
-
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_metainfo()) {
-    _this->_impl_.metainfo_ = new ::proto::ResponseMetaInfoV1(*from._impl_.metainfo_);
-  }
-  if (from._internal_has_delaybackuptime()) {
-    _this->_impl_.delaybackuptime_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from._impl_.delaybackuptime_);
-  }
-  _this->_impl_.instantbackup_ = from._impl_.instantbackup_;
-  // @@protoc_insertion_point(copy_constructor:proto.BackupFullDatabaseResponse)
-}
-
-inline void BackupFullDatabaseResponse::SharedCtor(
-    ::_pb::Arena* arena, bool is_message_owned) {
-  (void)arena;
-  (void)is_message_owned;
-  new (&_impl_) Impl_{
-      decltype(_impl_.metainfo_){nullptr}
-    , decltype(_impl_.delaybackuptime_){nullptr}
-    , decltype(_impl_.instantbackup_){false}
-    , /*decltype(_impl_._cached_size_)*/{}
-  };
-}
-
-BackupFullDatabaseResponse::~BackupFullDatabaseResponse() {
-  // @@protoc_insertion_point(destructor:proto.BackupFullDatabaseResponse)
-  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
-  (void)arena;
-    return;
-  }
-  SharedDtor();
-}
-
-inline void BackupFullDatabaseResponse::SharedDtor() {
-  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete _impl_.metainfo_;
-  if (this != internal_default_instance()) delete _impl_.delaybackuptime_;
-}
-
-void BackupFullDatabaseResponse::SetCachedSize(int size) const {
-  _impl_._cached_size_.Set(size);
-}
-
-void BackupFullDatabaseResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:proto.BackupFullDatabaseResponse)
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  if (GetArenaForAllocation() == nullptr && _impl_.metainfo_ != nullptr) {
-    delete _impl_.metainfo_;
-  }
-  _impl_.metainfo_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && _impl_.delaybackuptime_ != nullptr) {
-    delete _impl_.delaybackuptime_;
-  }
-  _impl_.delaybackuptime_ = nullptr;
-  _impl_.instantbackup_ = false;
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-const char* BackupFullDatabaseResponse::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    uint32_t tag;
-    ptr = ::_pbi::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
-      // .proto.ResponseMetaInfoV1 metaInfo = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
-          ptr = ctx->ParseMessage(_internal_mutable_metainfo(), ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // bool InstantBackup = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
-          _impl_.instantbackup_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // .google.protobuf.Timestamp DelayBackupTime = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
-          ptr = ctx->ParseMessage(_internal_mutable_delaybackuptime(), ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      default:
-        goto handle_unusual;
-    }  // switch
-  handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
-      CHK_(ptr);
-      ctx->SetLastTag(tag);
-      goto message_done;
-    }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
-    CHK_(ptr != nullptr);
-  }  // while
-message_done:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto message_done;
-#undef CHK_
-}
-
-uint8_t* BackupFullDatabaseResponse::_InternalSerialize(
-    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:proto.BackupFullDatabaseResponse)
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // .proto.ResponseMetaInfoV1 metaInfo = 1;
-  if (this->_internal_has_metainfo()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(1, _Internal::metainfo(this),
-        _Internal::metainfo(this).GetCachedSize(), target, stream);
-  }
-
-  // bool InstantBackup = 2;
-  if (this->_internal_instantbackup() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteBoolToArray(2, this->_internal_instantbackup(), target);
-  }
-
-  // .google.protobuf.Timestamp DelayBackupTime = 3;
-  if (this->_internal_has_delaybackuptime()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(3, _Internal::delaybackuptime(this),
-        _Internal::delaybackuptime(this).GetCachedSize(), target, stream);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:proto.BackupFullDatabaseResponse)
-  return target;
-}
-
-size_t BackupFullDatabaseResponse::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:proto.BackupFullDatabaseResponse)
-  size_t total_size = 0;
-
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // .proto.ResponseMetaInfoV1 metaInfo = 1;
-  if (this->_internal_has_metainfo()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *_impl_.metainfo_);
-  }
-
-  // .google.protobuf.Timestamp DelayBackupTime = 3;
-  if (this->_internal_has_delaybackuptime()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *_impl_.delaybackuptime_);
-  }
-
-  // bool InstantBackup = 2;
-  if (this->_internal_instantbackup() != 0) {
-    total_size += 1 + 1;
-  }
-
-  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BackupFullDatabaseResponse::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
-    BackupFullDatabaseResponse::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BackupFullDatabaseResponse::GetClassData() const { return &_class_data_; }
-
-
-void BackupFullDatabaseResponse::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
-  auto* const _this = static_cast<BackupFullDatabaseResponse*>(&to_msg);
-  auto& from = static_cast<const BackupFullDatabaseResponse&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:proto.BackupFullDatabaseResponse)
-  GOOGLE_DCHECK_NE(&from, _this);
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from._internal_has_metainfo()) {
-    _this->_internal_mutable_metainfo()->::proto::ResponseMetaInfoV1::MergeFrom(
-        from._internal_metainfo());
-  }
-  if (from._internal_has_delaybackuptime()) {
-    _this->_internal_mutable_delaybackuptime()->::PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(
-        from._internal_delaybackuptime());
-  }
-  if (from._internal_instantbackup() != 0) {
-    _this->_internal_set_instantbackup(from._internal_instantbackup());
-  }
-  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void BackupFullDatabaseResponse::CopyFrom(const BackupFullDatabaseResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:proto.BackupFullDatabaseResponse)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool BackupFullDatabaseResponse::IsInitialized() const {
-  return true;
-}
-
-void BackupFullDatabaseResponse::InternalSwap(BackupFullDatabaseResponse* other) {
-  using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(BackupFullDatabaseResponse, _impl_.instantbackup_)
-      + sizeof(BackupFullDatabaseResponse::_impl_.instantbackup_)
-      - PROTOBUF_FIELD_OFFSET(BackupFullDatabaseResponse, _impl_.metainfo_)>(
-          reinterpret_cast<char*>(&_impl_.metainfo_),
-          reinterpret_cast<char*>(&other->_impl_.metainfo_));
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata BackupFullDatabaseResponse::GetMetadata() const {
-  return ::_pbi::AssignDescriptors(
-      &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[33]);
-}
-
-// ===================================================================
-
 class CreateDailyStatisticsResponse::_Internal {
  public:
   static const ::proto::ResponseMetaInfoV1& metainfo(const CreateDailyStatisticsResponse* msg);
@@ -9771,7 +9571,7 @@ void CreateDailyStatisticsResponse::InternalSwap(CreateDailyStatisticsResponse* 
 ::PROTOBUF_NAMESPACE_ID::Metadata CreateDailyStatisticsResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[34]);
+      file_level_metadata_Message_2fResponse_2eproto[33]);
 }
 
 // ===================================================================
@@ -10022,7 +9822,7 @@ void DeleteDailyStatisticsResponse::InternalSwap(DeleteDailyStatisticsResponse* 
 ::PROTOBUF_NAMESPACE_ID::Metadata DeleteDailyStatisticsResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[35]);
+      file_level_metadata_Message_2fResponse_2eproto[34]);
 }
 
 // ===================================================================
@@ -10273,7 +10073,7 @@ void UpdateDailyStatisticsResponse::InternalSwap(UpdateDailyStatisticsResponse* 
 ::PROTOBUF_NAMESPACE_ID::Metadata UpdateDailyStatisticsResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[36]);
+      file_level_metadata_Message_2fResponse_2eproto[35]);
 }
 
 // ===================================================================
@@ -10524,7 +10324,7 @@ void GetDailyStatisticsResponse::InternalSwap(GetDailyStatisticsResponse* other)
 ::PROTOBUF_NAMESPACE_ID::Metadata GetDailyStatisticsResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[37]);
+      file_level_metadata_Message_2fResponse_2eproto[36]);
 }
 
 // ===================================================================
@@ -10760,7 +10560,7 @@ void GetAllDailyStatisticsResponse::InternalSwap(GetAllDailyStatisticsResponse* 
 ::PROTOBUF_NAMESPACE_ID::Metadata GetAllDailyStatisticsResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[38]);
+      file_level_metadata_Message_2fResponse_2eproto[37]);
 }
 
 // ===================================================================
@@ -11011,7 +10811,7 @@ void CreateSwcAttachmentAnoResponse::InternalSwap(CreateSwcAttachmentAnoResponse
 ::PROTOBUF_NAMESPACE_ID::Metadata CreateSwcAttachmentAnoResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[39]);
+      file_level_metadata_Message_2fResponse_2eproto[38]);
 }
 
 // ===================================================================
@@ -11210,7 +11010,7 @@ void DeleteSwcAttachmentAnoResponse::InternalSwap(DeleteSwcAttachmentAnoResponse
 ::PROTOBUF_NAMESPACE_ID::Metadata DeleteSwcAttachmentAnoResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[40]);
+      file_level_metadata_Message_2fResponse_2eproto[39]);
 }
 
 // ===================================================================
@@ -11409,7 +11209,7 @@ void UpdateSwcAttachmentAnoResponse::InternalSwap(UpdateSwcAttachmentAnoResponse
 ::PROTOBUF_NAMESPACE_ID::Metadata UpdateSwcAttachmentAnoResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[41]);
+      file_level_metadata_Message_2fResponse_2eproto[40]);
 }
 
 // ===================================================================
@@ -11660,7 +11460,7 @@ void GetSwcAttachmentAnoResponse::InternalSwap(GetSwcAttachmentAnoResponse* othe
 ::PROTOBUF_NAMESPACE_ID::Metadata GetSwcAttachmentAnoResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[42]);
+      file_level_metadata_Message_2fResponse_2eproto[41]);
 }
 
 // ===================================================================
@@ -11911,7 +11711,7 @@ void CreateSwcAttachmentApoResponse::InternalSwap(CreateSwcAttachmentApoResponse
 ::PROTOBUF_NAMESPACE_ID::Metadata CreateSwcAttachmentApoResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[43]);
+      file_level_metadata_Message_2fResponse_2eproto[42]);
 }
 
 // ===================================================================
@@ -12110,7 +11910,7 @@ void DeleteSwcAttachmentApoResponse::InternalSwap(DeleteSwcAttachmentApoResponse
 ::PROTOBUF_NAMESPACE_ID::Metadata DeleteSwcAttachmentApoResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[44]);
+      file_level_metadata_Message_2fResponse_2eproto[43]);
 }
 
 // ===================================================================
@@ -12309,7 +12109,7 @@ void UpdateSwcAttachmentApoResponse::InternalSwap(UpdateSwcAttachmentApoResponse
 ::PROTOBUF_NAMESPACE_ID::Metadata UpdateSwcAttachmentApoResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[45]);
+      file_level_metadata_Message_2fResponse_2eproto[44]);
 }
 
 // ===================================================================
@@ -12545,7 +12345,7 @@ void GetSwcAttachmentApoResponse::InternalSwap(GetSwcAttachmentApoResponse* othe
 ::PROTOBUF_NAMESPACE_ID::Metadata GetSwcAttachmentApoResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[46]);
+      file_level_metadata_Message_2fResponse_2eproto[45]);
 }
 
 // ===================================================================
@@ -12744,7 +12544,7 @@ void RevertSwcVersionResponse::InternalSwap(RevertSwcVersionResponse* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata RevertSwcVersionResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_Message_2fResponse_2eproto_getter, &descriptor_table_Message_2fResponse_2eproto_once,
-      file_level_metadata_Message_2fResponse_2eproto[47]);
+      file_level_metadata_Message_2fResponse_2eproto[46]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
@@ -12881,10 +12681,6 @@ Arena::CreateMaybeMessage< ::proto::GetSwcFullNodeDataResponse >(Arena* arena) {
 template<> PROTOBUF_NOINLINE ::proto::GetSwcNodeDataListByTimeAndUserResponse*
 Arena::CreateMaybeMessage< ::proto::GetSwcNodeDataListByTimeAndUserResponse >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto::GetSwcNodeDataListByTimeAndUserResponse >(arena);
-}
-template<> PROTOBUF_NOINLINE ::proto::BackupFullDatabaseResponse*
-Arena::CreateMaybeMessage< ::proto::BackupFullDatabaseResponse >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::proto::BackupFullDatabaseResponse >(arena);
 }
 template<> PROTOBUF_NOINLINE ::proto::CreateDailyStatisticsResponse*
 Arena::CreateMaybeMessage< ::proto::CreateDailyStatisticsResponse >(Arena* arena) {

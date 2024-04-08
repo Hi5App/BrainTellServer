@@ -54,7 +54,6 @@ const (
 	DBMS_GetSwcNodeData_FullMethodName                   = "/proto.DBMS/GetSwcNodeData"
 	DBMS_GetSwcFullNodeData_FullMethodName               = "/proto.DBMS/GetSwcFullNodeData"
 	DBMS_GetSwcNodeDataListByTimeAndUser_FullMethodName  = "/proto.DBMS/GetSwcNodeDataListByTimeAndUser"
-	DBMS_BackupFullDatabase_FullMethodName               = "/proto.DBMS/BackupFullDatabase"
 	DBMS_CreateDailyStatistics_FullMethodName            = "/proto.DBMS/CreateDailyStatistics"
 	DBMS_DeleteDailyStatistics_FullMethodName            = "/proto.DBMS/DeleteDailyStatistics"
 	DBMS_UpdateDailyStatistics_FullMethodName            = "/proto.DBMS/UpdateDailyStatistics"
@@ -108,7 +107,6 @@ type DBMSClient interface {
 	GetSwcNodeData(ctx context.Context, in *request.GetSwcNodeDataRequest, opts ...grpc.CallOption) (*response.GetSwcNodeDataResponse, error)
 	GetSwcFullNodeData(ctx context.Context, in *request.GetSwcFullNodeDataRequest, opts ...grpc.CallOption) (*response.GetSwcFullNodeDataResponse, error)
 	GetSwcNodeDataListByTimeAndUser(ctx context.Context, in *request.GetSwcNodeDataListByTimeAndUserRequest, opts ...grpc.CallOption) (*response.GetSwcNodeDataListByTimeAndUserResponse, error)
-	BackupFullDatabase(ctx context.Context, in *request.BackupFullDatabaseRequest, opts ...grpc.CallOption) (*response.BackupFullDatabaseResponse, error)
 	CreateDailyStatistics(ctx context.Context, in *request.CreateDailyStatisticsRequest, opts ...grpc.CallOption) (*response.CreateDailyStatisticsResponse, error)
 	DeleteDailyStatistics(ctx context.Context, in *request.DeleteDailyStatisticsRequest, opts ...grpc.CallOption) (*response.DeleteDailyStatisticsResponse, error)
 	UpdateDailyStatistics(ctx context.Context, in *request.UpdateDailyStatisticsRequest, opts ...grpc.CallOption) (*response.UpdateDailyStatisticsResponse, error)
@@ -430,15 +428,6 @@ func (c *dBMSClient) GetSwcNodeDataListByTimeAndUser(ctx context.Context, in *re
 	return out, nil
 }
 
-func (c *dBMSClient) BackupFullDatabase(ctx context.Context, in *request.BackupFullDatabaseRequest, opts ...grpc.CallOption) (*response.BackupFullDatabaseResponse, error) {
-	out := new(response.BackupFullDatabaseResponse)
-	err := c.cc.Invoke(ctx, DBMS_BackupFullDatabase_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *dBMSClient) CreateDailyStatistics(ctx context.Context, in *request.CreateDailyStatisticsRequest, opts ...grpc.CallOption) (*response.CreateDailyStatisticsResponse, error) {
 	out := new(response.CreateDailyStatisticsResponse)
 	err := c.cc.Invoke(ctx, DBMS_CreateDailyStatistics_FullMethodName, in, out, opts...)
@@ -602,7 +591,6 @@ type DBMSServer interface {
 	GetSwcNodeData(context.Context, *request.GetSwcNodeDataRequest) (*response.GetSwcNodeDataResponse, error)
 	GetSwcFullNodeData(context.Context, *request.GetSwcFullNodeDataRequest) (*response.GetSwcFullNodeDataResponse, error)
 	GetSwcNodeDataListByTimeAndUser(context.Context, *request.GetSwcNodeDataListByTimeAndUserRequest) (*response.GetSwcNodeDataListByTimeAndUserResponse, error)
-	BackupFullDatabase(context.Context, *request.BackupFullDatabaseRequest) (*response.BackupFullDatabaseResponse, error)
 	CreateDailyStatistics(context.Context, *request.CreateDailyStatisticsRequest) (*response.CreateDailyStatisticsResponse, error)
 	DeleteDailyStatistics(context.Context, *request.DeleteDailyStatisticsRequest) (*response.DeleteDailyStatisticsResponse, error)
 	UpdateDailyStatistics(context.Context, *request.UpdateDailyStatisticsRequest) (*response.UpdateDailyStatisticsResponse, error)
@@ -722,9 +710,6 @@ func (UnimplementedDBMSServer) GetSwcFullNodeData(context.Context, *request.GetS
 }
 func (UnimplementedDBMSServer) GetSwcNodeDataListByTimeAndUser(context.Context, *request.GetSwcNodeDataListByTimeAndUserRequest) (*response.GetSwcNodeDataListByTimeAndUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSwcNodeDataListByTimeAndUser not implemented")
-}
-func (UnimplementedDBMSServer) BackupFullDatabase(context.Context, *request.BackupFullDatabaseRequest) (*response.BackupFullDatabaseResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BackupFullDatabase not implemented")
 }
 func (UnimplementedDBMSServer) CreateDailyStatistics(context.Context, *request.CreateDailyStatisticsRequest) (*response.CreateDailyStatisticsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateDailyStatistics not implemented")
@@ -1375,24 +1360,6 @@ func _DBMS_GetSwcNodeDataListByTimeAndUser_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DBMS_BackupFullDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(request.BackupFullDatabaseRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(DBMSServer).BackupFullDatabase(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: DBMS_BackupFullDatabase_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DBMSServer).BackupFullDatabase(ctx, req.(*request.BackupFullDatabaseRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _DBMS_CreateDailyStatistics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(request.CreateDailyStatisticsRequest)
 	if err := dec(in); err != nil {
@@ -1783,10 +1750,6 @@ var DBMS_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSwcNodeDataListByTimeAndUser",
 			Handler:    _DBMS_GetSwcNodeDataListByTimeAndUser_Handler,
-		},
-		{
-			MethodName: "BackupFullDatabase",
-			Handler:    _DBMS_BackupFullDatabase_Handler,
 		},
 		{
 			MethodName: "CreateDailyStatistics",

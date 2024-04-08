@@ -266,13 +266,6 @@ class DBMS final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proto::GetSwcNodeDataListByTimeAndUserResponse>> PrepareAsyncGetSwcNodeDataListByTimeAndUser(::grpc::ClientContext* context, const ::proto::GetSwcNodeDataListByTimeAndUserRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proto::GetSwcNodeDataListByTimeAndUserResponse>>(PrepareAsyncGetSwcNodeDataListByTimeAndUserRaw(context, request, cq));
     }
-    virtual ::grpc::Status BackupFullDatabase(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest& request, ::proto::BackupFullDatabaseResponse* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proto::BackupFullDatabaseResponse>> AsyncBackupFullDatabase(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proto::BackupFullDatabaseResponse>>(AsyncBackupFullDatabaseRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proto::BackupFullDatabaseResponse>> PrepareAsyncBackupFullDatabase(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proto::BackupFullDatabaseResponse>>(PrepareAsyncBackupFullDatabaseRaw(context, request, cq));
-    }
     virtual ::grpc::Status CreateDailyStatistics(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest& request, ::proto::CreateDailyStatisticsResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proto::CreateDailyStatisticsResponse>> AsyncCreateDailyStatistics(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proto::CreateDailyStatisticsResponse>>(AsyncCreateDailyStatisticsRaw(context, request, cq));
@@ -440,8 +433,6 @@ class DBMS final {
       virtual void GetSwcFullNodeData(::grpc::ClientContext* context, const ::proto::GetSwcFullNodeDataRequest* request, ::proto::GetSwcFullNodeDataResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void GetSwcNodeDataListByTimeAndUser(::grpc::ClientContext* context, const ::proto::GetSwcNodeDataListByTimeAndUserRequest* request, ::proto::GetSwcNodeDataListByTimeAndUserResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetSwcNodeDataListByTimeAndUser(::grpc::ClientContext* context, const ::proto::GetSwcNodeDataListByTimeAndUserRequest* request, ::proto::GetSwcNodeDataListByTimeAndUserResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      virtual void BackupFullDatabase(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest* request, ::proto::BackupFullDatabaseResponse* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void BackupFullDatabase(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest* request, ::proto::BackupFullDatabaseResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void CreateDailyStatistics(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest* request, ::proto::CreateDailyStatisticsResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void CreateDailyStatistics(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest* request, ::proto::CreateDailyStatisticsResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void DeleteDailyStatistics(::grpc::ClientContext* context, const ::proto::DeleteDailyStatisticsRequest* request, ::proto::DeleteDailyStatisticsResponse* response, std::function<void(::grpc::Status)>) = 0;
@@ -541,8 +532,6 @@ class DBMS final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proto::GetSwcFullNodeDataResponse>* PrepareAsyncGetSwcFullNodeDataRaw(::grpc::ClientContext* context, const ::proto::GetSwcFullNodeDataRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proto::GetSwcNodeDataListByTimeAndUserResponse>* AsyncGetSwcNodeDataListByTimeAndUserRaw(::grpc::ClientContext* context, const ::proto::GetSwcNodeDataListByTimeAndUserRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proto::GetSwcNodeDataListByTimeAndUserResponse>* PrepareAsyncGetSwcNodeDataListByTimeAndUserRaw(::grpc::ClientContext* context, const ::proto::GetSwcNodeDataListByTimeAndUserRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proto::BackupFullDatabaseResponse>* AsyncBackupFullDatabaseRaw(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proto::BackupFullDatabaseResponse>* PrepareAsyncBackupFullDatabaseRaw(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proto::CreateDailyStatisticsResponse>* AsyncCreateDailyStatisticsRaw(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proto::CreateDailyStatisticsResponse>* PrepareAsyncCreateDailyStatisticsRaw(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proto::DeleteDailyStatisticsResponse>* AsyncDeleteDailyStatisticsRaw(::grpc::ClientContext* context, const ::proto::DeleteDailyStatisticsRequest& request, ::grpc::CompletionQueue* cq) = 0;
@@ -806,13 +795,6 @@ class DBMS final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proto::GetSwcNodeDataListByTimeAndUserResponse>> PrepareAsyncGetSwcNodeDataListByTimeAndUser(::grpc::ClientContext* context, const ::proto::GetSwcNodeDataListByTimeAndUserRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proto::GetSwcNodeDataListByTimeAndUserResponse>>(PrepareAsyncGetSwcNodeDataListByTimeAndUserRaw(context, request, cq));
     }
-    ::grpc::Status BackupFullDatabase(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest& request, ::proto::BackupFullDatabaseResponse* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proto::BackupFullDatabaseResponse>> AsyncBackupFullDatabase(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proto::BackupFullDatabaseResponse>>(AsyncBackupFullDatabaseRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proto::BackupFullDatabaseResponse>> PrepareAsyncBackupFullDatabase(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proto::BackupFullDatabaseResponse>>(PrepareAsyncBackupFullDatabaseRaw(context, request, cq));
-    }
     ::grpc::Status CreateDailyStatistics(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest& request, ::proto::CreateDailyStatisticsResponse* response) override;
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proto::CreateDailyStatisticsResponse>> AsyncCreateDailyStatistics(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proto::CreateDailyStatisticsResponse>>(AsyncCreateDailyStatisticsRaw(context, request, cq));
@@ -980,8 +962,6 @@ class DBMS final {
       void GetSwcFullNodeData(::grpc::ClientContext* context, const ::proto::GetSwcFullNodeDataRequest* request, ::proto::GetSwcFullNodeDataResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
       void GetSwcNodeDataListByTimeAndUser(::grpc::ClientContext* context, const ::proto::GetSwcNodeDataListByTimeAndUserRequest* request, ::proto::GetSwcNodeDataListByTimeAndUserResponse* response, std::function<void(::grpc::Status)>) override;
       void GetSwcNodeDataListByTimeAndUser(::grpc::ClientContext* context, const ::proto::GetSwcNodeDataListByTimeAndUserRequest* request, ::proto::GetSwcNodeDataListByTimeAndUserResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void BackupFullDatabase(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest* request, ::proto::BackupFullDatabaseResponse* response, std::function<void(::grpc::Status)>) override;
-      void BackupFullDatabase(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest* request, ::proto::BackupFullDatabaseResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
       void CreateDailyStatistics(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest* request, ::proto::CreateDailyStatisticsResponse* response, std::function<void(::grpc::Status)>) override;
       void CreateDailyStatistics(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest* request, ::proto::CreateDailyStatisticsResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
       void DeleteDailyStatistics(::grpc::ClientContext* context, const ::proto::DeleteDailyStatisticsRequest* request, ::proto::DeleteDailyStatisticsResponse* response, std::function<void(::grpc::Status)>) override;
@@ -1087,8 +1067,6 @@ class DBMS final {
     ::grpc::ClientAsyncResponseReader< ::proto::GetSwcFullNodeDataResponse>* PrepareAsyncGetSwcFullNodeDataRaw(::grpc::ClientContext* context, const ::proto::GetSwcFullNodeDataRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proto::GetSwcNodeDataListByTimeAndUserResponse>* AsyncGetSwcNodeDataListByTimeAndUserRaw(::grpc::ClientContext* context, const ::proto::GetSwcNodeDataListByTimeAndUserRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proto::GetSwcNodeDataListByTimeAndUserResponse>* PrepareAsyncGetSwcNodeDataListByTimeAndUserRaw(::grpc::ClientContext* context, const ::proto::GetSwcNodeDataListByTimeAndUserRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proto::BackupFullDatabaseResponse>* AsyncBackupFullDatabaseRaw(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proto::BackupFullDatabaseResponse>* PrepareAsyncBackupFullDatabaseRaw(::grpc::ClientContext* context, const ::proto::BackupFullDatabaseRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proto::CreateDailyStatisticsResponse>* AsyncCreateDailyStatisticsRaw(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proto::CreateDailyStatisticsResponse>* PrepareAsyncCreateDailyStatisticsRaw(::grpc::ClientContext* context, const ::proto::CreateDailyStatisticsRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proto::DeleteDailyStatisticsResponse>* AsyncDeleteDailyStatisticsRaw(::grpc::ClientContext* context, const ::proto::DeleteDailyStatisticsRequest& request, ::grpc::CompletionQueue* cq) override;
@@ -1150,7 +1128,6 @@ class DBMS final {
     const ::grpc::internal::RpcMethod rpcmethod_GetSwcNodeData_;
     const ::grpc::internal::RpcMethod rpcmethod_GetSwcFullNodeData_;
     const ::grpc::internal::RpcMethod rpcmethod_GetSwcNodeDataListByTimeAndUser_;
-    const ::grpc::internal::RpcMethod rpcmethod_BackupFullDatabase_;
     const ::grpc::internal::RpcMethod rpcmethod_CreateDailyStatistics_;
     const ::grpc::internal::RpcMethod rpcmethod_DeleteDailyStatistics_;
     const ::grpc::internal::RpcMethod rpcmethod_UpdateDailyStatistics_;
@@ -1205,7 +1182,6 @@ class DBMS final {
     virtual ::grpc::Status GetSwcNodeData(::grpc::ServerContext* context, const ::proto::GetSwcNodeDataRequest* request, ::proto::GetSwcNodeDataResponse* response);
     virtual ::grpc::Status GetSwcFullNodeData(::grpc::ServerContext* context, const ::proto::GetSwcFullNodeDataRequest* request, ::proto::GetSwcFullNodeDataResponse* response);
     virtual ::grpc::Status GetSwcNodeDataListByTimeAndUser(::grpc::ServerContext* context, const ::proto::GetSwcNodeDataListByTimeAndUserRequest* request, ::proto::GetSwcNodeDataListByTimeAndUserResponse* response);
-    virtual ::grpc::Status BackupFullDatabase(::grpc::ServerContext* context, const ::proto::BackupFullDatabaseRequest* request, ::proto::BackupFullDatabaseResponse* response);
     virtual ::grpc::Status CreateDailyStatistics(::grpc::ServerContext* context, const ::proto::CreateDailyStatisticsRequest* request, ::proto::CreateDailyStatisticsResponse* response);
     virtual ::grpc::Status DeleteDailyStatistics(::grpc::ServerContext* context, const ::proto::DeleteDailyStatisticsRequest* request, ::proto::DeleteDailyStatisticsResponse* response);
     virtual ::grpc::Status UpdateDailyStatistics(::grpc::ServerContext* context, const ::proto::UpdateDailyStatisticsRequest* request, ::proto::UpdateDailyStatisticsResponse* response);
@@ -1882,32 +1858,12 @@ class DBMS final {
     }
   };
   template <class BaseClass>
-  class WithAsyncMethod_BackupFullDatabase : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithAsyncMethod_BackupFullDatabase() {
-      ::grpc::Service::MarkMethodAsync(33);
-    }
-    ~WithAsyncMethod_BackupFullDatabase() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status BackupFullDatabase(::grpc::ServerContext* /*context*/, const ::proto::BackupFullDatabaseRequest* /*request*/, ::proto::BackupFullDatabaseResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestBackupFullDatabase(::grpc::ServerContext* context, ::proto::BackupFullDatabaseRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::BackupFullDatabaseResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(33, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
   class WithAsyncMethod_CreateDailyStatistics : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_CreateDailyStatistics() {
-      ::grpc::Service::MarkMethodAsync(34);
+      ::grpc::Service::MarkMethodAsync(33);
     }
     ~WithAsyncMethod_CreateDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1918,7 +1874,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestCreateDailyStatistics(::grpc::ServerContext* context, ::proto::CreateDailyStatisticsRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::CreateDailyStatisticsResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(34, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(33, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1927,7 +1883,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_DeleteDailyStatistics() {
-      ::grpc::Service::MarkMethodAsync(35);
+      ::grpc::Service::MarkMethodAsync(34);
     }
     ~WithAsyncMethod_DeleteDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1938,7 +1894,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestDeleteDailyStatistics(::grpc::ServerContext* context, ::proto::DeleteDailyStatisticsRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::DeleteDailyStatisticsResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(35, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(34, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1947,7 +1903,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_UpdateDailyStatistics() {
-      ::grpc::Service::MarkMethodAsync(36);
+      ::grpc::Service::MarkMethodAsync(35);
     }
     ~WithAsyncMethod_UpdateDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1958,7 +1914,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestUpdateDailyStatistics(::grpc::ServerContext* context, ::proto::UpdateDailyStatisticsRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::UpdateDailyStatisticsResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(36, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(35, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1967,7 +1923,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_GetDailyStatistics() {
-      ::grpc::Service::MarkMethodAsync(37);
+      ::grpc::Service::MarkMethodAsync(36);
     }
     ~WithAsyncMethod_GetDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1978,7 +1934,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestGetDailyStatistics(::grpc::ServerContext* context, ::proto::GetDailyStatisticsRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::GetDailyStatisticsResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(37, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(36, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1987,7 +1943,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_GetAllDailyStatistics() {
-      ::grpc::Service::MarkMethodAsync(38);
+      ::grpc::Service::MarkMethodAsync(37);
     }
     ~WithAsyncMethod_GetAllDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1998,7 +1954,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestGetAllDailyStatistics(::grpc::ServerContext* context, ::proto::GetAllDailyStatisticsRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::GetAllDailyStatisticsResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(38, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(37, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -2007,7 +1963,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_CreateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodAsync(39);
+      ::grpc::Service::MarkMethodAsync(38);
     }
     ~WithAsyncMethod_CreateSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -2018,7 +1974,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestCreateSwcAttachmentAno(::grpc::ServerContext* context, ::proto::CreateSwcAttachmentAnoRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::CreateSwcAttachmentAnoResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(39, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(38, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -2027,7 +1983,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_DeleteSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodAsync(40);
+      ::grpc::Service::MarkMethodAsync(39);
     }
     ~WithAsyncMethod_DeleteSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -2038,7 +1994,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestDeleteSwcAttachmentAno(::grpc::ServerContext* context, ::proto::DeleteSwcAttachmentAnoRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::DeleteSwcAttachmentAnoResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(40, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(39, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -2047,7 +2003,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_UpdateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodAsync(41);
+      ::grpc::Service::MarkMethodAsync(40);
     }
     ~WithAsyncMethod_UpdateSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -2058,7 +2014,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestUpdateSwcAttachmentAno(::grpc::ServerContext* context, ::proto::UpdateSwcAttachmentAnoRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::UpdateSwcAttachmentAnoResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(41, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(40, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -2067,7 +2023,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_GetSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodAsync(42);
+      ::grpc::Service::MarkMethodAsync(41);
     }
     ~WithAsyncMethod_GetSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -2078,7 +2034,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestGetSwcAttachmentAno(::grpc::ServerContext* context, ::proto::GetSwcAttachmentAnoRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::GetSwcAttachmentAnoResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(42, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(41, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -2087,7 +2043,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_CreateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodAsync(43);
+      ::grpc::Service::MarkMethodAsync(42);
     }
     ~WithAsyncMethod_CreateSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -2098,7 +2054,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestCreateSwcAttachmentApo(::grpc::ServerContext* context, ::proto::CreateSwcAttachmentApoRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::CreateSwcAttachmentApoResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(43, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(42, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -2107,7 +2063,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_DeleteSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodAsync(44);
+      ::grpc::Service::MarkMethodAsync(43);
     }
     ~WithAsyncMethod_DeleteSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -2118,7 +2074,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestDeleteSwcAttachmentApo(::grpc::ServerContext* context, ::proto::DeleteSwcAttachmentApoRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::DeleteSwcAttachmentApoResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(44, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(43, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -2127,7 +2083,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_UpdateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodAsync(45);
+      ::grpc::Service::MarkMethodAsync(44);
     }
     ~WithAsyncMethod_UpdateSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -2138,7 +2094,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestUpdateSwcAttachmentApo(::grpc::ServerContext* context, ::proto::UpdateSwcAttachmentApoRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::UpdateSwcAttachmentApoResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(45, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(44, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -2147,7 +2103,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_GetSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodAsync(46);
+      ::grpc::Service::MarkMethodAsync(45);
     }
     ~WithAsyncMethod_GetSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -2158,7 +2114,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestGetSwcAttachmentApo(::grpc::ServerContext* context, ::proto::GetSwcAttachmentApoRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::GetSwcAttachmentApoResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(46, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(45, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -2167,7 +2123,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_RevertSwcVersion() {
-      ::grpc::Service::MarkMethodAsync(47);
+      ::grpc::Service::MarkMethodAsync(46);
     }
     ~WithAsyncMethod_RevertSwcVersion() override {
       BaseClassMustBeDerivedFromService(this);
@@ -2178,10 +2134,10 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestRevertSwcVersion(::grpc::ServerContext* context, ::proto::RevertSwcVersionRequest* request, ::grpc::ServerAsyncResponseWriter< ::proto::RevertSwcVersionResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(47, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(46, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_CreateUser<WithAsyncMethod_DeleteUser<WithAsyncMethod_UpdateUser<WithAsyncMethod_GetUser<WithAsyncMethod_GetAllUser<WithAsyncMethod_UserLogin<WithAsyncMethod_UserLogout<WithAsyncMethod_UserOnlineHeartBeatNotifications<WithAsyncMethod_GetUserPermissionGroup<WithAsyncMethod_GetPermissionGroup<WithAsyncMethod_GetAllPermissionGroup<WithAsyncMethod_ChangeUserPermissionGroup<WithAsyncMethod_CreateProject<WithAsyncMethod_DeleteProject<WithAsyncMethod_UpdateProject<WithAsyncMethod_GetProject<WithAsyncMethod_GetAllProject<WithAsyncMethod_CreateSwc<WithAsyncMethod_DeleteSwc<WithAsyncMethod_UpdateSwc<WithAsyncMethod_GetSwcMetaInfo<WithAsyncMethod_GetAllSwcMetaInfo<WithAsyncMethod_CreateSwcSnapshot<WithAsyncMethod_GetAllSnapshotMetaInfo<WithAsyncMethod_GetSnapshot<WithAsyncMethod_GetAllIncrementOperationMetaInfo<WithAsyncMethod_GetIncrementOperation<WithAsyncMethod_CreateSwcNodeData<WithAsyncMethod_DeleteSwcNodeData<WithAsyncMethod_UpdateSwcNodeData<WithAsyncMethod_GetSwcNodeData<WithAsyncMethod_GetSwcFullNodeData<WithAsyncMethod_GetSwcNodeDataListByTimeAndUser<WithAsyncMethod_BackupFullDatabase<WithAsyncMethod_CreateDailyStatistics<WithAsyncMethod_DeleteDailyStatistics<WithAsyncMethod_UpdateDailyStatistics<WithAsyncMethod_GetDailyStatistics<WithAsyncMethod_GetAllDailyStatistics<WithAsyncMethod_CreateSwcAttachmentAno<WithAsyncMethod_DeleteSwcAttachmentAno<WithAsyncMethod_UpdateSwcAttachmentAno<WithAsyncMethod_GetSwcAttachmentAno<WithAsyncMethod_CreateSwcAttachmentApo<WithAsyncMethod_DeleteSwcAttachmentApo<WithAsyncMethod_UpdateSwcAttachmentApo<WithAsyncMethod_GetSwcAttachmentApo<WithAsyncMethod_RevertSwcVersion<Service > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > AsyncService;
+  typedef WithAsyncMethod_CreateUser<WithAsyncMethod_DeleteUser<WithAsyncMethod_UpdateUser<WithAsyncMethod_GetUser<WithAsyncMethod_GetAllUser<WithAsyncMethod_UserLogin<WithAsyncMethod_UserLogout<WithAsyncMethod_UserOnlineHeartBeatNotifications<WithAsyncMethod_GetUserPermissionGroup<WithAsyncMethod_GetPermissionGroup<WithAsyncMethod_GetAllPermissionGroup<WithAsyncMethod_ChangeUserPermissionGroup<WithAsyncMethod_CreateProject<WithAsyncMethod_DeleteProject<WithAsyncMethod_UpdateProject<WithAsyncMethod_GetProject<WithAsyncMethod_GetAllProject<WithAsyncMethod_CreateSwc<WithAsyncMethod_DeleteSwc<WithAsyncMethod_UpdateSwc<WithAsyncMethod_GetSwcMetaInfo<WithAsyncMethod_GetAllSwcMetaInfo<WithAsyncMethod_CreateSwcSnapshot<WithAsyncMethod_GetAllSnapshotMetaInfo<WithAsyncMethod_GetSnapshot<WithAsyncMethod_GetAllIncrementOperationMetaInfo<WithAsyncMethod_GetIncrementOperation<WithAsyncMethod_CreateSwcNodeData<WithAsyncMethod_DeleteSwcNodeData<WithAsyncMethod_UpdateSwcNodeData<WithAsyncMethod_GetSwcNodeData<WithAsyncMethod_GetSwcFullNodeData<WithAsyncMethod_GetSwcNodeDataListByTimeAndUser<WithAsyncMethod_CreateDailyStatistics<WithAsyncMethod_DeleteDailyStatistics<WithAsyncMethod_UpdateDailyStatistics<WithAsyncMethod_GetDailyStatistics<WithAsyncMethod_GetAllDailyStatistics<WithAsyncMethod_CreateSwcAttachmentAno<WithAsyncMethod_DeleteSwcAttachmentAno<WithAsyncMethod_UpdateSwcAttachmentAno<WithAsyncMethod_GetSwcAttachmentAno<WithAsyncMethod_CreateSwcAttachmentApo<WithAsyncMethod_DeleteSwcAttachmentApo<WithAsyncMethod_UpdateSwcAttachmentApo<WithAsyncMethod_GetSwcAttachmentApo<WithAsyncMethod_RevertSwcVersion<Service > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_CreateUser : public BaseClass {
    private:
@@ -3074,45 +3030,18 @@ class DBMS final {
       ::grpc::CallbackServerContext* /*context*/, const ::proto::GetSwcNodeDataListByTimeAndUserRequest* /*request*/, ::proto::GetSwcNodeDataListByTimeAndUserResponse* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithCallbackMethod_BackupFullDatabase : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithCallbackMethod_BackupFullDatabase() {
-      ::grpc::Service::MarkMethodCallback(33,
-          new ::grpc::internal::CallbackUnaryHandler< ::proto::BackupFullDatabaseRequest, ::proto::BackupFullDatabaseResponse>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::proto::BackupFullDatabaseRequest* request, ::proto::BackupFullDatabaseResponse* response) { return this->BackupFullDatabase(context, request, response); }));}
-    void SetMessageAllocatorFor_BackupFullDatabase(
-        ::grpc::MessageAllocator< ::proto::BackupFullDatabaseRequest, ::proto::BackupFullDatabaseResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(33);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::BackupFullDatabaseRequest, ::proto::BackupFullDatabaseResponse>*>(handler)
-              ->SetMessageAllocator(allocator);
-    }
-    ~WithCallbackMethod_BackupFullDatabase() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status BackupFullDatabase(::grpc::ServerContext* /*context*/, const ::proto::BackupFullDatabaseRequest* /*request*/, ::proto::BackupFullDatabaseResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* BackupFullDatabase(
-      ::grpc::CallbackServerContext* /*context*/, const ::proto::BackupFullDatabaseRequest* /*request*/, ::proto::BackupFullDatabaseResponse* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
   class WithCallbackMethod_CreateDailyStatistics : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_CreateDailyStatistics() {
-      ::grpc::Service::MarkMethodCallback(34,
+      ::grpc::Service::MarkMethodCallback(33,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::CreateDailyStatisticsRequest, ::proto::CreateDailyStatisticsResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::CreateDailyStatisticsRequest* request, ::proto::CreateDailyStatisticsResponse* response) { return this->CreateDailyStatistics(context, request, response); }));}
     void SetMessageAllocatorFor_CreateDailyStatistics(
         ::grpc::MessageAllocator< ::proto::CreateDailyStatisticsRequest, ::proto::CreateDailyStatisticsResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(34);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(33);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::CreateDailyStatisticsRequest, ::proto::CreateDailyStatisticsResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3133,13 +3062,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_DeleteDailyStatistics() {
-      ::grpc::Service::MarkMethodCallback(35,
+      ::grpc::Service::MarkMethodCallback(34,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::DeleteDailyStatisticsRequest, ::proto::DeleteDailyStatisticsResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::DeleteDailyStatisticsRequest* request, ::proto::DeleteDailyStatisticsResponse* response) { return this->DeleteDailyStatistics(context, request, response); }));}
     void SetMessageAllocatorFor_DeleteDailyStatistics(
         ::grpc::MessageAllocator< ::proto::DeleteDailyStatisticsRequest, ::proto::DeleteDailyStatisticsResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(35);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(34);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::DeleteDailyStatisticsRequest, ::proto::DeleteDailyStatisticsResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3160,13 +3089,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_UpdateDailyStatistics() {
-      ::grpc::Service::MarkMethodCallback(36,
+      ::grpc::Service::MarkMethodCallback(35,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::UpdateDailyStatisticsRequest, ::proto::UpdateDailyStatisticsResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::UpdateDailyStatisticsRequest* request, ::proto::UpdateDailyStatisticsResponse* response) { return this->UpdateDailyStatistics(context, request, response); }));}
     void SetMessageAllocatorFor_UpdateDailyStatistics(
         ::grpc::MessageAllocator< ::proto::UpdateDailyStatisticsRequest, ::proto::UpdateDailyStatisticsResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(36);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(35);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::UpdateDailyStatisticsRequest, ::proto::UpdateDailyStatisticsResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3187,13 +3116,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_GetDailyStatistics() {
-      ::grpc::Service::MarkMethodCallback(37,
+      ::grpc::Service::MarkMethodCallback(36,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::GetDailyStatisticsRequest, ::proto::GetDailyStatisticsResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::GetDailyStatisticsRequest* request, ::proto::GetDailyStatisticsResponse* response) { return this->GetDailyStatistics(context, request, response); }));}
     void SetMessageAllocatorFor_GetDailyStatistics(
         ::grpc::MessageAllocator< ::proto::GetDailyStatisticsRequest, ::proto::GetDailyStatisticsResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(37);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(36);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::GetDailyStatisticsRequest, ::proto::GetDailyStatisticsResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3214,13 +3143,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_GetAllDailyStatistics() {
-      ::grpc::Service::MarkMethodCallback(38,
+      ::grpc::Service::MarkMethodCallback(37,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::GetAllDailyStatisticsRequest, ::proto::GetAllDailyStatisticsResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::GetAllDailyStatisticsRequest* request, ::proto::GetAllDailyStatisticsResponse* response) { return this->GetAllDailyStatistics(context, request, response); }));}
     void SetMessageAllocatorFor_GetAllDailyStatistics(
         ::grpc::MessageAllocator< ::proto::GetAllDailyStatisticsRequest, ::proto::GetAllDailyStatisticsResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(38);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(37);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::GetAllDailyStatisticsRequest, ::proto::GetAllDailyStatisticsResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3241,13 +3170,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_CreateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodCallback(39,
+      ::grpc::Service::MarkMethodCallback(38,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::CreateSwcAttachmentAnoRequest, ::proto::CreateSwcAttachmentAnoResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::CreateSwcAttachmentAnoRequest* request, ::proto::CreateSwcAttachmentAnoResponse* response) { return this->CreateSwcAttachmentAno(context, request, response); }));}
     void SetMessageAllocatorFor_CreateSwcAttachmentAno(
         ::grpc::MessageAllocator< ::proto::CreateSwcAttachmentAnoRequest, ::proto::CreateSwcAttachmentAnoResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(39);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(38);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::CreateSwcAttachmentAnoRequest, ::proto::CreateSwcAttachmentAnoResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3268,13 +3197,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_DeleteSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodCallback(40,
+      ::grpc::Service::MarkMethodCallback(39,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::DeleteSwcAttachmentAnoRequest, ::proto::DeleteSwcAttachmentAnoResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::DeleteSwcAttachmentAnoRequest* request, ::proto::DeleteSwcAttachmentAnoResponse* response) { return this->DeleteSwcAttachmentAno(context, request, response); }));}
     void SetMessageAllocatorFor_DeleteSwcAttachmentAno(
         ::grpc::MessageAllocator< ::proto::DeleteSwcAttachmentAnoRequest, ::proto::DeleteSwcAttachmentAnoResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(40);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(39);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::DeleteSwcAttachmentAnoRequest, ::proto::DeleteSwcAttachmentAnoResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3295,13 +3224,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_UpdateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodCallback(41,
+      ::grpc::Service::MarkMethodCallback(40,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::UpdateSwcAttachmentAnoRequest, ::proto::UpdateSwcAttachmentAnoResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::UpdateSwcAttachmentAnoRequest* request, ::proto::UpdateSwcAttachmentAnoResponse* response) { return this->UpdateSwcAttachmentAno(context, request, response); }));}
     void SetMessageAllocatorFor_UpdateSwcAttachmentAno(
         ::grpc::MessageAllocator< ::proto::UpdateSwcAttachmentAnoRequest, ::proto::UpdateSwcAttachmentAnoResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(41);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(40);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::UpdateSwcAttachmentAnoRequest, ::proto::UpdateSwcAttachmentAnoResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3322,13 +3251,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_GetSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodCallback(42,
+      ::grpc::Service::MarkMethodCallback(41,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::GetSwcAttachmentAnoRequest, ::proto::GetSwcAttachmentAnoResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::GetSwcAttachmentAnoRequest* request, ::proto::GetSwcAttachmentAnoResponse* response) { return this->GetSwcAttachmentAno(context, request, response); }));}
     void SetMessageAllocatorFor_GetSwcAttachmentAno(
         ::grpc::MessageAllocator< ::proto::GetSwcAttachmentAnoRequest, ::proto::GetSwcAttachmentAnoResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(42);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(41);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::GetSwcAttachmentAnoRequest, ::proto::GetSwcAttachmentAnoResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3349,13 +3278,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_CreateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodCallback(43,
+      ::grpc::Service::MarkMethodCallback(42,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::CreateSwcAttachmentApoRequest, ::proto::CreateSwcAttachmentApoResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::CreateSwcAttachmentApoRequest* request, ::proto::CreateSwcAttachmentApoResponse* response) { return this->CreateSwcAttachmentApo(context, request, response); }));}
     void SetMessageAllocatorFor_CreateSwcAttachmentApo(
         ::grpc::MessageAllocator< ::proto::CreateSwcAttachmentApoRequest, ::proto::CreateSwcAttachmentApoResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(43);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(42);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::CreateSwcAttachmentApoRequest, ::proto::CreateSwcAttachmentApoResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3376,13 +3305,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_DeleteSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodCallback(44,
+      ::grpc::Service::MarkMethodCallback(43,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::DeleteSwcAttachmentApoRequest, ::proto::DeleteSwcAttachmentApoResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::DeleteSwcAttachmentApoRequest* request, ::proto::DeleteSwcAttachmentApoResponse* response) { return this->DeleteSwcAttachmentApo(context, request, response); }));}
     void SetMessageAllocatorFor_DeleteSwcAttachmentApo(
         ::grpc::MessageAllocator< ::proto::DeleteSwcAttachmentApoRequest, ::proto::DeleteSwcAttachmentApoResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(44);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(43);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::DeleteSwcAttachmentApoRequest, ::proto::DeleteSwcAttachmentApoResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3403,13 +3332,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_UpdateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodCallback(45,
+      ::grpc::Service::MarkMethodCallback(44,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::UpdateSwcAttachmentApoRequest, ::proto::UpdateSwcAttachmentApoResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::UpdateSwcAttachmentApoRequest* request, ::proto::UpdateSwcAttachmentApoResponse* response) { return this->UpdateSwcAttachmentApo(context, request, response); }));}
     void SetMessageAllocatorFor_UpdateSwcAttachmentApo(
         ::grpc::MessageAllocator< ::proto::UpdateSwcAttachmentApoRequest, ::proto::UpdateSwcAttachmentApoResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(45);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(44);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::UpdateSwcAttachmentApoRequest, ::proto::UpdateSwcAttachmentApoResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3430,13 +3359,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_GetSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodCallback(46,
+      ::grpc::Service::MarkMethodCallback(45,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::GetSwcAttachmentApoRequest, ::proto::GetSwcAttachmentApoResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::GetSwcAttachmentApoRequest* request, ::proto::GetSwcAttachmentApoResponse* response) { return this->GetSwcAttachmentApo(context, request, response); }));}
     void SetMessageAllocatorFor_GetSwcAttachmentApo(
         ::grpc::MessageAllocator< ::proto::GetSwcAttachmentApoRequest, ::proto::GetSwcAttachmentApoResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(46);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(45);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::GetSwcAttachmentApoRequest, ::proto::GetSwcAttachmentApoResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3457,13 +3386,13 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_RevertSwcVersion() {
-      ::grpc::Service::MarkMethodCallback(47,
+      ::grpc::Service::MarkMethodCallback(46,
           new ::grpc::internal::CallbackUnaryHandler< ::proto::RevertSwcVersionRequest, ::proto::RevertSwcVersionResponse>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proto::RevertSwcVersionRequest* request, ::proto::RevertSwcVersionResponse* response) { return this->RevertSwcVersion(context, request, response); }));}
     void SetMessageAllocatorFor_RevertSwcVersion(
         ::grpc::MessageAllocator< ::proto::RevertSwcVersionRequest, ::proto::RevertSwcVersionResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(47);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(46);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proto::RevertSwcVersionRequest, ::proto::RevertSwcVersionResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -3478,7 +3407,7 @@ class DBMS final {
     virtual ::grpc::ServerUnaryReactor* RevertSwcVersion(
       ::grpc::CallbackServerContext* /*context*/, const ::proto::RevertSwcVersionRequest* /*request*/, ::proto::RevertSwcVersionResponse* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_CreateUser<WithCallbackMethod_DeleteUser<WithCallbackMethod_UpdateUser<WithCallbackMethod_GetUser<WithCallbackMethod_GetAllUser<WithCallbackMethod_UserLogin<WithCallbackMethod_UserLogout<WithCallbackMethod_UserOnlineHeartBeatNotifications<WithCallbackMethod_GetUserPermissionGroup<WithCallbackMethod_GetPermissionGroup<WithCallbackMethod_GetAllPermissionGroup<WithCallbackMethod_ChangeUserPermissionGroup<WithCallbackMethod_CreateProject<WithCallbackMethod_DeleteProject<WithCallbackMethod_UpdateProject<WithCallbackMethod_GetProject<WithCallbackMethod_GetAllProject<WithCallbackMethod_CreateSwc<WithCallbackMethod_DeleteSwc<WithCallbackMethod_UpdateSwc<WithCallbackMethod_GetSwcMetaInfo<WithCallbackMethod_GetAllSwcMetaInfo<WithCallbackMethod_CreateSwcSnapshot<WithCallbackMethod_GetAllSnapshotMetaInfo<WithCallbackMethod_GetSnapshot<WithCallbackMethod_GetAllIncrementOperationMetaInfo<WithCallbackMethod_GetIncrementOperation<WithCallbackMethod_CreateSwcNodeData<WithCallbackMethod_DeleteSwcNodeData<WithCallbackMethod_UpdateSwcNodeData<WithCallbackMethod_GetSwcNodeData<WithCallbackMethod_GetSwcFullNodeData<WithCallbackMethod_GetSwcNodeDataListByTimeAndUser<WithCallbackMethod_BackupFullDatabase<WithCallbackMethod_CreateDailyStatistics<WithCallbackMethod_DeleteDailyStatistics<WithCallbackMethod_UpdateDailyStatistics<WithCallbackMethod_GetDailyStatistics<WithCallbackMethod_GetAllDailyStatistics<WithCallbackMethod_CreateSwcAttachmentAno<WithCallbackMethod_DeleteSwcAttachmentAno<WithCallbackMethod_UpdateSwcAttachmentAno<WithCallbackMethod_GetSwcAttachmentAno<WithCallbackMethod_CreateSwcAttachmentApo<WithCallbackMethod_DeleteSwcAttachmentApo<WithCallbackMethod_UpdateSwcAttachmentApo<WithCallbackMethod_GetSwcAttachmentApo<WithCallbackMethod_RevertSwcVersion<Service > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > CallbackService;
+  typedef WithCallbackMethod_CreateUser<WithCallbackMethod_DeleteUser<WithCallbackMethod_UpdateUser<WithCallbackMethod_GetUser<WithCallbackMethod_GetAllUser<WithCallbackMethod_UserLogin<WithCallbackMethod_UserLogout<WithCallbackMethod_UserOnlineHeartBeatNotifications<WithCallbackMethod_GetUserPermissionGroup<WithCallbackMethod_GetPermissionGroup<WithCallbackMethod_GetAllPermissionGroup<WithCallbackMethod_ChangeUserPermissionGroup<WithCallbackMethod_CreateProject<WithCallbackMethod_DeleteProject<WithCallbackMethod_UpdateProject<WithCallbackMethod_GetProject<WithCallbackMethod_GetAllProject<WithCallbackMethod_CreateSwc<WithCallbackMethod_DeleteSwc<WithCallbackMethod_UpdateSwc<WithCallbackMethod_GetSwcMetaInfo<WithCallbackMethod_GetAllSwcMetaInfo<WithCallbackMethod_CreateSwcSnapshot<WithCallbackMethod_GetAllSnapshotMetaInfo<WithCallbackMethod_GetSnapshot<WithCallbackMethod_GetAllIncrementOperationMetaInfo<WithCallbackMethod_GetIncrementOperation<WithCallbackMethod_CreateSwcNodeData<WithCallbackMethod_DeleteSwcNodeData<WithCallbackMethod_UpdateSwcNodeData<WithCallbackMethod_GetSwcNodeData<WithCallbackMethod_GetSwcFullNodeData<WithCallbackMethod_GetSwcNodeDataListByTimeAndUser<WithCallbackMethod_CreateDailyStatistics<WithCallbackMethod_DeleteDailyStatistics<WithCallbackMethod_UpdateDailyStatistics<WithCallbackMethod_GetDailyStatistics<WithCallbackMethod_GetAllDailyStatistics<WithCallbackMethod_CreateSwcAttachmentAno<WithCallbackMethod_DeleteSwcAttachmentAno<WithCallbackMethod_UpdateSwcAttachmentAno<WithCallbackMethod_GetSwcAttachmentAno<WithCallbackMethod_CreateSwcAttachmentApo<WithCallbackMethod_DeleteSwcAttachmentApo<WithCallbackMethod_UpdateSwcAttachmentApo<WithCallbackMethod_GetSwcAttachmentApo<WithCallbackMethod_RevertSwcVersion<Service > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_CreateUser : public BaseClass {
@@ -4042,29 +3971,12 @@ class DBMS final {
     }
   };
   template <class BaseClass>
-  class WithGenericMethod_BackupFullDatabase : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithGenericMethod_BackupFullDatabase() {
-      ::grpc::Service::MarkMethodGeneric(33);
-    }
-    ~WithGenericMethod_BackupFullDatabase() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status BackupFullDatabase(::grpc::ServerContext* /*context*/, const ::proto::BackupFullDatabaseRequest* /*request*/, ::proto::BackupFullDatabaseResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-  };
-  template <class BaseClass>
   class WithGenericMethod_CreateDailyStatistics : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_CreateDailyStatistics() {
-      ::grpc::Service::MarkMethodGeneric(34);
+      ::grpc::Service::MarkMethodGeneric(33);
     }
     ~WithGenericMethod_CreateDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4081,7 +3993,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_DeleteDailyStatistics() {
-      ::grpc::Service::MarkMethodGeneric(35);
+      ::grpc::Service::MarkMethodGeneric(34);
     }
     ~WithGenericMethod_DeleteDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4098,7 +4010,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_UpdateDailyStatistics() {
-      ::grpc::Service::MarkMethodGeneric(36);
+      ::grpc::Service::MarkMethodGeneric(35);
     }
     ~WithGenericMethod_UpdateDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4115,7 +4027,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_GetDailyStatistics() {
-      ::grpc::Service::MarkMethodGeneric(37);
+      ::grpc::Service::MarkMethodGeneric(36);
     }
     ~WithGenericMethod_GetDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4132,7 +4044,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_GetAllDailyStatistics() {
-      ::grpc::Service::MarkMethodGeneric(38);
+      ::grpc::Service::MarkMethodGeneric(37);
     }
     ~WithGenericMethod_GetAllDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4149,7 +4061,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_CreateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodGeneric(39);
+      ::grpc::Service::MarkMethodGeneric(38);
     }
     ~WithGenericMethod_CreateSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4166,7 +4078,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_DeleteSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodGeneric(40);
+      ::grpc::Service::MarkMethodGeneric(39);
     }
     ~WithGenericMethod_DeleteSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4183,7 +4095,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_UpdateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodGeneric(41);
+      ::grpc::Service::MarkMethodGeneric(40);
     }
     ~WithGenericMethod_UpdateSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4200,7 +4112,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_GetSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodGeneric(42);
+      ::grpc::Service::MarkMethodGeneric(41);
     }
     ~WithGenericMethod_GetSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4217,7 +4129,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_CreateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodGeneric(43);
+      ::grpc::Service::MarkMethodGeneric(42);
     }
     ~WithGenericMethod_CreateSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4234,7 +4146,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_DeleteSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodGeneric(44);
+      ::grpc::Service::MarkMethodGeneric(43);
     }
     ~WithGenericMethod_DeleteSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4251,7 +4163,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_UpdateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodGeneric(45);
+      ::grpc::Service::MarkMethodGeneric(44);
     }
     ~WithGenericMethod_UpdateSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4268,7 +4180,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_GetSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodGeneric(46);
+      ::grpc::Service::MarkMethodGeneric(45);
     }
     ~WithGenericMethod_GetSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4285,7 +4197,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_RevertSwcVersion() {
-      ::grpc::Service::MarkMethodGeneric(47);
+      ::grpc::Service::MarkMethodGeneric(46);
     }
     ~WithGenericMethod_RevertSwcVersion() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4957,32 +4869,12 @@ class DBMS final {
     }
   };
   template <class BaseClass>
-  class WithRawMethod_BackupFullDatabase : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawMethod_BackupFullDatabase() {
-      ::grpc::Service::MarkMethodRaw(33);
-    }
-    ~WithRawMethod_BackupFullDatabase() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status BackupFullDatabase(::grpc::ServerContext* /*context*/, const ::proto::BackupFullDatabaseRequest* /*request*/, ::proto::BackupFullDatabaseResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestBackupFullDatabase(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(33, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
   class WithRawMethod_CreateDailyStatistics : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_CreateDailyStatistics() {
-      ::grpc::Service::MarkMethodRaw(34);
+      ::grpc::Service::MarkMethodRaw(33);
     }
     ~WithRawMethod_CreateDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -4993,7 +4885,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestCreateDailyStatistics(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(34, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(33, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5002,7 +4894,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_DeleteDailyStatistics() {
-      ::grpc::Service::MarkMethodRaw(35);
+      ::grpc::Service::MarkMethodRaw(34);
     }
     ~WithRawMethod_DeleteDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5013,7 +4905,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestDeleteDailyStatistics(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(35, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(34, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5022,7 +4914,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_UpdateDailyStatistics() {
-      ::grpc::Service::MarkMethodRaw(36);
+      ::grpc::Service::MarkMethodRaw(35);
     }
     ~WithRawMethod_UpdateDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5033,7 +4925,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestUpdateDailyStatistics(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(36, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(35, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5042,7 +4934,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_GetDailyStatistics() {
-      ::grpc::Service::MarkMethodRaw(37);
+      ::grpc::Service::MarkMethodRaw(36);
     }
     ~WithRawMethod_GetDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5053,7 +4945,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestGetDailyStatistics(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(37, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(36, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5062,7 +4954,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_GetAllDailyStatistics() {
-      ::grpc::Service::MarkMethodRaw(38);
+      ::grpc::Service::MarkMethodRaw(37);
     }
     ~WithRawMethod_GetAllDailyStatistics() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5073,7 +4965,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestGetAllDailyStatistics(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(38, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(37, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5082,7 +4974,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_CreateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodRaw(39);
+      ::grpc::Service::MarkMethodRaw(38);
     }
     ~WithRawMethod_CreateSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5093,7 +4985,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestCreateSwcAttachmentAno(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(39, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(38, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5102,7 +4994,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_DeleteSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodRaw(40);
+      ::grpc::Service::MarkMethodRaw(39);
     }
     ~WithRawMethod_DeleteSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5113,7 +5005,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestDeleteSwcAttachmentAno(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(40, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(39, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5122,7 +5014,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_UpdateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodRaw(41);
+      ::grpc::Service::MarkMethodRaw(40);
     }
     ~WithRawMethod_UpdateSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5133,7 +5025,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestUpdateSwcAttachmentAno(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(41, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(40, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5142,7 +5034,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_GetSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodRaw(42);
+      ::grpc::Service::MarkMethodRaw(41);
     }
     ~WithRawMethod_GetSwcAttachmentAno() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5153,7 +5045,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestGetSwcAttachmentAno(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(42, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(41, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5162,7 +5054,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_CreateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodRaw(43);
+      ::grpc::Service::MarkMethodRaw(42);
     }
     ~WithRawMethod_CreateSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5173,7 +5065,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestCreateSwcAttachmentApo(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(43, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(42, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5182,7 +5074,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_DeleteSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodRaw(44);
+      ::grpc::Service::MarkMethodRaw(43);
     }
     ~WithRawMethod_DeleteSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5193,7 +5085,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestDeleteSwcAttachmentApo(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(44, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(43, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5202,7 +5094,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_UpdateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodRaw(45);
+      ::grpc::Service::MarkMethodRaw(44);
     }
     ~WithRawMethod_UpdateSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5213,7 +5105,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestUpdateSwcAttachmentApo(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(45, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(44, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5222,7 +5114,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_GetSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodRaw(46);
+      ::grpc::Service::MarkMethodRaw(45);
     }
     ~WithRawMethod_GetSwcAttachmentApo() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5233,7 +5125,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestGetSwcAttachmentApo(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(46, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(45, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5242,7 +5134,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_RevertSwcVersion() {
-      ::grpc::Service::MarkMethodRaw(47);
+      ::grpc::Service::MarkMethodRaw(46);
     }
     ~WithRawMethod_RevertSwcVersion() override {
       BaseClassMustBeDerivedFromService(this);
@@ -5253,7 +5145,7 @@ class DBMS final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestRevertSwcVersion(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(47, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(46, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -5983,34 +5875,12 @@ class DBMS final {
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithRawCallbackMethod_BackupFullDatabase : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawCallbackMethod_BackupFullDatabase() {
-      ::grpc::Service::MarkMethodRawCallback(33,
-          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->BackupFullDatabase(context, request, response); }));
-    }
-    ~WithRawCallbackMethod_BackupFullDatabase() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status BackupFullDatabase(::grpc::ServerContext* /*context*/, const ::proto::BackupFullDatabaseRequest* /*request*/, ::proto::BackupFullDatabaseResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* BackupFullDatabase(
-      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
   class WithRawCallbackMethod_CreateDailyStatistics : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_CreateDailyStatistics() {
-      ::grpc::Service::MarkMethodRawCallback(34,
+      ::grpc::Service::MarkMethodRawCallback(33,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->CreateDailyStatistics(context, request, response); }));
@@ -6032,7 +5902,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_DeleteDailyStatistics() {
-      ::grpc::Service::MarkMethodRawCallback(35,
+      ::grpc::Service::MarkMethodRawCallback(34,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->DeleteDailyStatistics(context, request, response); }));
@@ -6054,7 +5924,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_UpdateDailyStatistics() {
-      ::grpc::Service::MarkMethodRawCallback(36,
+      ::grpc::Service::MarkMethodRawCallback(35,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->UpdateDailyStatistics(context, request, response); }));
@@ -6076,7 +5946,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_GetDailyStatistics() {
-      ::grpc::Service::MarkMethodRawCallback(37,
+      ::grpc::Service::MarkMethodRawCallback(36,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->GetDailyStatistics(context, request, response); }));
@@ -6098,7 +5968,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_GetAllDailyStatistics() {
-      ::grpc::Service::MarkMethodRawCallback(38,
+      ::grpc::Service::MarkMethodRawCallback(37,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->GetAllDailyStatistics(context, request, response); }));
@@ -6120,7 +5990,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_CreateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodRawCallback(39,
+      ::grpc::Service::MarkMethodRawCallback(38,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->CreateSwcAttachmentAno(context, request, response); }));
@@ -6142,7 +6012,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_DeleteSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodRawCallback(40,
+      ::grpc::Service::MarkMethodRawCallback(39,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->DeleteSwcAttachmentAno(context, request, response); }));
@@ -6164,7 +6034,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_UpdateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodRawCallback(41,
+      ::grpc::Service::MarkMethodRawCallback(40,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->UpdateSwcAttachmentAno(context, request, response); }));
@@ -6186,7 +6056,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_GetSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodRawCallback(42,
+      ::grpc::Service::MarkMethodRawCallback(41,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->GetSwcAttachmentAno(context, request, response); }));
@@ -6208,7 +6078,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_CreateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodRawCallback(43,
+      ::grpc::Service::MarkMethodRawCallback(42,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->CreateSwcAttachmentApo(context, request, response); }));
@@ -6230,7 +6100,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_DeleteSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodRawCallback(44,
+      ::grpc::Service::MarkMethodRawCallback(43,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->DeleteSwcAttachmentApo(context, request, response); }));
@@ -6252,7 +6122,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_UpdateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodRawCallback(45,
+      ::grpc::Service::MarkMethodRawCallback(44,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->UpdateSwcAttachmentApo(context, request, response); }));
@@ -6274,7 +6144,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_GetSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodRawCallback(46,
+      ::grpc::Service::MarkMethodRawCallback(45,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->GetSwcAttachmentApo(context, request, response); }));
@@ -6296,7 +6166,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_RevertSwcVersion() {
-      ::grpc::Service::MarkMethodRawCallback(47,
+      ::grpc::Service::MarkMethodRawCallback(46,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->RevertSwcVersion(context, request, response); }));
@@ -7204,39 +7074,12 @@ class DBMS final {
     virtual ::grpc::Status StreamedGetSwcNodeDataListByTimeAndUser(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proto::GetSwcNodeDataListByTimeAndUserRequest,::proto::GetSwcNodeDataListByTimeAndUserResponse>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
-  class WithStreamedUnaryMethod_BackupFullDatabase : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithStreamedUnaryMethod_BackupFullDatabase() {
-      ::grpc::Service::MarkMethodStreamed(33,
-        new ::grpc::internal::StreamedUnaryHandler<
-          ::proto::BackupFullDatabaseRequest, ::proto::BackupFullDatabaseResponse>(
-            [this](::grpc::ServerContext* context,
-                   ::grpc::ServerUnaryStreamer<
-                     ::proto::BackupFullDatabaseRequest, ::proto::BackupFullDatabaseResponse>* streamer) {
-                       return this->StreamedBackupFullDatabase(context,
-                         streamer);
-                  }));
-    }
-    ~WithStreamedUnaryMethod_BackupFullDatabase() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable regular version of this method
-    ::grpc::Status BackupFullDatabase(::grpc::ServerContext* /*context*/, const ::proto::BackupFullDatabaseRequest* /*request*/, ::proto::BackupFullDatabaseResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedBackupFullDatabase(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proto::BackupFullDatabaseRequest,::proto::BackupFullDatabaseResponse>* server_unary_streamer) = 0;
-  };
-  template <class BaseClass>
   class WithStreamedUnaryMethod_CreateDailyStatistics : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_CreateDailyStatistics() {
-      ::grpc::Service::MarkMethodStreamed(34,
+      ::grpc::Service::MarkMethodStreamed(33,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::CreateDailyStatisticsRequest, ::proto::CreateDailyStatisticsResponse>(
             [this](::grpc::ServerContext* context,
@@ -7263,7 +7106,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_DeleteDailyStatistics() {
-      ::grpc::Service::MarkMethodStreamed(35,
+      ::grpc::Service::MarkMethodStreamed(34,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::DeleteDailyStatisticsRequest, ::proto::DeleteDailyStatisticsResponse>(
             [this](::grpc::ServerContext* context,
@@ -7290,7 +7133,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_UpdateDailyStatistics() {
-      ::grpc::Service::MarkMethodStreamed(36,
+      ::grpc::Service::MarkMethodStreamed(35,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::UpdateDailyStatisticsRequest, ::proto::UpdateDailyStatisticsResponse>(
             [this](::grpc::ServerContext* context,
@@ -7317,7 +7160,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_GetDailyStatistics() {
-      ::grpc::Service::MarkMethodStreamed(37,
+      ::grpc::Service::MarkMethodStreamed(36,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::GetDailyStatisticsRequest, ::proto::GetDailyStatisticsResponse>(
             [this](::grpc::ServerContext* context,
@@ -7344,7 +7187,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_GetAllDailyStatistics() {
-      ::grpc::Service::MarkMethodStreamed(38,
+      ::grpc::Service::MarkMethodStreamed(37,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::GetAllDailyStatisticsRequest, ::proto::GetAllDailyStatisticsResponse>(
             [this](::grpc::ServerContext* context,
@@ -7371,7 +7214,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_CreateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodStreamed(39,
+      ::grpc::Service::MarkMethodStreamed(38,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::CreateSwcAttachmentAnoRequest, ::proto::CreateSwcAttachmentAnoResponse>(
             [this](::grpc::ServerContext* context,
@@ -7398,7 +7241,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_DeleteSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodStreamed(40,
+      ::grpc::Service::MarkMethodStreamed(39,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::DeleteSwcAttachmentAnoRequest, ::proto::DeleteSwcAttachmentAnoResponse>(
             [this](::grpc::ServerContext* context,
@@ -7425,7 +7268,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_UpdateSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodStreamed(41,
+      ::grpc::Service::MarkMethodStreamed(40,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::UpdateSwcAttachmentAnoRequest, ::proto::UpdateSwcAttachmentAnoResponse>(
             [this](::grpc::ServerContext* context,
@@ -7452,7 +7295,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_GetSwcAttachmentAno() {
-      ::grpc::Service::MarkMethodStreamed(42,
+      ::grpc::Service::MarkMethodStreamed(41,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::GetSwcAttachmentAnoRequest, ::proto::GetSwcAttachmentAnoResponse>(
             [this](::grpc::ServerContext* context,
@@ -7479,7 +7322,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_CreateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodStreamed(43,
+      ::grpc::Service::MarkMethodStreamed(42,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::CreateSwcAttachmentApoRequest, ::proto::CreateSwcAttachmentApoResponse>(
             [this](::grpc::ServerContext* context,
@@ -7506,7 +7349,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_DeleteSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodStreamed(44,
+      ::grpc::Service::MarkMethodStreamed(43,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::DeleteSwcAttachmentApoRequest, ::proto::DeleteSwcAttachmentApoResponse>(
             [this](::grpc::ServerContext* context,
@@ -7533,7 +7376,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_UpdateSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodStreamed(45,
+      ::grpc::Service::MarkMethodStreamed(44,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::UpdateSwcAttachmentApoRequest, ::proto::UpdateSwcAttachmentApoResponse>(
             [this](::grpc::ServerContext* context,
@@ -7560,7 +7403,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_GetSwcAttachmentApo() {
-      ::grpc::Service::MarkMethodStreamed(46,
+      ::grpc::Service::MarkMethodStreamed(45,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::GetSwcAttachmentApoRequest, ::proto::GetSwcAttachmentApoResponse>(
             [this](::grpc::ServerContext* context,
@@ -7587,7 +7430,7 @@ class DBMS final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_RevertSwcVersion() {
-      ::grpc::Service::MarkMethodStreamed(47,
+      ::grpc::Service::MarkMethodStreamed(46,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proto::RevertSwcVersionRequest, ::proto::RevertSwcVersionResponse>(
             [this](::grpc::ServerContext* context,
@@ -7608,9 +7451,9 @@ class DBMS final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedRevertSwcVersion(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proto::RevertSwcVersionRequest,::proto::RevertSwcVersionResponse>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_CreateUser<WithStreamedUnaryMethod_DeleteUser<WithStreamedUnaryMethod_UpdateUser<WithStreamedUnaryMethod_GetUser<WithStreamedUnaryMethod_GetAllUser<WithStreamedUnaryMethod_UserLogin<WithStreamedUnaryMethod_UserLogout<WithStreamedUnaryMethod_UserOnlineHeartBeatNotifications<WithStreamedUnaryMethod_GetUserPermissionGroup<WithStreamedUnaryMethod_GetPermissionGroup<WithStreamedUnaryMethod_GetAllPermissionGroup<WithStreamedUnaryMethod_ChangeUserPermissionGroup<WithStreamedUnaryMethod_CreateProject<WithStreamedUnaryMethod_DeleteProject<WithStreamedUnaryMethod_UpdateProject<WithStreamedUnaryMethod_GetProject<WithStreamedUnaryMethod_GetAllProject<WithStreamedUnaryMethod_CreateSwc<WithStreamedUnaryMethod_DeleteSwc<WithStreamedUnaryMethod_UpdateSwc<WithStreamedUnaryMethod_GetSwcMetaInfo<WithStreamedUnaryMethod_GetAllSwcMetaInfo<WithStreamedUnaryMethod_CreateSwcSnapshot<WithStreamedUnaryMethod_GetAllSnapshotMetaInfo<WithStreamedUnaryMethod_GetSnapshot<WithStreamedUnaryMethod_GetAllIncrementOperationMetaInfo<WithStreamedUnaryMethod_GetIncrementOperation<WithStreamedUnaryMethod_CreateSwcNodeData<WithStreamedUnaryMethod_DeleteSwcNodeData<WithStreamedUnaryMethod_UpdateSwcNodeData<WithStreamedUnaryMethod_GetSwcNodeData<WithStreamedUnaryMethod_GetSwcFullNodeData<WithStreamedUnaryMethod_GetSwcNodeDataListByTimeAndUser<WithStreamedUnaryMethod_BackupFullDatabase<WithStreamedUnaryMethod_CreateDailyStatistics<WithStreamedUnaryMethod_DeleteDailyStatistics<WithStreamedUnaryMethod_UpdateDailyStatistics<WithStreamedUnaryMethod_GetDailyStatistics<WithStreamedUnaryMethod_GetAllDailyStatistics<WithStreamedUnaryMethod_CreateSwcAttachmentAno<WithStreamedUnaryMethod_DeleteSwcAttachmentAno<WithStreamedUnaryMethod_UpdateSwcAttachmentAno<WithStreamedUnaryMethod_GetSwcAttachmentAno<WithStreamedUnaryMethod_CreateSwcAttachmentApo<WithStreamedUnaryMethod_DeleteSwcAttachmentApo<WithStreamedUnaryMethod_UpdateSwcAttachmentApo<WithStreamedUnaryMethod_GetSwcAttachmentApo<WithStreamedUnaryMethod_RevertSwcVersion<Service > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_CreateUser<WithStreamedUnaryMethod_DeleteUser<WithStreamedUnaryMethod_UpdateUser<WithStreamedUnaryMethod_GetUser<WithStreamedUnaryMethod_GetAllUser<WithStreamedUnaryMethod_UserLogin<WithStreamedUnaryMethod_UserLogout<WithStreamedUnaryMethod_UserOnlineHeartBeatNotifications<WithStreamedUnaryMethod_GetUserPermissionGroup<WithStreamedUnaryMethod_GetPermissionGroup<WithStreamedUnaryMethod_GetAllPermissionGroup<WithStreamedUnaryMethod_ChangeUserPermissionGroup<WithStreamedUnaryMethod_CreateProject<WithStreamedUnaryMethod_DeleteProject<WithStreamedUnaryMethod_UpdateProject<WithStreamedUnaryMethod_GetProject<WithStreamedUnaryMethod_GetAllProject<WithStreamedUnaryMethod_CreateSwc<WithStreamedUnaryMethod_DeleteSwc<WithStreamedUnaryMethod_UpdateSwc<WithStreamedUnaryMethod_GetSwcMetaInfo<WithStreamedUnaryMethod_GetAllSwcMetaInfo<WithStreamedUnaryMethod_CreateSwcSnapshot<WithStreamedUnaryMethod_GetAllSnapshotMetaInfo<WithStreamedUnaryMethod_GetSnapshot<WithStreamedUnaryMethod_GetAllIncrementOperationMetaInfo<WithStreamedUnaryMethod_GetIncrementOperation<WithStreamedUnaryMethod_CreateSwcNodeData<WithStreamedUnaryMethod_DeleteSwcNodeData<WithStreamedUnaryMethod_UpdateSwcNodeData<WithStreamedUnaryMethod_GetSwcNodeData<WithStreamedUnaryMethod_GetSwcFullNodeData<WithStreamedUnaryMethod_GetSwcNodeDataListByTimeAndUser<WithStreamedUnaryMethod_CreateDailyStatistics<WithStreamedUnaryMethod_DeleteDailyStatistics<WithStreamedUnaryMethod_UpdateDailyStatistics<WithStreamedUnaryMethod_GetDailyStatistics<WithStreamedUnaryMethod_GetAllDailyStatistics<WithStreamedUnaryMethod_CreateSwcAttachmentAno<WithStreamedUnaryMethod_DeleteSwcAttachmentAno<WithStreamedUnaryMethod_UpdateSwcAttachmentAno<WithStreamedUnaryMethod_GetSwcAttachmentAno<WithStreamedUnaryMethod_CreateSwcAttachmentApo<WithStreamedUnaryMethod_DeleteSwcAttachmentApo<WithStreamedUnaryMethod_UpdateSwcAttachmentApo<WithStreamedUnaryMethod_GetSwcAttachmentApo<WithStreamedUnaryMethod_RevertSwcVersion<Service > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_CreateUser<WithStreamedUnaryMethod_DeleteUser<WithStreamedUnaryMethod_UpdateUser<WithStreamedUnaryMethod_GetUser<WithStreamedUnaryMethod_GetAllUser<WithStreamedUnaryMethod_UserLogin<WithStreamedUnaryMethod_UserLogout<WithStreamedUnaryMethod_UserOnlineHeartBeatNotifications<WithStreamedUnaryMethod_GetUserPermissionGroup<WithStreamedUnaryMethod_GetPermissionGroup<WithStreamedUnaryMethod_GetAllPermissionGroup<WithStreamedUnaryMethod_ChangeUserPermissionGroup<WithStreamedUnaryMethod_CreateProject<WithStreamedUnaryMethod_DeleteProject<WithStreamedUnaryMethod_UpdateProject<WithStreamedUnaryMethod_GetProject<WithStreamedUnaryMethod_GetAllProject<WithStreamedUnaryMethod_CreateSwc<WithStreamedUnaryMethod_DeleteSwc<WithStreamedUnaryMethod_UpdateSwc<WithStreamedUnaryMethod_GetSwcMetaInfo<WithStreamedUnaryMethod_GetAllSwcMetaInfo<WithStreamedUnaryMethod_CreateSwcSnapshot<WithStreamedUnaryMethod_GetAllSnapshotMetaInfo<WithStreamedUnaryMethod_GetSnapshot<WithStreamedUnaryMethod_GetAllIncrementOperationMetaInfo<WithStreamedUnaryMethod_GetIncrementOperation<WithStreamedUnaryMethod_CreateSwcNodeData<WithStreamedUnaryMethod_DeleteSwcNodeData<WithStreamedUnaryMethod_UpdateSwcNodeData<WithStreamedUnaryMethod_GetSwcNodeData<WithStreamedUnaryMethod_GetSwcFullNodeData<WithStreamedUnaryMethod_GetSwcNodeDataListByTimeAndUser<WithStreamedUnaryMethod_BackupFullDatabase<WithStreamedUnaryMethod_CreateDailyStatistics<WithStreamedUnaryMethod_DeleteDailyStatistics<WithStreamedUnaryMethod_UpdateDailyStatistics<WithStreamedUnaryMethod_GetDailyStatistics<WithStreamedUnaryMethod_GetAllDailyStatistics<WithStreamedUnaryMethod_CreateSwcAttachmentAno<WithStreamedUnaryMethod_DeleteSwcAttachmentAno<WithStreamedUnaryMethod_UpdateSwcAttachmentAno<WithStreamedUnaryMethod_GetSwcAttachmentAno<WithStreamedUnaryMethod_CreateSwcAttachmentApo<WithStreamedUnaryMethod_DeleteSwcAttachmentApo<WithStreamedUnaryMethod_UpdateSwcAttachmentApo<WithStreamedUnaryMethod_GetSwcAttachmentApo<WithStreamedUnaryMethod_RevertSwcVersion<Service > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_CreateUser<WithStreamedUnaryMethod_DeleteUser<WithStreamedUnaryMethod_UpdateUser<WithStreamedUnaryMethod_GetUser<WithStreamedUnaryMethod_GetAllUser<WithStreamedUnaryMethod_UserLogin<WithStreamedUnaryMethod_UserLogout<WithStreamedUnaryMethod_UserOnlineHeartBeatNotifications<WithStreamedUnaryMethod_GetUserPermissionGroup<WithStreamedUnaryMethod_GetPermissionGroup<WithStreamedUnaryMethod_GetAllPermissionGroup<WithStreamedUnaryMethod_ChangeUserPermissionGroup<WithStreamedUnaryMethod_CreateProject<WithStreamedUnaryMethod_DeleteProject<WithStreamedUnaryMethod_UpdateProject<WithStreamedUnaryMethod_GetProject<WithStreamedUnaryMethod_GetAllProject<WithStreamedUnaryMethod_CreateSwc<WithStreamedUnaryMethod_DeleteSwc<WithStreamedUnaryMethod_UpdateSwc<WithStreamedUnaryMethod_GetSwcMetaInfo<WithStreamedUnaryMethod_GetAllSwcMetaInfo<WithStreamedUnaryMethod_CreateSwcSnapshot<WithStreamedUnaryMethod_GetAllSnapshotMetaInfo<WithStreamedUnaryMethod_GetSnapshot<WithStreamedUnaryMethod_GetAllIncrementOperationMetaInfo<WithStreamedUnaryMethod_GetIncrementOperation<WithStreamedUnaryMethod_CreateSwcNodeData<WithStreamedUnaryMethod_DeleteSwcNodeData<WithStreamedUnaryMethod_UpdateSwcNodeData<WithStreamedUnaryMethod_GetSwcNodeData<WithStreamedUnaryMethod_GetSwcFullNodeData<WithStreamedUnaryMethod_GetSwcNodeDataListByTimeAndUser<WithStreamedUnaryMethod_CreateDailyStatistics<WithStreamedUnaryMethod_DeleteDailyStatistics<WithStreamedUnaryMethod_UpdateDailyStatistics<WithStreamedUnaryMethod_GetDailyStatistics<WithStreamedUnaryMethod_GetAllDailyStatistics<WithStreamedUnaryMethod_CreateSwcAttachmentAno<WithStreamedUnaryMethod_DeleteSwcAttachmentAno<WithStreamedUnaryMethod_UpdateSwcAttachmentAno<WithStreamedUnaryMethod_GetSwcAttachmentAno<WithStreamedUnaryMethod_CreateSwcAttachmentApo<WithStreamedUnaryMethod_DeleteSwcAttachmentApo<WithStreamedUnaryMethod_UpdateSwcAttachmentApo<WithStreamedUnaryMethod_GetSwcAttachmentApo<WithStreamedUnaryMethod_RevertSwcVersion<Service > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > StreamedService;
 };
 
 }  // namespace proto

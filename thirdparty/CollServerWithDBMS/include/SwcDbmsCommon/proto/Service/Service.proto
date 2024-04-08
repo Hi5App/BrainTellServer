@@ -49,7 +49,7 @@ service DBMS {
     rpc GetSwcNodeData(GetSwcNodeDataRequest) returns (GetSwcNodeDataResponse){}
     rpc GetSwcFullNodeData(GetSwcFullNodeDataRequest) returns (GetSwcFullNodeDataResponse){}
     rpc GetSwcNodeDataListByTimeAndUser(GetSwcNodeDataListByTimeAndUserRequest) returns (GetSwcNodeDataListByTimeAndUserResponse){}
-    rpc BackupFullDatabase(BackupFullDatabaseRequest) returns (BackupFullDatabaseResponse){}
+
     rpc CreateDailyStatistics(CreateDailyStatisticsRequest) returns (CreateDailyStatisticsResponse){}
     rpc DeleteDailyStatistics(DeleteDailyStatisticsRequest) returns (DeleteDailyStatisticsResponse){}
     rpc UpdateDailyStatistics(UpdateDailyStatisticsRequest) returns (UpdateDailyStatisticsResponse){}

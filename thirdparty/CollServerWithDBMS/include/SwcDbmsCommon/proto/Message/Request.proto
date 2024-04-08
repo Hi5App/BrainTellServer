@@ -108,6 +108,8 @@ message CreateSwcRequest{
     RequestMetaInfoV1 metaInfo = 1;
     UserVerifyInfoV1 UserVerifyInfo = 2;
     SwcMetaInfoV1 SwcInfo = 3;
+    SwcAttachmentAnoV1 SwcAttachmentAno = 4;
+    repeated SwcAttachmentApoV1 SwcAttachmentApo = 5;
 }
 
 message DeleteSwcRequest{
@@ -204,13 +206,6 @@ message GetSwcNodeDataListByTimeAndUserRequest{
     google.protobuf.Timestamp StartTime = 4;
     google.protobuf.Timestamp EndTime = 5;
     string UserName = 6;
-}
-
-message BackupFullDatabaseRequest{
-    RequestMetaInfoV1 metaInfo = 1;
-    UserVerifyInfoV1 UserVerifyInfo = 2;
-    bool InstantBackup = 3;
-    google.protobuf.Timestamp DelayBackupTime = 4;
 }
 
 message CreateDailyStatisticsRequest{

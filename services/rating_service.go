@@ -6,6 +6,7 @@ import (
 	"BrainTellServer/utils"
 	"github.com/gorilla/mux"
 	"net/http"
+	"time"
 )
 
 type RatingResultRequest struct {
@@ -135,4 +136,16 @@ func (s *BrainTellServerApiService) RequestRescanImageListPost(request RescanIma
 func HandleRatingStaticImageFile(router *mux.Router) {
 	fs := http.FileServer(http.Dir(utils.RatingImagePath))
 	router.PathPrefix("/dynamic/GetRatingImageFile").Handler(http.StripPrefix("/dynamic/GetRatingImageFile", fs))
+}
+
+func InitializeScheduleExpiredImageList() {
+	ticker := time.NewTicker(10 * time.Minute)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				do.CleanupExpiredUserImageMapCachedData()
+			}
+		}
+	}()
 }

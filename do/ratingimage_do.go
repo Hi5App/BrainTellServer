@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 )
 
 type TRatingImage struct {
@@ -26,12 +27,39 @@ type TRatingResult struct {
 
 type UserImageMap struct {
 	Mu   sync.Mutex
-	Data map[string][]string
+	Data map[string][]UserData
+}
+
+type UserData struct {
+	UserName string
+	SendTime time.Time
 }
 
 var UserImageMapCachedData = UserImageMap{
 	Mu:   sync.Mutex{},
-	Data: make(map[string][]string),
+	Data: make(map[string][]UserData),
+}
+
+func CleanupExpiredUserImageMapCachedData() {
+	UserImageMapCachedData.Mu.Lock()
+	defer UserImageMapCachedData.Mu.Unlock()
+
+	threshold := time.Now().Add(-30 * time.Minute)
+	for imageName, userDataList := range UserImageMapCachedData.Data {
+		filteredUserDataList := userDataList[:0]
+		for _, userData := range userDataList {
+			if userData.SendTime.After(threshold) {
+				filteredUserDataList = append(filteredUserDataList, userData)
+			} else {
+				fmt.Println("UserImageMapCachedData: ", imageName, " ", userData.UserName, " ", userData.SendTime, " is expired and removed.")
+			}
+		}
+		if len(filteredUserDataList) == 0 {
+			delete(UserImageMapCachedData.Data, imageName)
+		} else {
+			UserImageMapCachedData.Data[imageName] = filteredUserDataList
+		}
+	}
 }
 
 func RescanImageAndUpdateDB() {
@@ -81,7 +109,6 @@ func GetRatingImageList(userName string, imageCount int32) ([]string, error) {
 	}
 
 	for _, image := range images {
-		var count int64
 		count, err := utils.DB.Table("t_rating_result").Where("ImageName = ?", image.ImageName).Count()
 		if err != nil {
 			return nil, err
@@ -95,7 +122,7 @@ func GetRatingImageList(userName string, imageCount int32) ([]string, error) {
 		if users, ok := UserImageMapCachedData.Data[image.ImageName]; ok {
 			var sentBefore bool
 			for _, user := range users {
-				if user == userName {
+				if user.UserName == userName {
 					sentBefore = true
 					break
 				}
@@ -107,7 +134,10 @@ func GetRatingImageList(userName string, imageCount int32) ([]string, error) {
 		}
 
 		// Add the user to the list of users who have received the image
-		UserImageMapCachedData.Data[image.ImageName] = append(UserImageMapCachedData.Data[image.ImageName], userName)
+		UserImageMapCachedData.Data[image.ImageName] = append(UserImageMapCachedData.Data[image.ImageName], UserData{
+			UserName: userName,
+			SendTime: time.Now(),
+		})
 
 		imageNameList = append(imageNameList, image.ImageName)
 
@@ -121,18 +151,41 @@ func GetRatingImageList(userName string, imageCount int32) ([]string, error) {
 }
 
 func InsertRatingResult(ratingResult TRatingResult) error {
-	// 插入新的评分结果到数据库
-	_, err := utils.DB.Insert(&ratingResult)
+	count, err := utils.DB.Table("t_rating_result").Where("ImageName = ? AND UserName = ?", ratingResult.ImageName, ratingResult.UserName).Count()
 	if err != nil {
-		return fmt.Errorf("failed to insert rating result: %v", err)
+		return err
 	}
 
-	// 检查UserImageMapCachedData
-	usernames, ok := UserImageMapCachedData.Data[ratingResult.ImageName]
-	if ok && len(usernames) > 2 {
-		delete(UserImageMapCachedData.Data, ratingResult.ImageName)
+	if count != 0 {
+		newValues := map[string]interface{}{
+			"ImageName":                   ratingResult.ImageName,
+			"UserName":                    ratingResult.UserName,
+			"RatingEnum":                  ratingResult.RatingEnum,
+			"AdditionalRatingDescription": ratingResult.AdditionalRatingDescription,
+		}
+		// 更新记录
+		affected, err := utils.DB.Table("t_rating_result").Where("ImageName = ? AND UserName = ?", ratingResult.ImageName, ratingResult.UserName).Update(newValues)
+		if err != nil {
+			return err
+		} else {
+			// 处理更新成功
+			fmt.Printf("更新了 %d 条记录\n", affected)
+		}
+		return nil
+	} else {
+		// 插入新的评分结果到数据库
+		_, err := utils.DB.Insert(&ratingResult)
+		if err != nil {
+			return fmt.Errorf("failed to insert rating result: %v", err)
+		}
+
+		// 检查UserImageMapCachedData
+		usernames, ok := UserImageMapCachedData.Data[ratingResult.ImageName]
+		if ok && len(usernames) > 2 {
+			delete(UserImageMapCachedData.Data, ratingResult.ImageName)
+		}
+		return nil
 	}
-	return nil
 }
 
 func computeMD5(filePath string) (string, error) {

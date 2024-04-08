@@ -26,6 +26,7 @@ func main() {
 
 	// GetRatingImageFileGet - 获取打分的图片文件
 	services.HandleRatingStaticImageFile(router)
+	services.InitializeScheduleExpiredImageList()
 
 	//http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
 	//	fmt.Fprintln(w, "dynamic")

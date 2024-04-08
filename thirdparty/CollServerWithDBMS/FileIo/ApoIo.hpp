@@ -18,7 +18,7 @@ struct ApoUnit {
 
 class ApoIo final : public FileIoInterface<std::vector<ApoUnit>> {
 public:
-    explicit ApoIo(std::string filePath): m_FilePath(std::move(filePath)) {
+    explicit ApoIo(std::string filePath) : m_FilePath(std::move(filePath)) {
     }
 
     void ReadFromFile() override {
@@ -62,33 +62,33 @@ public:
             return false;
         }
         file << "##n,orderinfo,name,comment,z,x,y, pixmax,intensity,sdev,volsize,mass,,,, color_r,color_g,color_b" <<
-                "\n";
-        for (const auto&unit: m_ApoUnits) {
+             "\n";
+        for (const auto &unit: m_ApoUnits) {
             file << unit.n << ","
-                    << unit.orderinfo << ","
-                    << unit.name << ","
-                    << unit.comment << ","
-                    << unit.z << ","
-                    << unit.x << ","
-                    << unit.y << ","
-                    << unit.pixmax << ","
-                    << unit.intensity << ","
-                    << unit.sdev << ","
-                    << unit.volsize << ","
-                    << unit.mass << ",,,,"
-                    << unit.color_r << ","
-                    << unit.color_g << ","
-                    << unit.color_b << "\n";
+                 << unit.orderinfo << ","
+                 << unit.name << ","
+                 << unit.comment << ","
+                 << unit.z << ","
+                 << unit.x << ","
+                 << unit.y << ","
+                 << unit.pixmax << ","
+                 << unit.intensity << ","
+                 << unit.sdev << ","
+                 << unit.volsize << ","
+                 << unit.mass << ",,,,"
+                 << unit.color_r << ","
+                 << unit.color_g << ","
+                 << unit.color_b << "\n";
         }
 
         return true;
     }
 
-    void setValue(std::vector<ApoUnit>&value) override {
+    void setValue(std::vector<ApoUnit> &value) override {
         m_ApoUnits = value;
     }
 
-    std::vector<ApoUnit>& getValue() override {
+    std::vector<ApoUnit> &getValue() override {
         return m_ApoUnits;
     }
 

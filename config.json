@@ -30,5 +30,6 @@
   "queuesize": 11000,
   "emails": [],
   "v3d" : "/home/BrainTellServer/Vaa3D-x/Vaa3D-x",
-  "tmppath": "/home/BrainTellServer/tmppath"
+  "tmppath": "/home/BrainTellServer/tmppath",
+  "logpath": "./logs/systemlog"
 }

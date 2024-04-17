@@ -74,8 +74,19 @@ var AIInterval int
 var RatingImagePath string
 
 func LoadConfig(configName string) error {
+	//读取系统配置文件
+	config := viper.New()
+	config.AddConfigPath("./")
+	config.SetConfigName(configName)
+	config.SetConfigType("json")
+
+	logpath := config.GetString("logpath")
+	if logpath == "" {
+		logpath = "./logs/systemlog"
+	}
+
 	//配置系统日志
-	path := "./logs/systemlog"
+	path := logpath
 	writer, _ := rotatelogs.New(
 		path+".%Y%m%d%H%M",
 		rotatelogs.WithLinkName(path),
@@ -89,12 +100,6 @@ func LoadConfig(configName string) error {
 	log.SetFormatter(customFormatter)
 	log.SetLevel(log.TraceLevel)
 	log.Infoln("Log Set Up")
-
-	//读取系统配置文件
-	config := viper.New()
-	config.AddConfigPath("./")
-	config.SetConfigName(configName)
-	config.SetConfigType("json")
 
 	if err := config.ReadInConfig(); err != nil {
 		log.WithFields(log.Fields{

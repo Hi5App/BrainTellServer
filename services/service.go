@@ -37,6 +37,12 @@ func (c *BrainTellServerApiController) Routes() Routes {
 			"/dynamic/UpdateRatingResult",
 			c.UpdateRatingResultPost,
 		},
+		{
+			"GetRatingResultPost",
+			strings.ToUpper("Post"),
+			"/dynamic/GetRatingResult",
+			c.GetRatingResultPost,
+		},
 	}
 }
 
@@ -91,6 +97,22 @@ func (c *BrainTellServerApiController) RequestRescanImageListPost(w http.Respons
 	EncodeJSONResponse(result, nil, w)
 }
 
+func (c *BrainTellServerApiController) GetRatingResultPost(w http.ResponseWriter, r *http.Request) {
+	request := &GetRatingResultRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	result, err := c.service.GetRatingResultPost(*request)
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	EncodeJSONResponse(result, nil, w)
+}
+
 // BrainTellServerApiRouter defines the required methods for binding the api requests to a responses for the BrainTellServerApi
 // The BrainTellServerApiRouter implementation should parse necessary information from the http request,
 // pass the data to a BrainTellServerApiServicer to perform the required actions, then write the service results to the http response.
@@ -98,6 +120,7 @@ type BrainTellServerApiRouter interface {
 	GetRatingImageListPost(http.ResponseWriter, *http.Request)
 	RequestRescanImageListPost(http.ResponseWriter, *http.Request)
 	UpdateRatingResultPost(http.ResponseWriter, *http.Request)
+	GetRatingResultPost(http.ResponseWriter, *http.Request)
 }
 
 // BrainTellServerApiServicer defines the api actions for the BrainTellServerApi service
@@ -108,4 +131,5 @@ type BrainTellServerApiServicer interface {
 	GetRatingImageListPost(GetRatingImageRequest) (interface{}, error)
 	RequestRescanImageListPost(RescanImageListRequest) (interface{}, error)
 	UpdateRatingResultPost(RatingResultRequest) (interface{}, error)
+	GetRatingResultPost(GetRatingResultRequest) (interface{}, error)
 }

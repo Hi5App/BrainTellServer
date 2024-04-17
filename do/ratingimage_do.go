@@ -23,6 +23,7 @@ type TRatingResult struct {
 	UserName                    string `xorm:"varchar(256) 'UserName'"`                    // 用户名
 	RatingEnum                  string `xorm:"varchar(256) 'RatingEnum'"`                  // 评分枚举
 	AdditionalRatingDescription string `xorm:"varchar(256) 'AdditionalRatingDescription'"` // 附加评分描述
+	UploadTime                  string `xorm:"timestamp null 'UploadTime'"`                // 上传时间
 }
 
 type UserImageMap struct {
@@ -162,6 +163,7 @@ func InsertRatingResult(ratingResult TRatingResult) error {
 			"UserName":                    ratingResult.UserName,
 			"RatingEnum":                  ratingResult.RatingEnum,
 			"AdditionalRatingDescription": ratingResult.AdditionalRatingDescription,
+			"UploadTime":                  ratingResult.UploadTime,
 		}
 		// 更新记录
 		affected, err := utils.DB.Table("t_rating_result").Where("ImageName = ? AND UserName = ?", ratingResult.ImageName, ratingResult.UserName).Update(newValues)
@@ -196,4 +198,15 @@ func computeMD5(filePath string) (string, error) {
 
 	hash := md5.Sum(bytes)
 	return fmt.Sprintf("%x", hash), nil
+}
+
+func QueryRatingResult(userName string, startTime string, endTime string) ([]TRatingResult, error) {
+	var results []TRatingResult
+	session := utils.DB.Table("t_rating_result").Where("UserName = ? AND UploadTime > ? AND UploadTime < ?", userName, startTime, endTime)
+	err := session.Find(&results)
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
 }

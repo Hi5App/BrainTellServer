@@ -46,6 +46,27 @@ type ResponseStatus struct {
 	Status string `json:"Status"`
 }
 
+type GetRatingResultRequest struct {
+	UserName string `json:"UserName"`
+	Password string `json:"Password"`
+
+	QueryUserName  string `json:"QueryUserName"`
+	QueryStartTime string `json:"QueryStartTime"`
+	QueryEndTime   string `json:"QueryEndTime"`
+}
+
+type RatingQueryResult struct {
+	ImageName                   string `json:"ImageName"`
+	RatingEnum                  string `json:"RatingEnum"`
+	AdditionalRatingDescription string `json:"AdditionalRatingDescription"`
+	UploadTime                  string `json:"UploadTime"`
+}
+
+type GetRatingResultResponse struct {
+	Status            string              `json:"Status"`
+	RatingQueryResult []RatingQueryResult `json:"RatingQueryResult"`
+}
+
 // BrainTellServerApiService is a service that implents the logic for the BrainTellServerApiServicer
 // This service should implement the business logic for every endpoint for the BrainTellServerApi API.
 // Include any external packages or services that will be required by this service.
@@ -103,6 +124,7 @@ func (s *BrainTellServerApiService) UpdateRatingResultPost(request RatingResultR
 		UserName:                    request.UserName,
 		RatingEnum:                  request.RatingEnum,
 		AdditionalRatingDescription: request.AdditionalRatingDescription,
+		UploadTime:                  time.Now().Format(time.DateTime),
 	}
 
 	err := do.InsertRatingResult(ratingResult)
@@ -148,4 +170,34 @@ func InitializeScheduleExpiredImageList() {
 			}
 		}
 	}()
+}
+
+func (s *BrainTellServerApiService) GetRatingResultPost(request GetRatingResultRequest) (interface{}, error) {
+	var userMetaInfo = models.UserMetaInfoV1{}
+	result := do.QueryUser(&userMetaInfo, request.UserName)
+
+	if !result.Status {
+		var imageNameList []string
+		return ImageNameListResponse{Status: result.Message, ImageNameList: imageNameList}, nil
+	}
+	if userMetaInfo.Password != request.Password {
+		var imageNameList []string
+		return ImageNameListResponse{Status: "password not correct", ImageNameList: imageNameList}, nil
+	}
+
+	results, err := do.QueryRatingResult(request.QueryUserName, request.QueryStartTime, request.QueryEndTime)
+	if err != nil {
+		var ratingQueryResult []RatingQueryResult
+		return GetRatingResultResponse{Status: err.Error(), RatingQueryResult: ratingQueryResult}, nil
+	}
+	var ratingQueryResult []RatingQueryResult
+	for _, result := range results {
+		ratingQueryResult = append(ratingQueryResult, RatingQueryResult{
+			ImageName:                   result.ImageName,
+			RatingEnum:                  result.RatingEnum,
+			AdditionalRatingDescription: result.AdditionalRatingDescription,
+			UploadTime:                  result.UploadTime,
+		})
+	}
+	return GetRatingResultResponse{Status: "OK", RatingQueryResult: ratingQueryResult}, nil
 }

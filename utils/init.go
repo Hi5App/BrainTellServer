@@ -80,10 +80,17 @@ func LoadConfig(configName string) error {
 	config.SetConfigName(configName)
 	config.SetConfigType("json")
 
+	if err := config.ReadInConfig(); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Load config",
+		}).Fatalln("Failed to send event")
+	}
+
 	logpath := config.GetString("logpath")
 	if logpath == "" {
 		logpath = "./logs/systemlog"
 	}
+	log.Printf("logpath:%s", logpath)
 
 	//配置系统日志
 	path := logpath
@@ -100,12 +107,6 @@ func LoadConfig(configName string) error {
 	log.SetFormatter(customFormatter)
 	log.SetLevel(log.TraceLevel)
 	log.Infoln("Log Set Up")
-
-	if err := config.ReadInConfig(); err != nil {
-		log.WithFields(log.Fields{
-			"event": "Load config",
-		}).Fatalln("Failed to send event")
-	}
 
 	//建立MySQL连接池
 	if err := NewDb(config.GetString("mysql.user"),

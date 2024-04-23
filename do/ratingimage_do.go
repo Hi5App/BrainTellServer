@@ -110,13 +110,30 @@ func GetRatingImageList(userName string, imageCount int32) ([]string, error) {
 	}
 
 	for _, image := range images {
-		count, err := utils.DB.Table("t_rating_result").Where("ImageName = ?", image.ImageName).Count()
+		var results []TRatingResult
+		err := utils.DB.Table("t_rating_result").Where("ImageName = ?", image.ImageName).Find(&results)
 		if err != nil {
 			return nil, err
 		}
+
+		count := len(results)
 		if count >= 2 {
 			// If the image has been rated by two users already, skip it
 			continue
+		}
+
+		if count > 0 {
+			var bFind = false
+			for _, result := range results {
+				if result.UserName == userName {
+					// If the image has been rated by the user already, skip it
+					bFind = true
+					break
+				}
+			}
+			if bFind {
+				continue
+			}
 		}
 
 		// Check if the image has been sent to the user before

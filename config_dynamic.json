@@ -28,5 +28,6 @@
   "mainpath": "/Users/huanglei/Desktop/BrainTellServer",
   "cropprocess": 50,
   "emails": ["ljliu@braintell.org", "h@braintell.org","yufeng_liu@seu.edu.cn","1041763279@qq.com"],
-  "logpath": "./logs_dynamic/systemlog"
+  "logpath": "./logs_dynamic/systemlog",
+  "collserverpath": "/home/BrainTellServer/collaborate/CollServer"
 }

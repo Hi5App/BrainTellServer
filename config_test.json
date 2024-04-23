@@ -1,0 +1,33 @@
+{
+  "collaboration" : {
+    "max_connections": 200,
+    "max_jobs": 20,
+    "ai_interval": 180
+  },
+  "mysql":{
+    "user": "root",
+    "passwd": "1234",
+    "ip": "127.0.0.1",
+    "port": "3306",
+    "db":"Brain"
+  },
+  "redis": {
+    "ip": "127.0.0.1",
+    "port": "6379"
+  },
+  "mongodb": {
+    "ip": "127.0.0.1",
+    "port": 27017,
+    "user": "defaultuser",
+    "password": "defaultpassword"
+  },
+  "ratingservice":{
+      "ratingimagepath": "/home/seele/Desktop/static/ratingimage/"
+  },
+  "aeskey": "1111111111111111",
+  "mainpath": "/Users/huanglei/Desktop/BrainTellServer",
+  "cropprocess": 50,
+  "emails": ["ljliu@braintell.org", "h@braintell.org","yufeng_liu@seu.edu.cn","1041763279@qq.com"],
+  "logpath": "./logs_test/systemlog",
+  "collserverpath": "/home/BrainTellServer/collaborate/CollServerTest"
+}

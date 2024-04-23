@@ -53,6 +53,11 @@ func Login(pa *do.UserInfo) (*do.UserInfo, error) {
 		}).Warnf("%s,%v\n", pa, result.Message)
 		return nil, errors.New("no such user")
 	} else {
+		if userInfo.Password != pa.Passwd {
+			fmt.Printf("Incorrect Password!")
+			return nil, errors.New("incorrect Password")
+		}
+
 		// todo redis buffer authentication
 		//utils.InsertUser2RDB(users[0])
 		return &do.UserInfo{

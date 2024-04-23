@@ -3,6 +3,9 @@ package utils
 import (
 	"context"
 	"errors"
+	"strconv"
+	"time"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
@@ -11,8 +14,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/sync/semaphore"
-	"strconv"
-	"time"
 	"xorm.io/xorm"
 )
 
@@ -129,7 +130,7 @@ func LoadConfig(configName string) error {
 	DataPath = MainPath + "/testdata"
 	Tmpdir = MainPath + "/tmp"
 	ImageDir = MainPath + "/image"
-	CollaborateBinPath = MainPath + "/collaborate/CollServer"
+	CollaborateBinPath = config.GetString("collserverpath")
 	availableCropProcess = semaphore.NewWeighted(config.GetInt64("cropprocess"))
 	//没有这个key时，QueueSize=0
 	QueueSize = config.GetInt("queuesize")

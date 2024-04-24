@@ -10,7 +10,7 @@ import (
 
 func main() {
 	//var configName = "config"
-	var configName = "config_dev"
+	var configName = "config_dynamic"
 	err := utils.LoadConfig(configName)
 	if err != nil {
 		log.WithFields(log.Fields{

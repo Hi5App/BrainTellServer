@@ -159,12 +159,15 @@ func LoadConfig(configName string) error {
 	}).Infof("max jobs: %v, max room_con: %v, ai interval: %v\n", MaxJobs, MaxRoomConnections, AIInterval)
 
 	// 初始化redis中的数据
-	if err := InitRedisData(); err != nil {
-		log.WithFields(log.Fields{
-			"event": "Redis",
-			"desc":  "Init Redis data failed",
-		}).Warnf("%v\n", err)
+	if configName == "config_dynamic" {
+		if err := InitRedisData(); err != nil {
+			log.WithFields(log.Fields{
+				"event": "Redis",
+				"desc":  "Init Redis data failed",
+			}).Warnf("%v\n", err)
+		}
 	}
+
 	return nil
 }
 

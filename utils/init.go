@@ -158,7 +158,7 @@ func LoadConfig(configName string) error {
 		"event": "Init coll config",
 	}).Infof("max jobs: %v, max room_con: %v, ai interval: %v\n", MaxJobs, MaxRoomConnections, AIInterval)
 
-	// // 初始化redis中的数据
+	// 初始化redis中的数据
 	if configName == "config_dynamic" {
 		if err := InitRedisData(); err != nil {
 			log.WithFields(log.Fields{

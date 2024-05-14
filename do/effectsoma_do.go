@@ -3,8 +3,6 @@ package do
 import (
 	"BrainTellServer/models"
 	"BrainTellServer/utils"
-	"fmt"
-	"strconv"
 )
 
 type TEffectSoma struct {
@@ -19,26 +17,32 @@ type TEffectSoma struct {
 func QueryEffectSomaImage() ([]string, error) {
 	var images []string
 	// Cols改为了Distinct
-	err := utils.DB.Table("t_effect_soma").Where("Isdeleted = ?", 0).Distinct("Image").Find(&images)
+	err := utils.DB.Table("t_effect_soma").Where("Isdeleted = ?", 0).Distinct("Image").OrderBy("Image").Find(&images)
 	if err != nil {
 		return nil, err
 	}
-	var numbers []int
-	for _, value := range images {
-		var number int
-		number, _ = strconv.Atoi(value)
-		numbers = append(numbers, number)
-	}
-	fmt.Println(numbers)
+	//var numbers []int
+	//for _, value := range images {
+	//	var number int
+	//	parts := strings.Split(value, "_")
+	//	if len(parts) > 1 {
+	//		number, _ = strconv.Atoi(parts[0])
+	//	} else {
+	//		number, _ = strconv.Atoi(value)
+	//	}
+	//	numbers = append(numbers, number)
+	//}
+	//fmt.Println(numbers)
+	//
+	//var index []int = utils.Sort(numbers)
+	//var sortedImages []string
+	//for _, value := range index {
+	//	sortedImages = append(sortedImages, images[value])
+	//}
 
-	var index []int = utils.Sort(numbers)
-	var sortedImages []string
-	for _, value := range index {
-		sortedImages = append(sortedImages, images[value])
-	}
+	//return sortedImages, nil
 
-	return sortedImages, nil
-
+	return images, nil
 }
 
 func QueryEffectSoma(pa *models.TEffectSoma) ([]*TEffectSoma, error) {

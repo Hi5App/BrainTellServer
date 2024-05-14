@@ -32,5 +32,5 @@
   "v3d" : "/home/BrainTellServer/Vaa3D-x/Vaa3D-x",
   "tmppath": "/home/BrainTellServer/tmppath",
   "logpath": "./logs/systemlog",
-  "collserverpath": "/home/BrainTellServer/collaborate/CollServerWithDBMS"
+  "collserverpath": "/home/BrainTellServer/collaborate/CollServerRelease"
 }

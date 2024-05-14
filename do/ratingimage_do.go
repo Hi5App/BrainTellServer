@@ -103,39 +103,28 @@ func GetRatingImageList(userName string, imageCount int32) ([]string, error) {
 
 	var images []struct {
 		ImageName string `xorm:"ImageName"`
+		RatedNum  int
 	}
-	err := utils.DB.Table("t_rating_image").Cols("ImageName").Find(&images)
+	var rawSql = `
+		SELECT t_rating_image.ImageName
+		FROM t_rating_image
+				 LEFT JOIN (SELECT ImageName, COUNT(ImageName) AS RatedNum
+							FROM t_rating_result
+							GROUP BY ImageName) as NewTable ON t_rating_image.ImageName = NewTable.ImageName
+		WHERE RatedNum IS NULL OR RatedNum < 2
+		GROUP BY t_rating_image.ImageName
+		EXCEPT
+		SELECT DISTINCT t_rating_result.ImageName
+		FROM t_rating_result
+		WHERE t_rating_result.UserName = '%s'
+	`
+	querySql := fmt.Sprintf(rawSql, userName)
+	err := utils.DB.SQL(querySql).Find(&images)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, image := range images {
-		var results []TRatingResult
-		err := utils.DB.Table("t_rating_result").Where("ImageName = ?", image.ImageName).Find(&results)
-		if err != nil {
-			return nil, err
-		}
-
-		count := len(results)
-		if count >= 2 {
-			// If the image has been rated by two users already, skip it
-			continue
-		}
-
-		if count > 0 {
-			var bFind = false
-			for _, result := range results {
-				if result.UserName == userName {
-					// If the image has been rated by the user already, skip it
-					bFind = true
-					break
-				}
-			}
-			if bFind {
-				continue
-			}
-		}
-
 		// Check if the image has been sent to the user before
 		if users, ok := UserImageMapCachedData.Data[image.ImageName]; ok {
 			var sentBefore bool

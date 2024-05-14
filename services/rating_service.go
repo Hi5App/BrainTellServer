@@ -160,6 +160,40 @@ func HandleRatingStaticImageFile(router *mux.Router) {
 	router.PathPrefix("/dynamic/GetRatingImageFile").Handler(http.StripPrefix("/dynamic/GetRatingImageFile", fs))
 }
 
+func HandleRatingStaticImageFileCompressed() {
+	//var imagePath = utils.RatingImagePath
+	//
+	//f, err := os.Open("sid.jpg")
+	//
+	//if err != nil {
+	//	log.Println(err.Error())
+	//}
+	//
+	//defer func(f *os.File) {
+	//	err := f.Close()
+	//	if err != nil {
+	//		log.Println(err.Error())
+	//	}
+	//}(f)
+	//
+	//reader := bufio.NewReader(f)
+	//buf := make([]byte, 256)
+	//
+	//for {
+	//	_, err := reader.Read(buf)
+	//
+	//	if err != nil {
+	//		if err != io.EOF {
+	//			fmt.Println(err)
+	//		}
+	//		break
+	//	}
+	//
+	//	fmt.Printf("%s", hex.Dump(buf))
+	//}
+
+}
+
 func InitializeScheduleExpiredImageList() {
 	ticker := time.NewTicker(10 * time.Minute)
 	go func() {

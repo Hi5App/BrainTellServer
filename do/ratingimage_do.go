@@ -106,17 +106,17 @@ func GetRatingImageList(userName string, imageCount int32) ([]string, error) {
 		RatedNum  int
 	}
 	var rawSql = `
-		SELECT t_rating_image.ImageName
-		FROM t_rating_image
-				 LEFT JOIN (SELECT ImageName, COUNT(ImageName) AS RatedNum
-							FROM t_rating_result
-							GROUP BY ImageName) as NewTable ON t_rating_image.ImageName = NewTable.ImageName
-		WHERE RatedNum IS NULL OR RatedNum < 2
-		GROUP BY t_rating_image.ImageName
-		EXCEPT
-		SELECT DISTINCT t_rating_result.ImageName
-		FROM t_rating_result
-		WHERE t_rating_result.UserName = '%s'
+SELECT t_rating_image.ImageName
+FROM t_rating_image
+		 LEFT JOIN (SELECT ImageName, COUNT(ImageName) AS RatedNum
+					FROM t_rating_result
+					GROUP BY ImageName) as NewTable ON t_rating_image.ImageName = NewTable.ImageName
+WHERE RatedNum IS NULL OR RatedNum < 2
+GROUP BY t_rating_image.ImageName
+EXCEPT
+SELECT DISTINCT t_rating_result.ImageName
+FROM t_rating_result
+WHERE t_rating_result.UserName = '%s'
 	`
 	querySql := fmt.Sprintf(rawSql, userName)
 	err := utils.DB.SQL(querySql).Find(&images)

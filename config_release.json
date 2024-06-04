@@ -31,6 +31,6 @@
   "emails": [],
   "v3d" : "/home/BrainTellServer/Vaa3D-x/Vaa3D-x",
   "tmppath": "/home/BrainTellServer/tmppath",
-  "logpath": "./logs/systemlog",
+  "logpath": "./logs_release/systemlog",
   "collserverpath": "/home/BrainTellServer/collaborate/CollServerRelease"
 }

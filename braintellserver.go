@@ -10,7 +10,7 @@ import (
 
 func main() {
 	//var configName = "config"
-	var configName = "config_dynamic"
+	var configName = "config_release"
 	err := utils.LoadConfig(configName)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -28,77 +28,77 @@ func main() {
 	services.HandleRatingStaticImageFile(router)
 	services.InitializeScheduleExpiredImageList()
 
-	//http.HandleFunc("/dynamic/", func(w http.ResponseWriter, r *http.Request) {
-	//	fmt.Fprintln(w, "dynamic")
+	//http.HandleFunc("/release/", func(w http.ResponseWriter, r *http.Request) {
+	//	fmt.Fprintln(w, "release")
 	//})
 	//user service
-	router.HandleFunc("/dynamic/user/register", services.Register)
-	router.HandleFunc("/dynamic/user/login", services.Login)
-	router.HandleFunc("/dynamic/user/setuserscore", services.SetUserScore)       //todo
-	router.HandleFunc("/dynamic/user/updatepasswd", services.UpdatePasswd)       //todo
-	router.HandleFunc("/dynamic/user/resetpasswd", services.ResetPasswd)         //todo
-	router.HandleFunc("/dynamic/user/registernetease", services.RegisterNetease) //todo
-	router.HandleFunc("/dynamic/user/getuserperformance", services.GetUserPerformance)
+	router.HandleFunc("/release/user/register", services.Register)
+	router.HandleFunc("/release/user/login", services.Login)
+	router.HandleFunc("/release/user/setuserscore", services.SetUserScore)       //todo
+	router.HandleFunc("/release/user/updatepasswd", services.UpdatePasswd)       //todo
+	router.HandleFunc("/release/user/resetpasswd", services.ResetPasswd)         //todo
+	router.HandleFunc("/release/user/registernetease", services.RegisterNetease) //todo
+	router.HandleFunc("/release/user/getuserperformance", services.GetUserPerformance)
 	//add soma service
-	router.HandleFunc("/dynamic/soma/getpotentiallocation", services.GetPotentialSomaLocation)
-	router.HandleFunc("/dynamic/soma/getsomalist", services.GetSomaList)
-	router.HandleFunc("/dynamic/soma/updatesomalist", services.UpdateSomaList)
+	router.HandleFunc("/release/soma/getpotentiallocation", services.GetPotentialSomaLocation)
+	router.HandleFunc("/release/soma/getsomalist", services.GetSomaList)
+	router.HandleFunc("/release/soma/updatesomalist", services.UpdateSomaList)
 	//check arbor service
-	router.HandleFunc("/dynamic/arbor/getarbor", services.GetArbor)
-	router.HandleFunc("/dynamic/arbor/queryarborresult", services.QueryArborResult)
-	router.HandleFunc("/dynamic/arbor/updatearborresult", services.UpdateArborResult)
+	router.HandleFunc("/release/arbor/getarbor", services.GetArbor)
+	router.HandleFunc("/release/arbor/queryarborresult", services.QueryArborResult)
+	router.HandleFunc("/release/arbor/updatearborresult", services.UpdateArborResult)
 	//增加一些
-	router.HandleFunc("/dynamic/arbordetail/insert", services.InsertArborDetail)
+	router.HandleFunc("/release/arbordetail/insert", services.InsertArborDetail)
 	//删一些
-	router.HandleFunc("/dynamic/arbordetail/delete", services.DeleteArbordetail)
+	router.HandleFunc("/release/arbordetail/delete", services.DeleteArbordetail)
 	//查一个
-	router.HandleFunc("/dynamic/arbordetail/query", services.QueryArborDetail)
+	router.HandleFunc("/release/arbordetail/query", services.QueryArborDetail)
 
 	//// bouton check service
-	router.HandleFunc("/dynamic/arbor/getboutonarbor", services.GetBoutonArbor)
-	router.HandleFunc("/dynamic/arbor/getboutonarborimage", services.GetBoutonArborImage) // 临时的bouton获取服务，直接获取bouton的image文件
-	router.HandleFunc("/dynamic/arbor/updateboutonarborresult", services.UpdateBoutonArborResult)
-	router.HandleFunc("/dynamic/arbor/queryboutonarborresult", services.QueryBoutonArborResult)
+	router.HandleFunc("/release/arbor/getboutonarbor", services.GetBoutonArbor)
+	router.HandleFunc("/release/arbor/getboutonarborimage", services.GetBoutonArborImage) // 临时的bouton获取服务，直接获取bouton的image文件
+	router.HandleFunc("/release/arbor/updateboutonarborresult", services.UpdateBoutonArborResult)
+	router.HandleFunc("/release/arbor/queryboutonarborresult", services.QueryBoutonArborResult)
 
 	//// bouton detail的相关操作
-	router.HandleFunc("/dynamic/boutonarbordetail/insert", services.InsertBoutonArborDetail)
-	router.HandleFunc("/dynamic/boutonarbordetail/delete", services.DeleteBoutonArbordetail)
-	router.HandleFunc("/dynamic/boutonarbordetail/query", services.QueryBoutonArborDetail)
+	router.HandleFunc("/release/boutonarbordetail/insert", services.InsertBoutonArborDetail)
+	router.HandleFunc("/release/boutonarbordetail/delete", services.DeleteBoutonArbordetail)
+	router.HandleFunc("/release/boutonarbordetail/query", services.QueryBoutonArborDetail)
 
 	//collaborate service
-	router.HandleFunc("/dynamic/collaborate/getanoimage", services.GetAnoImage)
-	router.HandleFunc("/dynamic/collaborate/getanoneuron", services.GetAnoNeuron)
-	router.HandleFunc("/dynamic/collaborate/getano", services.GetAno)
+	router.HandleFunc("/release/collaborate/getanoimage", services.GetAnoImage)
+	router.HandleFunc("/release/collaborate/getanoneuron", services.GetAnoNeuron)
+	router.HandleFunc("/release/collaborate/getano", services.GetAno)
 
 	//给某个ano文件分配端口
-	router.HandleFunc("/dynamic/collaborate/inheritother", services.InheritOther)
-	router.HandleFunc("/dynamic/collaborate/createnewanofromzero", services.CreateFromZero)
-	router.HandleFunc("/dynamic/collaborate/createnewanofromother", services.CreateFromOther)
+	router.HandleFunc("/release/collaborate/inheritother", services.InheritOther)
+	router.HandleFunc("/release/collaborate/createnewanofromzero", services.CreateFromZero)
+	router.HandleFunc("/release/collaborate/createnewanofromother", services.CreateFromOther)
 
 	//image service
-	router.HandleFunc("/dynamic/image/getimagelist", services.GetImageList)
+	router.HandleFunc("/release/image/getimagelist", services.GetImageList)
 	//获取裁剪后的图像文件.v3dpbd
-	router.HandleFunc("/dynamic/image/cropimage", services.CropImage)
+	router.HandleFunc("/release/image/cropimage", services.CropImage)
 	//获取裁剪后的eswc文件
-	router.HandleFunc("/dynamic/swc/cropswc", services.CropSWC)
-	router.HandleFunc("/dynamic/apo/cropapo", services.CropApo)
+	router.HandleFunc("/release/swc/cropswc", services.CropSWC)
+	router.HandleFunc("/release/apo/cropapo", services.CropApo)
 	//resource service
-	router.HandleFunc("/dynamic/musics", services.GetMusicList)
-	router.HandleFunc("/dynamic/updateapk", services.GetLatestApk)
+	router.HandleFunc("/release/musics", services.GetMusicList)
+	router.HandleFunc("/release/updateapk", services.GetLatestApk)
 
 	// game server
-	//router.HandleFunc("/game/dynamic/user/register", services.GameRegister)
-	router.HandleFunc("/dynamic/game/user/login", services.GameLogin)
-	//router.HandleFunc("/game/dynamic/user/uploadrecord", services.GameUpdataRecord)
-	router.HandleFunc("/dynamic/game/swc/bppoint/insert", services.InsertBranchingPoints)
+	//router.HandleFunc("/game/release/user/register", services.GameRegister)
+	router.HandleFunc("/release/game/user/login", services.GameLogin)
+	//router.HandleFunc("/game/release/user/uploadrecord", services.GameUpdataRecord)
+	router.HandleFunc("/release/game/swc/bppoint/insert", services.InsertBranchingPoints)
 
 	// 人脑组图像检查接口
 	// 获取检查图像的list
-	//http.HandleFunc("/dynamic/image/gethumanimagelist", services.GetHumanImageList)
+	//http.HandleFunc("/release/image/gethumanimagelist", services.GetHumanImageList)
 	// 上传人脑图像的检查结果
-	//http.HandleFunc("/dynamic/arbor/updatehumanarborresult", services.UpdateHumanArborResult)
+	//http.HandleFunc("/release/arbor/updatehumanarborresult", services.UpdateHumanArborResult)
 
 	log.WithFields(log.Fields{
 		"event": "start server",
-	}).Fatal(http.ListenAndServe(":8000", router))
+	}).Fatal(http.ListenAndServe(":8001", router))
 }

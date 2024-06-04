@@ -389,7 +389,7 @@ func QueryPerformance2RDB(key string) (map[string]int64, error) {
 	return res, nil
 }
 
-func AllocatePort(ano string) (string, error) {
+func AllocatePort(project string, ano string) (string, error) {
 	conn := Pool.Get()
 	defer conn.Close()
 	if _, err := conn.Do("SELECT", 0); err != nil {
@@ -413,9 +413,9 @@ func AllocatePort(ano string) (string, error) {
 	}
 
 	// 检测端口是否已经存在连接
-	res, err := redis.Int(conn.Do("EXISTS", fmt.Sprintf("Ano+Port:%s;%s", "*", port)))
+	res, err := redis.Int(conn.Do("EXISTS", fmt.Sprintf("Project+Ano+Port:%s;%s;%s", "*", "*", port)))
 	if err != nil {
-		conn.Do("RPUSH", "PORTQUEUE", port)
+		//conn.Do("RPUSH", "PORTQUEUE", port)
 
 		// log message
 		log.WithFields(log.Fields{
@@ -428,14 +428,14 @@ func AllocatePort(ano string) (string, error) {
 
 	// 检查端口是否已经被占用 通过redis ano+port 字段来实现
 	if res == 1 {
-		conn.Do("RPUSH", "PORTQUEUE", port)
+		//conn.Do("RPUSH", "PORTQUEUE", port)
 		log.Errorf("Port %s Has in Use", port)
 		return "-1", errors.New("port Has in Use，please try again")
 	}
 
 	// 设定指定的key值和过期时间 SETEX KEY_NAME TIMEOUT VALUE 有效期 1 min
 
-	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Ano+Port:%s;%s", ano, port), 1*60, ano))
+	ret, err := redis.String(conn.Do("SETEX", fmt.Sprintf("Project+Ano+Port:%s;%s;%s", project, ano, port), 1*60, ano))
 	if err != nil {
 		// log message
 		log.WithFields(log.Fields{
@@ -458,7 +458,7 @@ func AllocatePort(ano string) (string, error) {
 	return port, nil
 }
 
-func QueryAnoPort(ano string) (string, error) {
+func QueryAnoPort(project string, ano string) (string, error) {
 	conn := Pool.Get()
 	defer conn.Close()
 	if _, err := conn.Do("SELECT", 0); err != nil {
@@ -470,7 +470,7 @@ func QueryAnoPort(ano string) (string, error) {
 	}
 
 	//Keys 命令用于查找所有符合给定模式 pattern 的 key
-	keys, err := redis.Strings(conn.Do("Keys", fmt.Sprintf("Ano+Port:%s;%s", ano, "*")))
+	keys, err := redis.Strings(conn.Do("Keys", fmt.Sprintf("Project+Ano+Port:%s;%s;%s", project, ano, "*")))
 	if err != nil {
 		//error
 		return "", err
@@ -484,14 +484,14 @@ func QueryAnoPort(ano string) (string, error) {
 		//存在多个，错误
 		return "", errors.New("multiply port exist")
 	} else {
-		//存在，取出端口号，key->(ano,port)
-		var anowithport = ""
+		//存在，取出端口号，key->(project,ano,port)
+		var projectAndAnoWithPort = ""
 		var port = ""
-		_, err := fmt.Sscanf(keys[0], "Ano+Port:%s", &anowithport)
+		_, err := fmt.Sscanf(keys[0], "Project+Ano+Port:%s", &projectAndAnoWithPort)
 		if err != nil {
 			return "", err
 		}
-		port = strings.Split(anowithport, ";")[1]
+		port = strings.Split(projectAndAnoWithPort, ";")[2]
 		return port, nil
 	}
 

@@ -22,10 +22,11 @@ func CreateFromOther(w http.ResponseWriter, r *http.Request) {
 }
 
 type InheritOtherParam struct {
-	Ano    string          `json:"ano"`
-	Image  string          `json:"image"`
-	Neuron string          `json:"neuron"`
-	User   UserVerifyParam `json:"user"`
+	Project string          `json:"project"`
+	Ano     string          `json:"ano"`
+	Image   string          `json:"image"`
+	Neuron  string          `json:"neuron"`
+	User    UserVerifyParam `json:"user"`
 }
 
 func (image *InheritOtherParam) String() string {
@@ -92,7 +93,7 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 	defer lock.Unlock()
 
 	// <ano:*> = 1, 返回port，否则（=0 or >1）返回“”
-	port, err := utils.QueryAnoPort(p.Ano)
+	port, err := utils.QueryAnoPort(p.Project, p.Ano)
 	if err != nil {
 		utils.EncodeToHttp(w, 502, "can not allocate Port,"+err.Error())
 		fmt.Printf("----------collaborate: can not allocate port-------------------\n")
@@ -104,7 +105,7 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 	if port == "" {
 
 		// 从port queue得到一个空闲的port，并设置有效时间为30min
-		port, err = utils.AllocatePort(p.Ano)
+		port, err = utils.AllocatePort(p.Project, p.Ano)
 		fmt.Printf("----------collaborate: allocate port: %v-------------------\n", port)
 
 		if err != nil {
@@ -120,10 +121,10 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		fmt.Printf("----------collaborate: %s %s %s %s %s %s %v %v \n", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano, utils.MaxRoomConnections, utils.AIInterval)
+		fmt.Printf("----------collaborate: %s %s %s %s %s %s %v %v \n", utils.CollaborateBinPath, port, utils.MainPath, p.Project, p.Image, p.Neuron, p.Ano, utils.MaxRoomConnections, utils.AIInterval)
 
-		log.Infoln(fmt.Sprintf("%s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano))
-		cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("nohup %s %s %s \"%s\" \"%s\" \"%s\" %v %v > collserver.out 2>&1 &", utils.CollaborateBinPath, port, utils.MainPath, p.Image, p.Neuron, p.Ano, utils.MaxRoomConnections, utils.AIInterval))
+		log.Infoln(fmt.Sprintf("%s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Project, p.Image, p.Neuron, p.Ano))
+		cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("nohup %s %s %s \"%s\" \"%s\" \"%s\" %v %v > collserver.out 2>&1 &", utils.CollaborateBinPath, port, utils.MainPath, p.Project, p.Image, p.Neuron, p.Ano, utils.MaxRoomConnections, utils.AIInterval))
 		if err := cmd.Start(); err != nil {
 			log.Error(err.Error())
 			fmt.Printf("----------collaborate: command error %s-------------------\n", err.Error())

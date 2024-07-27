@@ -18,7 +18,8 @@ public:
     virtual ~CollServer();
     void incomingConnection(qintptr handle);
 
-    bool addmarkers(const QString msg);
+    bool addmarkers(const QString msg, QString comment);
+    void delmarkers(const QString msg);
     CollDetection* detectUtil;
     static CollServer* getInstance();
 
@@ -26,6 +27,9 @@ public:
     int processedmsgcnt = 0;
     int savedmsgcnt = 0;
     int receivedcnt = 0;
+
+    int removedOverlapSegNum = 0;
+    int removedErrSegNum = 0;
 
     bool isFirstClient = true;
     QMap<QString,CollClient*> hashmap;//user->client
@@ -66,6 +70,8 @@ public:
     string dbmsServerPort;
     string brainServerPort;
     string apiVersion;
+
+    CachedProtoData cachedUserData;
 
 signals:
 //    void clientAddMarker(QString);
@@ -109,7 +115,6 @@ private:
 
     static CollServer* curServer;
     QList<CollThread*> list_thread;
-    CachedProtoData cachedUserData;
     QTimer* m_HeartBeatTimer;
     QTimer* m_OnlineStatusTimer;
     QString username="server";

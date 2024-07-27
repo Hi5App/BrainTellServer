@@ -13,7 +13,8 @@ public:
         eServerIP,
         dbmsServerPort,
         brainServerPort,
-        apiVersion
+        apiVersion,
+        redisServerIP
     };
 
     static Config &getInstance() {
@@ -68,6 +69,13 @@ public:
         case ConfigItem::apiVersion: {
             if(m_AppConfig.contains("apiVersion")){
                 return m_AppConfig["apiVersion"];
+            } else{
+                return "";
+            }
+        }
+        case ConfigItem::redisServerIP: {
+            if(m_AppConfig.contains("redisServerIp")){
+                return m_AppConfig["redisServerIp"];
             } else{
                 return "";
             }

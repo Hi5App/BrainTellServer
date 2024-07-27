@@ -69,6 +69,9 @@ public:
     //get soma pos
     void getSomaPos(const QString msg);//获取soma点的坐标
 
+    //消除quality_control marker
+    void removeQCMarker(QList<CellAPO>& markers);
+
     bool connectToDBMS();//与swcDBMS建立连接
     void getFileFromDBMSAndSend(bool isFirstClient);//从DBMS获取文件，并发送文件
     void updateApoData(bool isFirstClient);//将最新的apo数据同步到mongodb
@@ -116,6 +119,7 @@ signals:
     void serverStartTimerForDetectBranching();
     void serverStartTimerForDetectCrossing();
     void detectUtilRemoveErrorSegs(bool);
+    void detectUtilTuneErrorSegs(bool);
 
 };
 

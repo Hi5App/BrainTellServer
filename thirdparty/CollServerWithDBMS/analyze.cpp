@@ -1,4 +1,5 @@
 ﻿#include "analyze.h"
+#include "sort_swc.h"
 
 vector<int> getMulfurcationsCountNearSoma(float dist_thre, XYZ somaCoordinate, V_NeuronSWC_list segments){
     vector<int> counts;
@@ -200,9 +201,16 @@ set<string> getDissociativeSegEndPoints(V_NeuronSWC_list segments){
     return dissociativePoints;
 }
 
-set<string> getAngleErrPoints(float dist_thre, XYZ somaCoordinate, V_NeuronSWC_list segments){
+set<string> getDissociativeSegMarkerPoints(QList<NeuronSWC> neuron){
+    return getTreeMarkerPoints(neuron);
+}
+
+set<string> getAngleErrPoints(float dist_thre, bool isSomaExists, XYZ somaCoordinate, V_NeuronSWC_list& segments, bool needConsiderType){
     set<string> angleErrPoints;
 
+    if(!isSomaExists){
+        return angleErrPoints;
+    }
     map<string, set<int>> point2TypeMap;
     map<string, set<string>> parentMap;
     map<string, set<string>> childMap;
@@ -320,104 +328,268 @@ set<string> getAngleErrPoints(float dist_thre, XYZ somaCoordinate, V_NeuronSWC_l
         if(linksIndex[i].size() == 3){
             NeuronSWC s;
             stringToXYZ(points[i],s.x,s.y,s.z);
-            if(distance(s.x, somaCoordinate.x, s.y, somaCoordinate.y, s.z, somaCoordinate.z)>dist_thre)
+            if(!isSomaExists)
+                bifurcationPoints.insert(points[i]);
+            else if(distance(s.x, somaCoordinate.x, s.y, somaCoordinate.y, s.z, somaCoordinate.z)>dist_thre)
                 bifurcationPoints.insert(points[i]);
         }
     }
 
+    map<string, vector<int>> twoSegsMap;
+    map<string, vector<int>> threeSegsMap;
     for(auto it=bifurcationPoints.begin(); it!=bifurcationPoints.end();){
         set<int> types = point2TypeMap[*it];
-//        qDebug()<<"types: "<<point2TypeMap[*it].size();
-        if (types.size()!=1) {
-            it = bifurcationPoints.erase(it); // 通过迭代器去除元素，并返回下一个有效迭代器
+        //        qDebug()<<"types: "<<point2TypeMap[*it].size();
+        bool flag = true;
+        if(needConsiderType){
+            if (types.size()!=1) {
+                it = bifurcationPoints.erase(it); // 通过迭代器去除元素，并返回下一个有效迭代器
+                flag = false;
+            }
+            else if(*types.begin()!=3){
+                it = bifurcationPoints.erase(it);
+                flag = false;
+            }
         }
-        else if(*types.begin()!=3){
-            it = bifurcationPoints.erase(it);
-        }
-        else {
-            if(parentMap.find(*it)!=parentMap.end() && parentMap[*it].size()==1
-                && childMap.find(*it)!=childMap.end() && childMap[*it].size()==2)
-            {
-                set<size_t> segIds = wholeGrid2SegIDMap[*it];
-                bool flag = true;
-                if(segIds.size() == 3){
-                    int countNoParent=0;
-                    int countNoChild=0;
+        if(flag){
+            set<size_t> segIds = wholeGrid2SegIDMap[*it];
+            bool isVaild = true;
+            vector<int> segIndexs;
+            if(segIds.size() == 3){
+                map<int, int> segId2CoorIndex;
+                int parentSegId;
+                double minDist = 100000;
+                //先找到离soma最近的点
+                if(isSomaExists){
                     for(auto segIt=segIds.begin(); segIt!=segIds.end(); segIt++){
                         V_NeuronSWC seg = segments.seg[*segIt];
                         int index = getPointInSegIndex(*it, seg);
-
-                        if(index==0)
-                            countNoChild++;
-                        if(index==seg.row.size()-1)
-                            countNoParent++;
-
-                        double length = getSegLength(segments.seg[*segIt]);
-                        if(length < 20){
-//                            it = bifurcationPoints.erase(it);
-                            flag=false;
-                            break;
+                        segId2CoorIndex[*segIt] = index;
+                        if(index==0){
+                            XYZ coor = seg.row[1];
+                            if(distance(coor.x, somaCoordinate.x, coor.y, somaCoordinate.y, coor.z, somaCoordinate.z) < minDist){
+                                minDist = distance(coor.x, somaCoordinate.x, coor.y, somaCoordinate.y, coor.z, somaCoordinate.z);
+                                parentSegId = *segIt;
+                            }
+                        }
+                        else if(index==seg.row.size()-1){
+                            XYZ coor = seg.row[seg.row.size()-2];
+                            if(distance(coor.x, somaCoordinate.x, coor.y, somaCoordinate.y, coor.z, somaCoordinate.z) < minDist){
+                                minDist = distance(coor.x, somaCoordinate.x, coor.y, somaCoordinate.y, coor.z, somaCoordinate.z);
+                                parentSegId = *segIt;
+                            }
                         }
                     }
 
-                    if(!(countNoChild==1 && countNoParent==2))
-                        flag=false;
-                }
-                else if(segIds.size() == 2){
-                    int countNoParent=0;
-                    for(auto segIt=segIds.begin(); segIt!=segIds.end(); segIt++){
-                        V_NeuronSWC seg = segments.seg[*segIt];
-                        int index = getPointInSegIndex(*it, seg);
-
-                        if(index==seg.row.size()-1)
-                            countNoParent++;
-
-                        double length = getPartOfSegLength(seg, index);
-                        if(length < 20){
-                            flag=false;
-                            break;
+                    //调整线段走向
+                    for(auto mapIt = segId2CoorIndex.begin(); mapIt != segId2CoorIndex.end(); mapIt++){
+                        if(parentSegId == mapIt->first && mapIt->second != 0){
+                            reverseSeg(segments.seg[mapIt->first]);
+                        }
+                        if(parentSegId != mapIt->first && mapIt->second != segments.seg[mapIt->first].row.size() - 1){
+                            reverseSeg(segments.seg[mapIt->first]);
                         }
                     }
-
-                    if(countNoParent!=1)
-                        flag=false;
                 }
 
-                if(flag)
-                    it++;
-                else{
-                    it = bifurcationPoints.erase(it);
+                for(auto segIt=segIds.begin(); segIt!=segIds.end(); segIt++){
+                    double length = getSegLength(segments.seg[*segIt]);
+                    if(length < 20){
+                        //                            it = bifurcationPoints.erase(it);
+                        isVaild=false;
+                        break;
+                    }
+                    int index = getPointInSegIndex(*it, segments.seg[*segIt]);
+                    if(index == 0){
+                        segIndexs.insert(segIndexs.begin(), *segIt);
+                    }
+                    else{
+                        segIndexs.push_back(*segIt);
+                    }
                 }
             }
-            else
-            {
+            else if(segIds.size() == 2){
+                //先放parent, 再放chi
+                int countNoParent=0;
+                map<int, int> segId2CoorIndex;
+                int parentSegId;
+                XYZ minDistCoor;
+                double minDist = 100000;
+                //先找到离soma最近的点
+                for(auto segIt=segIds.begin(); segIt!=segIds.end(); segIt++){
+                    V_NeuronSWC seg = segments.seg[*segIt];
+                    int index = getPointInSegIndex(*it, seg);
+                    segId2CoorIndex[*segIt] = index;
+                    if(index==0){
+                        XYZ coor = seg.row[1];
+                        if(distance(coor.x, somaCoordinate.x, coor.y, somaCoordinate.y, coor.z, somaCoordinate.z) < minDist){
+                            minDist = distance(coor.x, somaCoordinate.x, coor.y, somaCoordinate.y, coor.z, somaCoordinate.z);
+                            parentSegId = *segIt;
+                            minDistCoor = coor;
+                        }
+                    }
+                    else if(index==seg.row.size()-1){
+                        XYZ coor = seg.row[seg.row.size()-2];
+                        if(distance(coor.x, somaCoordinate.x, coor.y, somaCoordinate.y, coor.z, somaCoordinate.z) < minDist){
+                            minDist = distance(coor.x, somaCoordinate.x, coor.y, somaCoordinate.y, coor.z, somaCoordinate.z);
+                            parentSegId = *segIt;
+                            minDistCoor = coor;
+                        }
+                    }
+                    else{
+                        XYZ coor1 = seg.row[index + 1];
+                        XYZ coor2 = seg.row[index - 1];
+                        if(distance(coor1.x, somaCoordinate.x, coor1.y, somaCoordinate.y, coor1.z, somaCoordinate.z) < minDist){
+                            minDist = distance(coor1.x, somaCoordinate.x, coor1.y, somaCoordinate.y, coor1.z, somaCoordinate.z);
+                            parentSegId = *segIt;
+                            minDistCoor = coor1;
+                        }
+                        if(distance(coor2.x, somaCoordinate.x, coor2.y, somaCoordinate.y, coor2.z, somaCoordinate.z) < minDist){
+                            minDist = distance(coor2.x, somaCoordinate.x, coor2.y, somaCoordinate.y, coor2.z, somaCoordinate.z);
+                            parentSegId = *segIt;
+                            minDistCoor = coor2;
+                        }
+                    }
+                }
+
+                //调整线段走向
+                for(auto mapIt = segId2CoorIndex.begin(); mapIt != segId2CoorIndex.end(); mapIt++){
+                    if(parentSegId == mapIt->first && minDistCoor != segments.seg[mapIt->first].row[mapIt->second + 1]){
+                        reverseSeg(segments.seg[mapIt->first]);
+                    }
+                    if(parentSegId != mapIt->first && mapIt->second != segments.seg[mapIt->first].row.size() - 1){
+                        reverseSeg(segments.seg[mapIt->first]);
+                    }
+                }
+
+                for(auto segIt=segIds.begin(); segIt!=segIds.end(); segIt++){
+                    double length = getSegLength(segments.seg[*segIt]);
+                    if(length < 20){
+                        //                            it = bifurcationPoints.erase(it);
+                        isVaild=false;
+                        break;
+                    }
+                    int index = getPointInSegIndex(*it, segments.seg[*segIt]);
+                    if(index != segments.seg[*segIt].row.size() - 1){
+                        segIndexs.insert(segIndexs.begin(), *segIt);
+                    }
+                    else{
+                        segIndexs.push_back(*segIt);
+                    }
+                }
+            }
+
+            if(isVaild){
+                if(segIndexs.size() == 2)
+                    twoSegsMap[*it] = segIndexs;
+                else{
+                    threeSegsMap[*it] = segIndexs;
+                }
+                it++;
+            }
+            else{
                 it = bifurcationPoints.erase(it);
             }
         }
     }
 
-    for(auto it=bifurcationPoints.begin(); it!=bifurcationPoints.end(); it++){
+    for(auto it = threeSegsMap.begin(); it != threeSegsMap.end(); it++){
         XYZ curCoor;
-        stringToXYZ(*it, curCoor.x, curCoor.y, curCoor.z);
-        XYZ parCoor;
-        stringToXYZ(*parentMap[*it].begin(), parCoor.x, parCoor.y, parCoor.z);
+        stringToXYZ(it->first, curCoor.x, curCoor.y, curCoor.z);
+        XYZ parCoor = segments.seg[it->second[0]].row[1];
         vector<XYZ> chiCoors;
-        for(auto chiIt=childMap[*it].begin(); chiIt!=childMap[*it].end(); chiIt++){
+        for(auto chiSegIt=it->second.begin() + 1; chiSegIt!=it->second.end(); chiSegIt++){
             XYZ chiCoor;
-            stringToXYZ(*chiIt, chiCoor.x, chiCoor.y, chiCoor.z);
+            chiCoor.x = segments.seg[*chiSegIt].row[segments.seg[*chiSegIt].row.size() - 2].x;
+            chiCoor.y = segments.seg[*chiSegIt].row[segments.seg[*chiSegIt].row.size() - 2].y;
+            chiCoor.z = segments.seg[*chiSegIt].row[segments.seg[*chiSegIt].row.size() - 2].z;
             chiCoors.push_back(chiCoor);
         }
-        QVector3D vector1(parCoor.x-curCoor.x, parCoor.y-curCoor.y, parCoor.z-curCoor.z);
-        QVector3D vector2(chiCoors[0].x-curCoor.x, chiCoors[0].y-curCoor.y, chiCoors[0].z-curCoor.z);
-        QVector3D vector3(chiCoors[1].x-curCoor.x, chiCoors[1].y-curCoor.y, chiCoors[1].z-curCoor.z);
+        XYZ parCoor_real = parCoor, chiCoor1_real = chiCoors[0], chiCoor2_real = chiCoors[1];
 
-        float angle1 = calculateAngleofVecs(vector1, vector2);
-        float angle2 = calculateAngleofVecs(vector1, vector3);
-        if((angle1>0 && angle1<35) || (angle2>0 && angle2<35)){
-            angleErrPoints.insert(*it);
+        float angle1, angle2;
+        int count1 = 0;
+        int count2 = 0;
+        QVector3D vector1(parCoor_real.x-curCoor.x, parCoor_real.y-curCoor.y, parCoor_real.z-curCoor.z);
+
+        for(auto coorIt = segments.seg[it->second[1]].row.rbegin(); coorIt != segments.seg[it->second[1]].row.rend(); coorIt++)
+        {
+            if(coorIt == segments.seg[it->second[1]].row.rbegin())
+                continue;
+            QVector3D vector2(coorIt->x-curCoor.x, coorIt->y-curCoor.y, coorIt->z-curCoor.z);
+            angle1 += calculateAngleofVecs(vector1, vector2);
+            count1++;
+            if(count1 == 5){
+                break;
+            }
         }
+        angle1 /= count1;
+
+        for(auto coorIt = segments.seg[it->second[2]].row.rbegin(); coorIt != segments.seg[it->second[2]].row.rend(); coorIt++)
+        {
+            if(coorIt == segments.seg[it->second[2]].row.rbegin())
+                continue;
+            QVector3D vector3(coorIt->x-curCoor.x, coorIt->y-curCoor.y, coorIt->z-curCoor.z);
+            angle2 += calculateAngleofVecs(vector1, vector3);
+            count2++;
+            if(count2 == 5){
+                break;
+            }
+        }
+        angle2 /= count2;
+
+        if((angle1>0 && angle1<50) || (angle2>0 && angle2<50)){
+            angleErrPoints.insert(it->first);
+        }
+
     }
 
+    for(auto it = twoSegsMap.begin(); it != twoSegsMap.end(); it++){
+        XYZ curCoor;
+        stringToXYZ(it->first, curCoor.x, curCoor.y, curCoor.z);
+        int index = getPointInSegIndex(it->first, segments.seg[it->second[0]]);
+
+        XYZ parCoor = segments.seg[it->second[0]].row[index + 1];
+        vector<XYZ> chiCoors;
+        chiCoors.push_back(segments.seg[it->second[0]].row[index - 1]);
+        chiCoors.push_back(segments.seg[it->second[1]].row[segments.seg[it->second[1]].row.size() - 2]);
+
+        XYZ parCoor_real = parCoor, chiCoor1_real = chiCoors[0], chiCoor2_real = chiCoors[1];
+
+        float angle1, angle2;
+        int count1 = 0;
+        int count2 = 0;
+        QVector3D vector1(parCoor_real.x-curCoor.x, parCoor_real.y-curCoor.y, parCoor_real.z-curCoor.z);
+
+        for(auto coorIt = segments.seg[it->second[1]].row.rbegin(); coorIt != segments.seg[it->second[1]].row.rend(); coorIt++)
+        {
+            if(coorIt == segments.seg[it->second[1]].row.rbegin())
+                continue;
+            QVector3D vector2(coorIt->x-curCoor.x, coorIt->y-curCoor.y, coorIt->z-curCoor.z);
+            angle1 += calculateAngleofVecs(vector1, vector2);
+            count1++;
+            if(count1 == 5){
+                break;
+            }
+        }
+        angle1 /= count1;
+
+        for(int i = index - 1; i >= 0; i--)
+        {
+            XYZ coor = segments.seg[it->second[0]].row[i];
+            QVector3D vector3(coor.x-curCoor.x, coor.y-curCoor.y, coor.z-curCoor.z);
+            angle2 += calculateAngleofVecs(vector1, vector3);
+            count2++;
+            if(count2 == 5){
+                break;
+            }
+        }
+        angle2 /= count2;
+
+        if((angle1>0 && angle1<50) || (angle2>0 && angle2<50)){
+            angleErrPoints.insert(it->first);
+        }
+    }
     return angleErrPoints;
 }
 
@@ -443,9 +615,16 @@ bool setSomaPointRadius(QString fileSaveName, V_NeuronSWC_list segments, XYZ som
     map<string, bool> isEndPointMap;
 
     set<string> allPoints;
+    map<string, set<string>> parentMap;
+    map<string, set<string>> childMap;
 
     for(size_t i=0; i<segments.seg.size(); ++i){
         V_NeuronSWC seg = segments.seg[i];
+        vector<int> rowN2Index(seg.row.size()+1);
+
+        for(size_t j=0; j<seg.row.size(); ++j){
+            rowN2Index[seg.row[j].n]=j;
+        }
 
         for(size_t j=0; j<seg.row.size(); ++j){
             float xLabel = seg.row[j].x;
@@ -455,6 +634,16 @@ bool setSomaPointRadius(QString fileSaveName, V_NeuronSWC_list segments, XYZ som
             string gridKey = gridKeyQ.toStdString();
             wholeGrid2SegIDMap[gridKey].insert(size_t(i));
             allPoints.insert(gridKey);
+
+            if(seg.row[j].parent!=-1){
+                float x2Label=seg.row[rowN2Index[seg.row[j].parent]].x;
+                float y2Label=seg.row[rowN2Index[seg.row[j].parent]].y;
+                float z2Label=seg.row[rowN2Index[seg.row[j].parent]].z;
+                QString parentKeyQ=QString::number(x2Label) + "_" + QString::number(y2Label) + "_" + QString::number(z2Label);
+                string parentKey=parentKeyQ.toStdString();
+                parentMap[gridKey].insert(parentKey);
+                childMap[parentKey].insert(gridKey);
+            }
 
             if(j == 0 || j == seg.row.size() - 1){
                 isEndPointMap[gridKey] = true;
@@ -528,6 +717,108 @@ bool setSomaPointRadius(QString fileSaveName, V_NeuronSWC_list segments, XYZ som
             linksIndex[segIndexs[j+1]].insert(segIndexs[j]);
             //            linksIndexVec[segIndexs[j+1]].push_back(segIndexs[j]);
         }
+    }
+
+    vector<NeuronSWC> outputSpecialPoints;
+
+    for(size_t i=0; i<points.size(); ++i){
+        //        qDebug()<<i<<" link size: "<<linksIndex[i].size();
+        if(linksIndex[i].size() > 3){
+            qDebug()<<i<<" link size: "<<linksIndex[i].size();
+            NeuronSWC s;
+            stringToXYZ(points[i],s.x,s.y,s.z);
+            s.type = 8;
+            if(distance(s.x, somaCoordinate.x, s.y, somaCoordinate.y,
+                         s.z, somaCoordinate.z) > dist_thre)
+                outputSpecialPoints.push_back(s);
+        }
+    }
+
+    vector<vector<size_t>> pairs;
+    set<size_t> pset;
+
+    size_t pre_tip_id=-1;
+    size_t cur_tip_id=-1;
+
+    double soma_radius=30;
+    for(size_t i=0; i<points.size(); i++){
+        if(linksIndex[i].size() == 3){
+            pre_tip_id=cur_tip_id;
+            cur_tip_id=i;
+            if(pre_tip_id!=-1){
+                NeuronSWC n1;
+                stringToXYZ(points[pre_tip_id],n1.x,n1.y,n1.z);
+                n1.type=6;
+                NeuronSWC n2;
+                stringToXYZ(points[cur_tip_id],n2.x,n2.y,n2.z);
+                n2.type=6;
+                set<size_t> n1Segs=wholeGrid2SegIDMap[points[pre_tip_id]];
+                set<size_t> n2Segs=wholeGrid2SegIDMap[points[cur_tip_id]];
+                int count1=0,count2=0;
+                for(auto it1=n1Segs.begin();it1!=n1Segs.end();it1++)
+                {
+                    //                    qDebug()<<*it1;
+                    //                    qDebug()<<getSegLength(inputSegList.seg[*it1]);
+                    if(getSegLength(segments.seg[*it1])>40)
+                        count1++;
+                }
+
+                for(auto it2=n2Segs.begin();it2!=n2Segs.end();it2++)
+                {
+                    //                    qDebug()<<*it2;
+                    //                    qDebug()<<getSegLength(inputSegList.seg[*it2]);
+                    if(getSegLength(segments.seg[*it2])>40)
+                        count2++;
+                }
+                //                qDebug()<<"n2Segs end";
+                if(!(count1>=2&&count2>=2)){
+                    continue;
+                }
+
+                if(distance(n1.x,somaCoordinate.x,n1.y,somaCoordinate.y,n1.z,somaCoordinate.z)>soma_radius
+                    &&distance(n2.x,somaCoordinate.x,n2.y,somaCoordinate.y,n2.z,somaCoordinate.z)>soma_radius){
+                    double dist=distance(n1.x,n2.x,n1.y,n2.y,n1.z,n2.z);
+                    if(distance((n1.x+n2.x)/2,somaCoordinate.x,(n1.y+n2.y)/2,somaCoordinate.y,(n1.z+n2.z)/2,somaCoordinate.z)>1e-7&&dist<dist_thre){
+                        vector<size_t> v={pre_tip_id,cur_tip_id};
+                        pairs.push_back(v);
+                        pset.insert(pre_tip_id);
+                        pset.insert(cur_tip_id);
+                    }
+                }
+            }
+        }
+    }
+
+    qDebug()<<pairs;
+    //    qDebug()<<points;
+
+    for(auto it=pset.begin(); it!=pset.end(); it++){
+        qDebug()<<*it;
+        NeuronSWC n;
+        stringToXYZ(points[*it],n.x,n.y,n.z);
+        n.type=6;
+        outputSpecialPoints.push_back(n);
+    }
+
+    vector<NeuronSWC> bifurPoints;
+    vector<NeuronSWC> mulfurPoints;
+
+    for(int i=0;i<outputSpecialPoints.size();i++){
+        if(outputSpecialPoints[i].type == 6)
+            bifurPoints.push_back(outputSpecialPoints[i]);
+        else if(outputSpecialPoints[i].type == 8)
+            mulfurPoints.push_back(outputSpecialPoints[i]);
+    }
+
+    int count1=0;
+    int count2=0;
+    detectUtil->handleMulFurcation(mulfurPoints, count1);
+    detectUtil->handleNearBifurcation(bifurPoints, count2);
+
+    if(outputSpecialPoints.size()!=0){
+        qDebug()<<"swc exists MulFurcation or NearBifurcation, notice the brown or yellow markers!";
+        msg = "swc exists MulFurcation or NearBifurcation, notice the brown or yellow markers!";
+        return false;
     }
 
     set<string> targetCoordSet;
@@ -609,7 +900,7 @@ bool setSomaPointRadius(QString fileSaveName, V_NeuronSWC_list segments, XYZ som
         }
     }
 
-    vector<NeuronSWC> outputSpecialPoints;
+    outputSpecialPoints.clear();
     int count =0;
     for(auto it=specPoints.begin(); it!=specPoints.end(); it++){
         NeuronSWC s;
@@ -621,8 +912,8 @@ bool setSomaPointRadius(QString fileSaveName, V_NeuronSWC_list segments, XYZ som
     detectUtil->handleLoop(outputSpecialPoints, count);
 
     if(specPoints.size()!=0){
-        qDebug()<<"swc exists loop,notice the white markers!";
-        msg = "swc exists loop,notice the white markers!";
+        qDebug()<<"swc exists loop, notice the white markers!";
+        msg = "swc exists loop, notice the white markers!";
         return false;
     }
 

@@ -4,6 +4,8 @@
 #include "neuron_editing/neuron_format_converter.h"
 #include "utils.h"
 #include "include/hiredis/hiredis.h"
+
+extern string redisIp;
 void dirCheck(QString dirBaseName)
 {
     //QCoreApplication::applicationDirPath()获取程序所在目录
@@ -125,7 +127,7 @@ void setredis(int port,const char *ano)
 {
     // 取消DB0中键ano的过期时间
     // 改为将键的有效时间设置为24h
-    redisContext *c = redisConnect("172.18.0.2", 6379);
+    redisContext *c = redisConnect(redisIp.c_str(), 6379);
     if (c == NULL || c->err) {
         if (c) {
             printf("Error: %s\n", c->errstr);
@@ -150,7 +152,7 @@ void setredis(int port,const char *ano)
 void setexpire(int port,const char *ano,int expiretime)
 {
     //设置DB0中键ano的过期时间,单位是s
-    redisContext *c = redisConnect("172.18.0.2", 6379);
+    redisContext *c = redisConnect(redisIp.c_str(), 6379);
     if (c == NULL || c->err) {
         if (c) {
             printf("Error: %s\n", c->errstr);
@@ -169,7 +171,7 @@ void setexpire(int port,const char *ano,int expiretime)
 
 void recoverPort(int port)
 {
-    redisContext *c = redisConnect("172.18.0.2", 6379);
+    redisContext *c = redisConnect(redisIp.c_str(), 6379);
         if (c == NULL || c->err) {
             if (c) {
                 printf("Error: %s\n", c->errstr);
@@ -544,12 +546,13 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2){
     double length1 = getSegLength(seg1);
     double length2 = getSegLength(seg2);
     double minDensity = min(length1/seg1.row.size(), length2/seg2.row.size());
-    double mindist = 2;
-    double mindist_thres = 2;
+    int minLength = min(length1, length2);
+    double mindist = 4 - 4 * 1.0 / minLength;
+    double mindist_thres = 4 - 4 * 1.0 / minLength;
 
     if(minDensity < 5){
-        mindist = 0.2;
-        mindist_thres = 0.2;
+        mindist = 0.4 - 0.4 * 1.0 / minLength;
+        mindist_thres = 0.4 - 0.4 * 1.0 / minLength;
     }
 
     if(seg1.row.size() == seg2.row.size()){
@@ -755,3 +758,35 @@ std::vector<std::string> stringSplit(const std::string&str, char delim) {
     }
     return elems;
 }
+
+set<int> getQCMarkerNearBy(vector<V_NeuronSWC> &segs, const QList<CellAPO> &markers){
+    set<int> indexs;
+    for(auto segIt=segs.begin(); segIt!=segs.end(); segIt++){
+        auto seg = *segIt;
+        bool getFirst = false;
+        bool getSecond = false;
+        float x1 = seg.row[0].x;
+        float y1 = seg.row[0].y;
+        float z1 = seg.row[0].z;
+        float x2 = seg.row[seg.nrows()-1].x;
+        float y2 = seg.row[seg.nrows()-1].y;
+        float z2 = seg.row[seg.nrows()-1].z;
+        for(auto it=markers.begin(); it!=markers.end(); it++){
+            if(getFirst && getSecond)
+                break;
+
+            if(distance(x1, it->x, y1, it->y, z1, it->z) < 1 && find(quality_control_types.begin(), quality_control_types.end(), it->comment)!=quality_control_types.end()){
+                getFirst = true;
+                indexs.insert(it-markers.begin());
+            }
+            if(distance(x2, it->x, y2, it->y, z2, it->z) < 1 && find(quality_control_types.begin(), quality_control_types.end(), it->comment)!=quality_control_types.end()){
+                getSecond = true;
+                indexs.insert(it-markers.begin());
+            }
+        }
+    }
+
+    return indexs;
+}
+
+

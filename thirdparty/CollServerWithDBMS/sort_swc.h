@@ -15,10 +15,12 @@
 #include <math.h>
 //#include <unistd.h> //remove the unnecessary include file. //by PHC 20131228
 #include "basic_c_fun/basic_surf_objs.h"
+#include "neuron_editing/neuron_format_converter.h"
 #include <string.h>
 #include <vector>
 #include <iostream>
 #include "fstream"
+#include <set>
 
 using namespace std;
 
@@ -77,7 +79,9 @@ double computeDist2(const NeuronSWC & s1, const NeuronSWC & s2);
 
 bool SortSWC(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newrootid, double thres);
 
-bool SortSWCSimplify(QList<NeuronSWC> & neurons, QList<NeuronSWC> & result, V3DLONG newrootid, QString& msg);
+bool SortSWCSimplify(QList<NeuronSWC> & neurons, V_NeuronSWC_list segments, QList<NeuronSWC> & result, V3DLONG newrootid, QString& msg, vector<NeuronSWC>& loopMarkers);
+
+set<string> getTreeMarkerPoints(QList<NeuronSWC> & neurons);
 
 bool export_list2file(QList<NeuronSWC> & lN, QString fileSaveName, QString fileOpenName);
 

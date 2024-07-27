@@ -21,6 +21,7 @@
 #include <filesystem>
 
 extern QFile *logfile;
+string redisIp;
 
 CollServer* CollServer::curServer=nullptr;
 
@@ -53,7 +54,8 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
     dbmsServerPort = Config::getInstance().getConfig(Config::ConfigItem::dbmsServerPort);
     brainServerPort = Config::getInstance().getConfig(Config::ConfigItem::brainServerPort);
     apiVersion = Config::getInstance().getConfig(Config::ConfigItem::apiVersion);
-    std::cout<<serverIP<<" "<<dbmsServerPort<<" "<<brainServerPort<<" "<<apiVersion;
+    redisIp = Config::getInstance().getConfig(Config::ConfigItem::redisServerIP);
+    std::cout<<serverIP<<" "<<dbmsServerPort<<" "<<brainServerPort<<" "<<apiVersion<<" "<<redisIp;
 
     detectUtil=new CollDetection(this, serverIP, brainServerPort, this);
 //    string serverIP = "114.117.165.134";
@@ -70,14 +72,13 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
         notification.mutable_metainfo()->set_apiversion(RpcCall::ApiVersion);
         auto* userInfo = notification.mutable_userverifyinfo();
         userInfo->set_username(cachedUserData.UserName);
-        userInfo->set_usertoken(cachedUserData.UserToken);
+        userInfo->set_userpassword(cachedUserData.Password);
         notification.set_heartbeattime(std::chrono::system_clock::now().time_since_epoch().count());
         proto::UserOnlineHeartBeatResponse response;
         grpc::ClientContext context;
         auto status = RpcCall::getInstance().Stub()->UserOnlineHeartBeatNotifications(&context,notification,&response);
         if(status.ok()) {
-            cachedUserData.UserName = response.userverifyinfo().username();
-            cachedUserData.UserToken = response.userverifyinfo().usertoken();
+//            cachedUserData.UserName = response.userverifyinfo().username();
             cachedUserData.OnlineStatus = true;
         }else {
             qDebug()<<"Error" + QString::fromStdString(status.error_message());
@@ -98,7 +99,7 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
 //    auto nt=readSWC_file(Prefix+"/"+AnoName+".ano.eswc");
 //    segments=NeuronTree__2__V_NeuronSWC_list(nt);
 //    markers=readAPO_file(Prefix+"/"+AnoName+".ano.apo");
-    string dirpath=(Prefix+"/"+AnoName).toStdString();
+    string dirpath=Prefix.toStdString();
     filesystem::create_directories(dirpath);
 
     swcpath=Prefix+"/"+AnoName+".ano.eswc";
@@ -158,7 +159,7 @@ CollServer::CollServer(QString port,QString image,QString neuron,QString anoname
 
 CollServer::~CollServer(){
     // change set expire time 60 -> 10
-    setexpire(Port.toInt(),AnoName.toStdString().c_str(),5);
+    setexpire(Port.toInt(),AnoName.toStdString().c_str(),);
     // recover port
     recoverPort(Port.toInt());
     std::cerr<<AnoName.toStdString()+" server is released\n";
@@ -180,7 +181,6 @@ CollServer* CollServer::getInstance(){
 }
 
 void CollServer::incomingConnection(qintptr handle){
-
     setredis(Port.toInt(),AnoName.toStdString().c_str());
     list_thread.append(new CollThread(this));
     list_thread[list_thread.size()-1]->setServer(curServer);
@@ -202,6 +202,7 @@ void CollServer::incomingConnection(qintptr handle){
     connect(client,&CollClient::serverStartTimerForDetectBranching,this,&CollServer::startTimerForDetectBranching);
     connect(client,&CollClient::serverStartTimerForDetectCrossing,this,&CollServer::startTimerForDetectCrossing);
     connect(client,&CollClient::detectUtilRemoveErrorSegs,detectUtil,&CollDetection::removeErrorSegs);
+    connect(client,&CollClient::detectUtilTuneErrorSegs,detectUtil,&CollDetection::tuneErrorSegs);
 
 //    connect(this,&CollServer::clientAddMarker,client,&CollClient::addmarkers);
     connect(this,&CollServer::clientSendMsgs,client,&CollClient::sendmsgs);
@@ -314,11 +315,11 @@ void CollServer::RemoveList(QThread* thread){
 }
 
 void CollServer::startTimerForDetectLoops(){
-    timerForDetectLoops->start(24*60*60*1000);
+    timerForDetectLoops->start(1*60*1000);
 }
 
 void CollServer::startTimerForDetectOthers(){
-    timerForDetectOthers->start(24*60*60*1000);
+    timerForDetectOthers->start(1*60*1000);
 }
 
 void CollServer::startTimerForDetectWhole(){
@@ -331,14 +332,14 @@ void CollServer::startTimerForDetectTip(){
 }
 
 void CollServer::startTimerForDetectBranching(){
-    timerForDetectBranching->start(ModelDetectIntervals*1000);
+    timerForDetectBranching->start(24*60*60*1000);
 }
 
 void CollServer::startTimerForDetectCrossing(){
-    timerForDetectCrossing->start(24*60*60*1000);
+    timerForDetectCrossing->start(ModelDetectIntervals*1000);
 }
 
-bool CollServer::addmarkers(const QString msg){
+bool CollServer::addmarkers(const QString msg, QString comment){
     qDebug()<<msg;
     QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
     if(pointlistwithheader.size()<1){
@@ -346,8 +347,6 @@ bool CollServer::addmarkers(const QString msg){
     }
 
     QStringList headerlist=pointlistwithheader[0].split(' ',Qt::SkipEmptyParts);
-
-    int useridx=headerlist[0].toUInt();
 
     QStringList pointlist=pointlistwithheader;
     pointlist.removeAt(0);
@@ -357,7 +356,7 @@ bool CollServer::addmarkers(const QString msg){
 
     CellAPO marker;
     marker.name="";
-    marker.comment="";
+    marker.comment=comment;
     marker.orderinfo="";
 
     QMutexLocker locker(&this->mutex);
@@ -383,6 +382,56 @@ bool CollServer::addmarkers(const QString msg){
         markers.append(marker);
         qDebug()<<"server addmarker";
         return true;
+    }
+}
+
+void CollServer::delmarkers(const QString msg)
+{
+    QStringList pointlistwithheader=msg.split(',',Qt::SkipEmptyParts);
+    if(pointlistwithheader.size()<1){
+        std::cerr<<"ERROR:pointlistwithheader.size<1\n";
+    }
+
+    QStringList headerlist=pointlistwithheader[0].split(' ',Qt::SkipEmptyParts);
+    if(headerlist.size()<2) {
+        std::cerr<<"ERROR:headerlist.size<1\n";
+    }
+
+    QStringList pointlist=pointlistwithheader;
+    pointlist.removeAt(0);
+    if(pointlist.size()==0){
+        std::cerr<<"ERROR:pointlist.size=0\n";
+        return;
+    }
+    CellAPO marker;
+    int idx=-1;
+
+    for(auto &msg:pointlist){
+        auto markerinfo=msg.split(' ',Qt::SkipEmptyParts);
+        if(markerinfo.size()!=6)
+            continue;
+        marker.color.r=markerinfo[0].toUInt();
+        marker.color.g=markerinfo[1].toUInt();
+        marker.color.b=markerinfo[2].toUInt();
+        marker.x=markerinfo[3].toDouble();
+        marker.y=markerinfo[4].toDouble();
+        marker.z=markerinfo[5].toDouble();
+        //        if(myServer->isSomaExists&&sqrt((marker.x-myServer->somaCoordinate.x)*(marker.x-myServer->somaCoordinate.x)+
+        //                (marker.y-myServer->somaCoordinate.y)*(marker.y-myServer->somaCoordinate.y)+
+        //                (marker.z-myServer->somaCoordinate.z)*(marker.z-myServer->somaCoordinate.z))<1)
+        //        {
+        //            qDebug()<<"cannot delete the soma marker";
+        ////            myServer->mutex.unlock();
+        //            return;
+        //        }
+        idx=findnearest(marker,markers);
+        if(idx!=-1) {
+            markers.removeAt(idx);
+            qDebug()<<"server delmarker";
+        }
+        else{
+            std::cerr<<"find marker failed."+msg.toStdString()+"\n";
+        }
     }
 }
 
@@ -437,7 +486,7 @@ bool CollServer::connectToDBMS(){
 
             cachedUserData.CachedUserMetaInfo = response.userinfo();
             cachedUserData.UserName = response.userverifyinfo().username();
-            cachedUserData.UserToken = response.userverifyinfo().usertoken();
+            cachedUserData.Password = password.toStdString();
             cachedUserData.OnlineStatus = true;
 
             return true;

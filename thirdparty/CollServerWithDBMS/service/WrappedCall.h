@@ -14,7 +14,7 @@ public:
         type.mutable_metainfo()->set_apiversion(RpcCall::ApiVersion);
         auto* userInfo = type.mutable_userverifyinfo();
         userInfo->set_username(cachedUserData.UserName);
-        userInfo->set_usertoken(cachedUserData.UserToken);
+        userInfo->set_userpassword(cachedUserData.Password);
     }
 
     static bool defaultErrorHandler(const std::string&actionName, const grpc::Status&status,
@@ -33,7 +33,6 @@ public:
         grpc::ClientContext context;
         proto::GetAllProjectRequest request;
         setCommonRequestField(request, cachedUserData);
-
         auto status = RpcCall::getInstance().Stub()->GetAllProject(&context, request, &response);
         return defaultErrorHandler(__func__, status, response.metainfo());
     }

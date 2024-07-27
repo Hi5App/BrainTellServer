@@ -40,12 +40,12 @@ public:
     explicit CollDetection(CollServer* curServer, string serverIp, string brainServerPort, QObject* parent=nullptr);
     ~CollDetection(){}
     XYZ getSomaCoordinate(QString apoPath);
-    vector<NeuronSWC> specStructsDetection(V_NeuronSWC_list& inputSegList, double dist_thresh=1.5);
-    vector<NeuronSWC> loopDetection(V_NeuronSWC_list& inputSegList);
-    vector<NeuronSWC> tipDetection(V_NeuronSWC_list inputSegList, bool flag, map<string, set<size_t>> allPoint2SegIdMap, double dist_thresh=30);
+    vector<NeuronSWC> specStructsDetection(V_NeuronSWC_list& inputSegList, double dist_thresh=2);
+    vector<NeuronSWC> loopDetection(V_NeuronSWC_list& inputSegList, double dist_thresh=8);
+    vector<NeuronSWC> tipDetection(V_NeuronSWC_list inputSegList, bool removeFlag, map<string, set<size_t>> allPoint2SegIdMap, double dist_thresh=30);
     QJsonArray crossingDetection();
     vector<NeuronSWC> branchingDetection(V_NeuronSWC_list inputSegList, double dist_thresh=10);
-    void handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, int& count);
+    void handleMulFurcation(vector<NeuronSWC>& outputSpecialPoints, int& count, double dist_thre=8);
     void handleLoop(vector<NeuronSWC>& outputSpecialPoints, int& count);
     void handleNearBifurcation(vector<NeuronSWC>& bifurPoints, int& count);
     void handleTip(vector<NeuronSWC>& tipPoints);
@@ -58,11 +58,12 @@ public:
     void getImageRES();
     void getImageMaxRES();
     void getApoForCrop(QString fileSaveName, vector<NeuronSWC> tipPoints);
-    void removeShortSegs(V_NeuronSWC_list inputSegList);
+    void removeShortSegs(V_NeuronSWC_list inputSegList, double dist_thre=8);
     void removeOverlapSegs(V_NeuronSWC_list inputSegList);
 
 signals:
     void removeErrorSegsDone();
+    void tuneErrorSegsDone();
 
 public slots:
     void detectWholeAtStart();
@@ -74,7 +75,7 @@ public slots:
     void detectCrossings();
     void detectOthersWhole();
     void removeErrorSegs(bool);
-
+    void tuneErrorSegs(bool);
 };
 
 #endif // COLLDETECTION_H

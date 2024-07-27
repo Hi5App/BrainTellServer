@@ -7,20 +7,20 @@
 #include "neuron_editing/neuron_format_converter.h"
 #include "include/hiredis/hiredis.h"
 const int neuron_type_color[21][3] = {
-        {255, 255, 255},  // white,   0-undefined
-        {20,  20,  20 },  // black,   1-soma
-        {200, 20,  0  },  // red,     2-axon
-        {0,   20,  200},  // blue,    3-dendrite
-        {200, 0,   200},  // purple,  4-apical dendrite
-        //the following is Hanchuan's extended color. 090331
-        {0,   200, 200},  // cyan,    5
-        {220, 200, 0  },  // yellow,  6
-        {0,   200, 20 },  // green,   7
-        {188, 94,  37 },  // coffee,  8
-        {180, 200, 120},  // asparagus,	9
-        {250, 100, 120},  // salmon,	10
-        {120, 200, 200},  // ice,		11
-        {100, 120, 200},  // orchid,	12
+    {255, 255, 255},  // white,   0-undefined
+    {20,  20,  20 },  // black,   1-soma
+    {200, 20,  0  },  // red,     2-axon
+    {0,   20,  200},  // blue,    3-dendrite
+    {200, 0,   200},  // purple,  4-apical dendrite
+    //the following is Hanchuan's extended color. 090331
+    {0,   200, 200},  // cyan,    5
+    {220, 200, 0  },  // yellow,  6
+    {0,   200, 20 },  // green,   7
+    {188, 94,  37 },  // coffee,  8
+    {180, 200, 120},  // asparagus,	9
+    {250, 100, 120},  // salmon,	10
+    {120, 200, 200},  // ice,		11
+    {100, 120, 200},  // orchid,	12
     //the following is Hanchuan's further extended color. 111003
     {255, 128, 168},  //	13
     {128, 255, 168},  //	14
@@ -31,6 +31,17 @@ const int neuron_type_color[21][3] = {
     {0, 0, 0}, //19 //totally black. PHC, 2012-02-15
     //the following (20-275) is used for matlab heat map. 120209 by WYN
     {0,0,131}, //20
+};
+
+const vector<QString> quality_control_types = {
+    "Multifurcation",
+    "Approaching bifurcation",
+    "Loop",
+    "Missing",
+    "Crossing error",
+    "Color mutation",
+    "Dissociative seg",
+    "Angle error"
 };
 
 void dirCheck(QString dirBaseName);
@@ -62,8 +73,7 @@ int isOverlapOfTwoSegs(V_NeuronSWC& seg1, V_NeuronSWC& seg2);
 QStringList V_NeuronSWCToSendMSG(V_NeuronSWC seg);
 
 RGB8 getColorFromType(int type);
-
 std::vector<std::string> stringSplit(const std::string&str, char delim);
-
+set<int> getQCMarkerNearBy(vector<V_NeuronSWC> &segs, const QList<CellAPO> &markers);
 
 #endif // UTILS_H

@@ -121,10 +121,10 @@ func InheritOther(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		fmt.Printf("----------collaborate: %s %s %s %s %s %s %v %v \n", utils.CollaborateBinPath, port, utils.MainPath, p.Project, p.Image, p.Neuron, p.Ano, utils.MaxRoomConnections, utils.AIInterval)
+		fmt.Printf("----------collaborate:%s %s %s %s %s %s %s %v %v \n", utils.CollaborateBinPath, port, utils.MainPath, p.Project, p.Image, p.Neuron, p.Ano, utils.MaxRoomConnections, utils.AIInterval)
 
-		log.Infoln(fmt.Sprintf("%s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Project, p.Image, p.Neuron, p.Ano))
-		cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("nohup %s %s %s \"%s\" \"%s\" \"%s\" %v %v > collserver.out 2>&1 &", utils.CollaborateBinPath, port, utils.MainPath, p.Project, p.Image, p.Neuron, p.Ano, utils.MaxRoomConnections, utils.AIInterval))
+		log.Infoln(fmt.Sprintf("%s %s %s %s %s %s %s &", utils.CollaborateBinPath, port, utils.MainPath, p.Project, p.Image, p.Neuron, p.Ano))
+		cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("nohup %s %s %s %s \"%s\" \"%s\" \"%s\" %v %v > collserver.out 2>&1 &", utils.CollaborateBinPath, port, utils.MainPath, p.Project, p.Image, p.Neuron, p.Ano, utils.MaxRoomConnections, utils.AIInterval))
 		if err := cmd.Start(); err != nil {
 			log.Error(err.Error())
 			fmt.Printf("----------collaborate: command error %s-------------------\n", err.Error())

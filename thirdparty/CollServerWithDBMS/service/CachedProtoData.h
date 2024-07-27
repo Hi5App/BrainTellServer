@@ -13,5 +13,6 @@ public:
 
     std::string UserName;
     std::string UserToken;
+    std::string Password;
 
 };

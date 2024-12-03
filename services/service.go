@@ -22,25 +22,25 @@ func (c *BrainTellServerApiController) Routes() Routes {
 		{
 			"GetRatingImageListPost",
 			strings.ToUpper("Post"),
-			"/dynamic/GetRatingImageList",
+			"/release/GetRatingImageList",
 			c.GetRatingImageListPost,
 		},
 		{
 			"RequestRescanImageListPost",
 			strings.ToUpper("Post"),
-			"/dynamic/RequestRescanImageList",
+			"/release/RequestRescanImageList",
 			c.RequestRescanImageListPost,
 		},
 		{
 			"UpdateRatingResultPost",
 			strings.ToUpper("Post"),
-			"/dynamic/UpdateRatingResult",
+			"/release/UpdateRatingResult",
 			c.UpdateRatingResultPost,
 		},
 		{
 			"GetRatingResultPost",
 			strings.ToUpper("Post"),
-			"/dynamic/GetRatingResult",
+			"/release/GetRatingResult",
 			c.GetRatingResultPost,
 		},
 	}

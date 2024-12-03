@@ -157,7 +157,7 @@ func (s *BrainTellServerApiService) RequestRescanImageListPost(request RescanIma
 // GetRatingImageFileGet - 获取打分的图片文件
 func HandleRatingStaticImageFile(router *mux.Router) {
 	fs := http.FileServer(http.Dir(utils.RatingImagePath))
-	router.PathPrefix("/dynamic/GetRatingImageFile").Handler(http.StripPrefix("/dynamic/GetRatingImageFile", fs))
+	router.PathPrefix("/release/GetRatingImageFile").Handler(http.StripPrefix("/release/GetRatingImageFile", fs))
 }
 
 func HandleRatingStaticImageFileCompressed() {

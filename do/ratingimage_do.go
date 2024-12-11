@@ -39,10 +39,10 @@ type RatingResultV2 struct {
 }
 
 type TRatingSolution struct {
-	ID             int64
-	SolutionName   string
-	SolutionDetail string
-	IsDeleted      bool
+	ID             int64  `xorm:"'ID'"`
+	SolutionName   string `xorm:"'SolutionName'"`
+	SolutionDetail string `xorm:"'SolutionDetail'"`
+	IsDeleted      bool   `xorm:"'IsDeleted'"`
 }
 
 type UserImageMap struct {
@@ -229,7 +229,7 @@ func InsertRatingResult(ratingResult RatingResultV2) error {
 	}
 
 	var solutionID int64
-	has, err := session.Table("t_rating_solution").Cols("ID").Where("SolutionName = ?", ratingResult.SolutionName).Get(&solutionID)
+	has, err := session.Table("t_rating_solution").Cols("ID").Where("SolutionName = ? AND IsDeleted = ?", ratingResult.SolutionName, 0).Get(&solutionID)
 	if err != nil {
 		return err
 	}
@@ -337,7 +337,7 @@ func QueryRatingResult(queryInfo QueryRatingResultInfo) ([]RatingResultV2, error
 		}).Infof("Failed")
 	}
 	var solutions []TRatingSolution
-	err := session.Table("t_rating_solution").Find(&solutions)
+	err := session.Table("t_rating_solution").Where("IsDeleted = ?", 0).Find(&solutions)
 	if err != nil {
 		return nil, err
 	}
@@ -367,9 +367,17 @@ func QueryRatingResult(queryInfo QueryRatingResultInfo) ([]RatingResultV2, error
 
 	var results []RatingResultV2
 	for _, tmpResult := range tmpResults {
+		var solutionName string
+		tmpName, ok := solutionID2NameMap[tmpResult.SolutionID]
+		if !ok {
+			solutionName = "DeletedSolution"
+		} else {
+			solutionName = tmpName
+		}
+
 		results = append(results, RatingResultV2{
 			ImageName:                   tmpResult.ImageName,
-			SolutionName:                solutionID2NameMap[tmpResult.SolutionID],
+			SolutionName:                solutionName,
 			UserName:                    tmpResult.UserName,
 			RatingEnum:                  tmpResult.RatingEnum,
 			AdditionalRatingDescription: tmpResult.AdditionalRatingDescription,
@@ -381,6 +389,9 @@ func QueryRatingResult(queryInfo QueryRatingResultInfo) ([]RatingResultV2, error
 }
 
 func GetRatingUserName(SolutionName string) ([]string, error) {
+	solutionID2NameMap := make(map[int64]string)
+	solutionName2IDMap := make(map[string]int64)
+
 	// 创建一个新的 Session 对象
 	session := utils.DB.NewSession()
 	defer func(session *xorm.Session) {
@@ -402,7 +413,7 @@ func GetRatingUserName(SolutionName string) ([]string, error) {
 
 	var solutionID int64
 	if SolutionName != "All" {
-		has, err := session.Table("t_rating_solution").Cols("ID").Where("SolutionName = ?", SolutionName).Get(&solutionID)
+		has, err := session.Table("t_rating_solution").Cols("ID").Where("SolutionName = ? AND IsDeleted = ?", SolutionName, 0).Get(&solutionID)
 		if err != nil {
 			return nil, err
 		}
@@ -411,8 +422,24 @@ func GetRatingUserName(SolutionName string) ([]string, error) {
 		}
 	}
 
+	var solutions []TRatingSolution
+	err := session.Table("t_rating_solution").Where("IsDeleted = ?", 0).Find(&solutions)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, solution := range solutions {
+		solutionID2NameMap[solution.ID] = solution.SolutionName
+		solutionName2IDMap[solution.SolutionName] = solution.ID
+	}
+	var solutionIDs []int64
+	for _, value := range solutionName2IDMap {
+		solutionIDs = append(solutionIDs, value)
+	}
+
 	var usernameResult []string
-	err := session.Table("t_rating_result").Cols("UserName").
+	err = session.Table("t_rating_result").Cols("UserName").
+		In("SolutionID", solutionIDs).
 		Where("SolutionID = ? OR ? = 'All'", solutionID, SolutionName).
 		Distinct("UserName").
 		Find(&usernameResult)
@@ -454,24 +481,37 @@ func UpdateRatingSolution(updatedData []UpdateRatingSolutionInfo) error {
 	for _, data := range updatedData {
 		updates := make(map[string]interface{})
 		if data.NewSolutionName != "" {
-			updates["NewSolutionName"] = data.NewSolutionName
+			updates["SolutionName"] = data.NewSolutionName
 		}
 		if data.SolutionDetail != "" {
 			updates["SolutionDetail"] = data.SolutionDetail
 		}
 
 		// 只更新有实际值的字段
+		var solutionID int64
+		has, err := session.Table("t_rating_solution").Cols("ID").Where("SolutionName = ? AND IsDeleted = ?", data.OldSolutionName, 0).Get(&solutionID)
+		if err != nil || !has {
+			err2 := session.Rollback()
+			if err2 != nil {
+				log.WithFields(log.Fields{
+					"event": "Update rating solution",
+					"err":   err2,
+				}).Infof("Failed")
+			}
+			return err
+		}
+
 		if len(updates) > 0 {
-			_, err := session.Table("t_rating_solution").Where("SolutionName = ?", data.OldSolutionName).Update(updates)
-			if err != nil {
-				err2 := session.Rollback()
-				if err2 != nil {
+			_, err2 := session.Table("t_rating_solution").Where("SolutionName = ? AND IsDeleted = ?", data.OldSolutionName, 0).Update(updates)
+			if err2 != nil {
+				err3 := session.Rollback()
+				if err3 != nil {
 					log.WithFields(log.Fields{
 						"event": "Update rating solution",
-						"err":   err2,
+						"err":   err3,
 					}).Infof("Failed")
 				}
-				return err
+				return err2
 			}
 		}
 	}
@@ -524,7 +564,19 @@ func DeleteRatingSolution(deletedData []string) error {
 		}
 
 		// 只更新有实际值的字段
-		_, err := session.Table("t_rating_solution").Where("SolutionName = ?", data).Update(map[string]interface{}{
+		var solutionID int64
+		has, err := session.Table("t_rating_solution").Cols("ID").Where("SolutionName = ? AND IsDeleted = ?", data, 0).Get(&solutionID)
+		if err != nil || !has {
+			err2 := session.Rollback()
+			if err2 != nil {
+				log.WithFields(log.Fields{
+					"event": "Delete rating solution",
+					"err":   err2,
+				}).Infof("Failed")
+			}
+			return err
+		}
+		_, err = session.Table("t_rating_solution").Where("SolutionName = ? AND IsDeleted = ?", data, 0).Update(map[string]interface{}{
 			"IsDeleted": 1,
 		})
 		if err != nil {
@@ -576,7 +628,20 @@ func AddRatingSolution(addedData []AddRatingSolutionInfo) error {
 		}
 
 		// 只添加有实际值的方案
-		_, err := session.Table("t_rating_solution").Insert(
+		var solutionID int64
+		has, err := session.Table("t_rating_solution").Cols("ID").Where("SolutionName = ? AND IsDeleted = ?", data.SolutionName, 0).Get(&solutionID)
+		if err != nil || has {
+			err2 := session.Rollback()
+			if err2 != nil {
+				log.WithFields(log.Fields{
+					"event": "Add rating solution",
+					"err":   err2,
+				}).Infof("Failed")
+			}
+			return err
+		}
+
+		_, err = session.Table("t_rating_solution").Insert(
 			TRatingSolution{
 				SolutionName:   data.SolutionName,
 				SolutionDetail: data.SolutionDetail,

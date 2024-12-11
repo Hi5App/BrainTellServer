@@ -5,19 +5,18 @@ import (
 	"BrainTellServer/models"
 	"BrainTellServer/utils"
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
 
 type RatingResultRequest struct {
 	UserName string `json:"UserName"`
-
 	Password string `json:"Password"`
 
-	ImageName string `json:"ImageName"`
-
-	RatingEnum string `json:"RatingEnum"`
-
+	ImageName                   string `json:"ImageName"`
+	SolutionName                string `json:"SolutionName"`
+	RatingEnum                  string `json:"RatingEnum"`
 	AdditionalRatingDescription string `json:"AdditionalRatingDescription"`
 }
 
@@ -50,13 +49,16 @@ type GetRatingResultRequest struct {
 	UserName string `json:"UserName"`
 	Password string `json:"Password"`
 
-	QueryUserName  string `json:"QueryUserName"`
-	QueryStartTime string `json:"QueryStartTime"`
-	QueryEndTime   string `json:"QueryEndTime"`
+	QuerySolutionName string `json:"QuerySolutionName"`
+	QueryUserName     string `json:"QueryUserName"`
+	QueryStartTime    string `json:"QueryStartTime"`
+	QueryEndTime      string `json:"QueryEndTime"`
 }
 
 type RatingQueryResult struct {
 	ImageName                   string `json:"ImageName"`
+	SolutionName                string `json:"SolutionName"`
+	UserName                    string `json:"UserName"`
 	RatingEnum                  string `json:"RatingEnum"`
 	AdditionalRatingDescription string `json:"AdditionalRatingDescription"`
 	UploadTime                  string `json:"UploadTime"`
@@ -65,6 +67,58 @@ type RatingQueryResult struct {
 type GetRatingResultResponse struct {
 	Status            string              `json:"Status"`
 	RatingQueryResult []RatingQueryResult `json:"RatingQueryResult"`
+}
+
+type GetRatingUserNameRequest struct {
+	UserName     string `json:"UserName"`
+	Password     string `json:"Password"`
+	SolutionName string `json:"SolutionName"`
+}
+
+type GetRatingUserNameResponse struct {
+	Status         string   `json:"Status"`
+	UserNameResult []string `json:"UserNameResult"`
+}
+
+type GetRatingSolutionRequest struct {
+	UserName string `json:"UserName"`
+	Password string `json:"Password"`
+}
+
+type GetRatingSolutionResponse struct {
+	Status         string     `json:"Status"`
+	SolutionResult []Solution `json:"SolutionResult"`
+}
+
+type Solution struct {
+	SolutionName   string `json:"SolutionName"`
+	SolutionDetail string `json:"SolutionDetail"`
+}
+
+type UpdatedSolutionInfo struct {
+	OldSolutionName string   `json:"OldSolutionName"`
+	UpdatedSolution Solution `json:"UpdatedSolution"`
+}
+
+type AddRatingSolutionRequest struct {
+	UserName string `json:"UserName"`
+	Password string `json:"Password"`
+
+	AddedSolution []Solution `json:"AddedSolution"`
+}
+
+type UpdateRatingSolutionRequest struct {
+	UserName string `json:"UserName"`
+	Password string `json:"Password"`
+
+	UpdatedSolutionInfo []UpdatedSolutionInfo `json:"UpdatedSolutionInfo"`
+}
+
+type DeleteRatingSolutionRequest struct {
+	UserName string `json:"UserName"`
+	Password string `json:"Password"`
+
+	DeletedSolution []string `json:"DeletedSolution"`
 }
 
 // BrainTellServerApiService is a service that implents the logic for the BrainTellServerApiServicer
@@ -118,9 +172,9 @@ func (s *BrainTellServerApiService) UpdateRatingResultPost(request RatingResultR
 	do.UserImageMapCachedData.Mu.Lock()
 	defer do.UserImageMapCachedData.Mu.Unlock()
 
-	// 创建一个新的评分结果对象
-	ratingResult := do.TRatingResult{
+	ratingResult := do.RatingResultV2{
 		ImageName:                   request.ImageName,
+		SolutionName:                request.SolutionName,
 		UserName:                    request.UserName,
 		RatingEnum:                  request.RatingEnum,
 		AdditionalRatingDescription: request.AdditionalRatingDescription,
@@ -219,19 +273,167 @@ func (s *BrainTellServerApiService) GetRatingResultPost(request GetRatingResultR
 		return ImageNameListResponse{Status: "password not correct", ImageNameList: imageNameList}, nil
 	}
 
-	results, err := do.QueryRatingResult(request.QueryUserName, request.QueryStartTime, request.QueryEndTime)
+	query := do.QueryRatingResultInfo{
+		SolutionName: request.QuerySolutionName,
+		UserName:     request.QueryUserName,
+		StartTime:    request.QueryStartTime,
+		EndTime:      request.QueryEndTime,
+	}
+	results, err := do.QueryRatingResult(query)
 	if err != nil {
 		var ratingQueryResult []RatingQueryResult
 		return GetRatingResultResponse{Status: err.Error(), RatingQueryResult: ratingQueryResult}, nil
 	}
 	var ratingQueryResult []RatingQueryResult
-	for _, result := range results {
+	for _, tmpResult := range results {
 		ratingQueryResult = append(ratingQueryResult, RatingQueryResult{
-			ImageName:                   result.ImageName,
-			RatingEnum:                  result.RatingEnum,
-			AdditionalRatingDescription: result.AdditionalRatingDescription,
-			UploadTime:                  result.UploadTime,
+			ImageName:                   tmpResult.ImageName,
+			SolutionName:                tmpResult.SolutionName,
+			RatingEnum:                  tmpResult.RatingEnum,
+			UserName:                    tmpResult.UserName,
+			AdditionalRatingDescription: tmpResult.AdditionalRatingDescription,
+			UploadTime:                  tmpResult.UploadTime,
 		})
 	}
 	return GetRatingResultResponse{Status: "OK", RatingQueryResult: ratingQueryResult}, nil
+}
+
+func (s *BrainTellServerApiService) GetRatingUserNamePost(request GetRatingUserNameRequest) (interface{}, error) {
+	var userMetaInfo = models.UserMetaInfoV1{}
+	result := do.QueryUser(&userMetaInfo, request.UserName)
+
+	if !result.Status {
+		return ResponseStatus{Status: result.Message}, nil
+	}
+	if userMetaInfo.Password != request.Password {
+		return ResponseStatus{Status: "password not correct"}, nil
+	}
+
+	usernames, err := do.GetRatingUserName(request.SolutionName)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Get rating username",
+			"err":   err,
+		}).Infof("Failed")
+		return GetRatingUserNameResponse{Status: err.Error(), UserNameResult: nil}, nil
+	}
+
+	return GetRatingUserNameResponse{Status: "OK", UserNameResult: usernames}, err
+}
+
+func (s *BrainTellServerApiService) GetRatingSolutionPost(request GetRatingSolutionRequest) (interface{}, error) {
+	var userMetaInfo = models.UserMetaInfoV1{}
+	result := do.QueryUser(&userMetaInfo, request.UserName)
+
+	if !result.Status {
+		return ResponseStatus{Status: result.Message}, nil
+	}
+	if userMetaInfo.Password != request.Password {
+		return ResponseStatus{Status: "password not correct"}, nil
+	}
+
+	solutions, err := do.GetRatingSolution()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Get rating solution",
+			"err":   err,
+		}).Infof("Failed")
+		var SolutionResult []Solution
+		return GetRatingSolutionResponse{Status: err.Error(), SolutionResult: SolutionResult}, nil
+	}
+
+	var SolutionResult []Solution
+	for _, solution := range solutions {
+		SolutionResult = append(SolutionResult, Solution{
+			SolutionName:   solution.SolutionName,
+			SolutionDetail: solution.SolutionDetail,
+		})
+	}
+
+	return GetRatingSolutionResponse{Status: "OK", SolutionResult: SolutionResult}, err
+}
+
+func (s *BrainTellServerApiService) AddRatingSolutionPost(request AddRatingSolutionRequest) (interface{}, error) {
+	var userMetaInfo = models.UserMetaInfoV1{}
+	result := do.QueryUser(&userMetaInfo, request.UserName)
+
+	if !result.Status {
+		return ResponseStatus{Status: result.Message}, nil
+	}
+	if userMetaInfo.Password != request.Password {
+		return ResponseStatus{Status: "password not correct"}, nil
+	}
+
+	var addedData []do.AddRatingSolutionInfo
+
+	for _, addedSolution := range request.AddedSolution {
+		addedData = append(addedData, do.AddRatingSolutionInfo{
+			SolutionName:   addedSolution.SolutionName,
+			SolutionDetail: addedSolution.SolutionDetail,
+		})
+	}
+
+	err := do.AddRatingSolution(addedData)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Add rating solution",
+			"err":   err,
+		}).Infof("Failed")
+		return ResponseStatus{Status: err.Error()}, nil
+	}
+	return ResponseStatus{Status: "OK"}, err
+}
+
+func (s *BrainTellServerApiService) UpdateRatingSolutionPost(request UpdateRatingSolutionRequest) (interface{}, error) {
+	var userMetaInfo = models.UserMetaInfoV1{}
+	result := do.QueryUser(&userMetaInfo, request.UserName)
+
+	if !result.Status {
+		return ResponseStatus{Status: result.Message}, nil
+	}
+	if userMetaInfo.Password != request.Password {
+		return ResponseStatus{Status: "password not correct"}, nil
+	}
+
+	var updatedData []do.UpdateRatingSolutionInfo
+
+	for _, updatedSolutionInfo := range request.UpdatedSolutionInfo {
+		updatedData = append(updatedData, do.UpdateRatingSolutionInfo{
+			OldSolutionName: updatedSolutionInfo.OldSolutionName,
+			NewSolutionName: updatedSolutionInfo.UpdatedSolution.SolutionName,
+			SolutionDetail:  updatedSolutionInfo.UpdatedSolution.SolutionDetail,
+		})
+	}
+
+	err := do.UpdateRatingSolution(updatedData)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Update rating solution",
+			"err":   err,
+		}).Infof("Failed")
+		return ResponseStatus{Status: err.Error()}, nil
+	}
+	return ResponseStatus{Status: "OK"}, err
+}
+
+func (s *BrainTellServerApiService) DeleteRatingSolutionPost(request DeleteRatingSolutionRequest) (interface{}, error) {
+	var userMetaInfo = models.UserMetaInfoV1{}
+	result := do.QueryUser(&userMetaInfo, request.UserName)
+
+	if !result.Status {
+		return ResponseStatus{Status: result.Message}, nil
+	}
+	if userMetaInfo.Password != request.Password {
+		return ResponseStatus{Status: "password not correct"}, nil
+	}
+
+	err := do.DeleteRatingSolution(request.DeletedSolution)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"event": "Delete rating solution",
+			"err":   err,
+		}).Infof("Failed")
+		return ResponseStatus{Status: err.Error()}, nil
+	}
+	return ResponseStatus{Status: "OK"}, err
 }

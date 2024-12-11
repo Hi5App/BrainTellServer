@@ -136,18 +136,18 @@ type UserMetaInfoV1 struct {
 	CompatibleData      BrainTellServerMysqlDBCompatibleData `bson:"CompatibleData"`
 }
 
-//type TUserinfo struct {
-//	Id        int       `xorm:"not null pk autoincr INT"`
-//	Name      string    `xorm:"not null unique VARCHAR(100)"`
-//	Email     string    `xorm:"not null unique VARCHAR(100)"`
-//	Nickname  string    `xorm:"not null VARCHAR(100)"`
-//	Passwd    string    `xorm:"not null VARCHAR(100)"`
-//	Score     int       `xorm:"not null default 0 index INT"`
-//	Appkey    string    `xorm:"not null default '' comment('网易云信appkey') VARCHAR(100)"`
-//	Isdeleted int       `xorm:"not null default 0 INT"`
-//	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
-//	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
-//}
+type TUserinfo struct {
+	Id        int       `xorm:"not null pk autoincr INT"`
+	Name      string    `xorm:"not null unique VARCHAR(100)"`
+	Email     string    `xorm:"not null unique VARCHAR(100)"`
+	Nickname  string    `xorm:"not null VARCHAR(100)"`
+	Passwd    string    `xorm:"not null VARCHAR(100)"`
+	Score     int       `xorm:"not null default 0 index INT"`
+	Appkey    string    `xorm:"not null default '' comment('网易云信appkey') VARCHAR(100)"`
+	Isdeleted int       `xorm:"not null default 0 INT"`
+	Ctime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created"`
+	Mtime     time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP updated"`
+}
 
 type TGameUserinfo struct {
 	Id        int       `xorm:"not null pk autoincr unique INT"`

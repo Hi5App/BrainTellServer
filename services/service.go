@@ -43,6 +43,36 @@ func (c *BrainTellServerApiController) Routes() Routes {
 			"/release/GetRatingResult",
 			c.GetRatingResultPost,
 		},
+		{
+			"GetRatingUserNamePost",
+			strings.ToUpper("Post"),
+			"/release/GetRatingUserName",
+			c.GetRatingUserNamePost,
+		},
+		{
+			"GetRatingSolutionPost",
+			strings.ToUpper("Post"),
+			"/release/GetRatingSolution",
+			c.GetRatingSolutionPost,
+		},
+		{
+			"AddRatingSolutionPost",
+			strings.ToUpper("Post"),
+			"/release/AddRatingSolution",
+			c.AddRatingSolutionPost,
+		},
+		{
+			"UpdateRatingSolutionPost",
+			strings.ToUpper("Post"),
+			"/release/UpdateRatingSolution",
+			c.UpdateRatingSolutionPost,
+		},
+		{
+			"DeleteRatingSolutionPost",
+			strings.ToUpper("Post"),
+			"/release/DeleteRatingSolution",
+			c.DeleteRatingSolutionPost,
+		},
 	}
 }
 
@@ -50,7 +80,7 @@ func (c *BrainTellServerApiController) Routes() Routes {
 func (c *BrainTellServerApiController) GetRatingImageListPost(w http.ResponseWriter, r *http.Request) {
 	request := &GetRatingImageRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
 
@@ -67,7 +97,7 @@ func (c *BrainTellServerApiController) GetRatingImageListPost(w http.ResponseWri
 func (c *BrainTellServerApiController) UpdateRatingResultPost(w http.ResponseWriter, r *http.Request) {
 	request := &RatingResultRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
 
@@ -84,7 +114,7 @@ func (c *BrainTellServerApiController) UpdateRatingResultPost(w http.ResponseWri
 func (c *BrainTellServerApiController) RequestRescanImageListPost(w http.ResponseWriter, r *http.Request) {
 	request := &RescanImageListRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
 
@@ -100,7 +130,7 @@ func (c *BrainTellServerApiController) RequestRescanImageListPost(w http.Respons
 func (c *BrainTellServerApiController) GetRatingResultPost(w http.ResponseWriter, r *http.Request) {
 	request := &GetRatingResultRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
 
@@ -113,6 +143,96 @@ func (c *BrainTellServerApiController) GetRatingResultPost(w http.ResponseWriter
 	EncodeJSONResponse(result, nil, w)
 }
 
+func (c *BrainTellServerApiController) GetRatingUserNamePost(w http.ResponseWriter, r *http.Request) {
+	request := &GetRatingUserNameRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
+		return
+	}
+
+	result, _ := c.service.GetRatingUserNamePost(*request)
+
+	err := EncodeJSONResponse(result, nil, w)
+	if err != nil {
+		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+	}
+}
+
+func (c *BrainTellServerApiController) GetRatingSolutionPost(w http.ResponseWriter, r *http.Request) {
+	request := &GetRatingSolutionRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
+		return
+	}
+
+	result, _ := c.service.GetRatingSolutionPost(*request)
+
+	err := EncodeJSONResponse(result, nil, w)
+	if err != nil {
+		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+	}
+}
+
+func (c *BrainTellServerApiController) AddRatingSolutionPost(w http.ResponseWriter, r *http.Request) {
+	request := &AddRatingSolutionRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
+		return
+	}
+
+	if request.AddedSolution == nil || len(request.AddedSolution) == 0 {
+		http.Error(w, "No added solution", http.StatusBadRequest)
+		return
+	}
+
+	result, _ := c.service.AddRatingSolutionPost(*request)
+
+	err := EncodeJSONResponse(result, nil, w)
+	if err != nil {
+		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+	}
+}
+
+func (c *BrainTellServerApiController) UpdateRatingSolutionPost(w http.ResponseWriter, r *http.Request) {
+	request := &UpdateRatingSolutionRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
+		return
+	}
+
+	if request.UpdatedSolutionInfo == nil || len(request.UpdatedSolutionInfo) == 0 {
+		http.Error(w, "No updated solution", http.StatusBadRequest)
+		return
+	}
+
+	result, _ := c.service.UpdateRatingSolutionPost(*request)
+
+	err := EncodeJSONResponse(result, nil, w)
+	if err != nil {
+		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+	}
+}
+
+func (c *BrainTellServerApiController) DeleteRatingSolutionPost(w http.ResponseWriter, r *http.Request) {
+	request := &DeleteRatingSolutionRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
+		return
+	}
+
+	if request.DeletedSolution == nil || len(request.DeletedSolution) == 0 {
+		http.Error(w, "No updated solution", http.StatusBadRequest)
+		return
+	}
+
+	result, _ := c.service.DeleteRatingSolutionPost(*request)
+
+	err := EncodeJSONResponse(result, nil, w)
+	if err != nil {
+		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+	}
+}
+
 // BrainTellServerApiRouter defines the required methods for binding the api requests to a responses for the BrainTellServerApi
 // The BrainTellServerApiRouter implementation should parse necessary information from the http request,
 // pass the data to a BrainTellServerApiServicer to perform the required actions, then write the service results to the http response.
@@ -121,6 +241,12 @@ type BrainTellServerApiRouter interface {
 	RequestRescanImageListPost(http.ResponseWriter, *http.Request)
 	UpdateRatingResultPost(http.ResponseWriter, *http.Request)
 	GetRatingResultPost(http.ResponseWriter, *http.Request)
+	GetRatingUserNamePost(http.ResponseWriter, *http.Request)
+
+	GetRatingSolutionPost(http.ResponseWriter, *http.Request)
+	AddRatingSolutionPost(http.ResponseWriter, *http.Request)
+	UpdateRatingSolutionPost(http.ResponseWriter, *http.Request)
+	DeleteRatingSolutionPost(http.ResponseWriter, *http.Request)
 }
 
 // BrainTellServerApiServicer defines the api actions for the BrainTellServerApi service
@@ -132,4 +258,10 @@ type BrainTellServerApiServicer interface {
 	RequestRescanImageListPost(RescanImageListRequest) (interface{}, error)
 	UpdateRatingResultPost(RatingResultRequest) (interface{}, error)
 	GetRatingResultPost(GetRatingResultRequest) (interface{}, error)
+	GetRatingUserNamePost(GetRatingUserNameRequest) (interface{}, error)
+
+	GetRatingSolutionPost(GetRatingSolutionRequest) (interface{}, error)
+	AddRatingSolutionPost(AddRatingSolutionRequest) (interface{}, error)
+	UpdateRatingSolutionPost(UpdateRatingSolutionRequest) (interface{}, error)
+	DeleteRatingSolutionPost(DeleteRatingSolutionRequest) (interface{}, error)
 }

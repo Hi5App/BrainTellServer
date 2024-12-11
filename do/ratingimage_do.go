@@ -4,11 +4,13 @@ import (
 	"BrainTellServer/utils"
 	"crypto/md5"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
+	"xorm.io/xorm"
 )
 
 type TRatingImage struct {
@@ -20,10 +22,27 @@ type TRatingImage struct {
 type TRatingResult struct {
 	ID                          int64  `xorm:"pk autoincr 'ID'"`                           // 主键，自增
 	ImageName                   string `xorm:"varchar(256) not null 'ImageName'"`          // 图像名称
+	SolutionID                  int64  `xorm:"int not null 'SolutionID'"`                  // 分类方案ID
 	UserName                    string `xorm:"varchar(256) 'UserName'"`                    // 用户名
 	RatingEnum                  string `xorm:"varchar(256) 'RatingEnum'"`                  // 评分枚举
 	AdditionalRatingDescription string `xorm:"varchar(256) 'AdditionalRatingDescription'"` // 附加评分描述
 	UploadTime                  string `xorm:"timestamp null 'UploadTime'"`                // 上传时间
+}
+
+type RatingResultV2 struct {
+	ImageName                   string
+	SolutionName                string
+	UserName                    string
+	RatingEnum                  string
+	AdditionalRatingDescription string
+	UploadTime                  string
+}
+
+type TRatingSolution struct {
+	ID             int64
+	SolutionName   string
+	SolutionDetail string
+	IsDeleted      bool
 }
 
 type UserImageMap struct {
@@ -39,6 +58,24 @@ type UserData struct {
 var UserImageMapCachedData = UserImageMap{
 	Mu:   sync.Mutex{},
 	Data: make(map[string][]UserData),
+}
+
+type QueryRatingResultInfo struct {
+	SolutionName string
+	UserName     string
+	StartTime    string
+	EndTime      string
+}
+
+type UpdateRatingSolutionInfo struct {
+	OldSolutionName string
+	NewSolutionName string
+	SolutionDetail  string
+}
+
+type AddRatingSolutionInfo struct {
+	SolutionName   string
+	SolutionDetail string
 }
 
 func CleanupExpiredUserImageMapCachedData() {
@@ -171,8 +208,36 @@ GROUP BY t_rating_image.ImageName;
 	return imageNameList, err
 }
 
-func InsertRatingResult(ratingResult TRatingResult) error {
-	count, err := utils.DB.Table("t_rating_result").Where("ImageName = ? AND UserName = ?", ratingResult.ImageName, ratingResult.UserName).Count()
+func InsertRatingResult(ratingResult RatingResultV2) error {
+	// 创建一个新的 Session 对象
+	session := utils.DB.NewSession()
+	defer func(session *xorm.Session) {
+		err := session.Close()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event": "insert rating result",
+				"err":   err,
+			}).Infof("Failed")
+		}
+	}(session)
+	// 开始事务
+	if err := session.Begin(); err != nil {
+		log.WithFields(log.Fields{
+			"event": "insert rating result",
+			"err":   err,
+		}).Infof("Failed")
+	}
+
+	var solutionID int64
+	has, err := session.Table("t_rating_solution").Cols("ID").Where("SolutionName = ?", ratingResult.SolutionName).Get(&solutionID)
+	if err != nil {
+		return err
+	}
+	if !has {
+		return nil
+	}
+
+	count, err := session.Table("t_rating_result").Where("ImageName = ? AND SolutionID = ? AND UserName = ?", ratingResult.ImageName, solutionID, ratingResult.UserName).Count()
 	if err != nil {
 		return err
 	}
@@ -180,24 +245,46 @@ func InsertRatingResult(ratingResult TRatingResult) error {
 	if count != 0 {
 		newValues := map[string]interface{}{
 			"ImageName":                   ratingResult.ImageName,
+			"SolutionID":                  solutionID,
 			"UserName":                    ratingResult.UserName,
 			"RatingEnum":                  ratingResult.RatingEnum,
 			"AdditionalRatingDescription": ratingResult.AdditionalRatingDescription,
 			"UploadTime":                  ratingResult.UploadTime,
 		}
 		// 更新记录
-		affected, err := utils.DB.Table("t_rating_result").Where("ImageName = ? AND UserName = ?", ratingResult.ImageName, ratingResult.UserName).Update(newValues)
-		if err != nil {
-			return err
+		affected, err2 := session.Table("t_rating_result").Where("ImageName = ? AND SolutionID = ? AND UserName = ?", ratingResult.ImageName, solutionID, ratingResult.UserName).Update(newValues)
+		if err2 != nil {
+			err3 := session.Rollback()
+			if err3 != nil {
+				log.WithFields(log.Fields{
+					"event": "Insert rating result",
+					"err":   err3,
+				}).Infof("Failed")
+			}
+			return err2
 		} else {
 			// 处理更新成功
 			fmt.Printf("更新了 %d 条记录\n", affected)
 		}
-		return nil
 	} else {
 		// 插入新的评分结果到数据库
-		_, err := utils.DB.Insert(&ratingResult)
-		if err != nil {
+		var tRatingResult = TRatingResult{
+			ImageName:                   ratingResult.ImageName,
+			SolutionID:                  solutionID,
+			UserName:                    ratingResult.UserName,
+			RatingEnum:                  ratingResult.RatingEnum,
+			AdditionalRatingDescription: ratingResult.AdditionalRatingDescription,
+			UploadTime:                  ratingResult.UploadTime,
+		}
+		_, err2 := session.Insert(&tRatingResult)
+		if err2 != nil {
+			err3 := session.Rollback()
+			if err3 != nil {
+				log.WithFields(log.Fields{
+					"event": "Insert rating result",
+					"err":   err3,
+				}).Infof("Failed")
+			}
 			return fmt.Errorf("failed to insert rating result: %v", err)
 		}
 
@@ -206,8 +293,15 @@ func InsertRatingResult(ratingResult TRatingResult) error {
 		if ok && len(usernames) > 2 {
 			delete(UserImageMapCachedData.Data, ratingResult.ImageName)
 		}
-		return nil
 	}
+	// 提交事务
+	if err2 := session.Commit(); err2 != nil {
+		log.WithFields(log.Fields{
+			"event": "Get rating result",
+			"err":   err2,
+		}).Infof("Failed")
+	}
+	return nil
 }
 
 func computeMD5(filePath string) (string, error) {
@@ -220,13 +314,294 @@ func computeMD5(filePath string) (string, error) {
 	return fmt.Sprintf("%x", hash), nil
 }
 
-func QueryRatingResult(userName string, startTime string, endTime string) ([]TRatingResult, error) {
-	var results []TRatingResult
-	session := utils.DB.Table("t_rating_result").Where("UserName = ? AND UploadTime > ? AND UploadTime < ?", userName, startTime, endTime)
+func QueryRatingResult(queryInfo QueryRatingResultInfo) ([]RatingResultV2, error) {
+	solutionID2NameMap := make(map[int64]string)
+	solutionName2IDMap := make(map[string]int64)
+
+	// 创建一个新的 Session 对象
+	session := utils.DB.NewSession()
+	defer func(session *xorm.Session) {
+		err := session.Close()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event": "Get rating result",
+				"err":   err,
+			}).Infof("Failed")
+		}
+	}(session)
+	// 开始事务
+	if err := session.Begin(); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Get rating result",
+			"err":   err,
+		}).Infof("Failed")
+	}
+	var solutions []TRatingSolution
+	err := session.Table("t_rating_solution").Find(&solutions)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, solution := range solutions {
+		solutionID2NameMap[solution.ID] = solution.SolutionName
+		solutionName2IDMap[solution.SolutionName] = solution.ID
+	}
+
+	var tmpResults []TRatingResult
+	err = session.Table("t_rating_result").
+		Where("(SolutionID = ? OR ? = 'All')", solutionName2IDMap[queryInfo.SolutionName], queryInfo.SolutionName).
+		Where("(UserName = ? OR ? = 'All')", queryInfo.UserName, queryInfo.UserName).
+		Where("UploadTime > ? AND UploadTime < ?", queryInfo.StartTime, queryInfo.EndTime).
+		Find(&tmpResults)
+	if err != nil {
+		return nil, err
+	}
+
+	// 提交事务
+	if err2 := session.Commit(); err2 != nil {
+		log.WithFields(log.Fields{
+			"event": "Get rating result",
+			"err":   err2,
+		}).Infof("Failed")
+	}
+
+	var results []RatingResultV2
+	for _, tmpResult := range tmpResults {
+		results = append(results, RatingResultV2{
+			ImageName:                   tmpResult.ImageName,
+			SolutionName:                solutionID2NameMap[tmpResult.SolutionID],
+			UserName:                    tmpResult.UserName,
+			RatingEnum:                  tmpResult.RatingEnum,
+			AdditionalRatingDescription: tmpResult.AdditionalRatingDescription,
+			UploadTime:                  tmpResult.UploadTime,
+		})
+	}
+
+	return results, nil
+}
+
+func GetRatingUserName(SolutionName string) ([]string, error) {
+	// 创建一个新的 Session 对象
+	session := utils.DB.NewSession()
+	defer func(session *xorm.Session) {
+		err := session.Close()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event": "Get rating user name",
+				"err":   err,
+			}).Infof("Failed")
+		}
+	}(session)
+	// 开始事务
+	if err := session.Begin(); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Get rating user name",
+			"err":   err,
+		}).Infof("Failed")
+	}
+
+	var solutionID int64
+	if SolutionName != "All" {
+		has, err := session.Table("t_rating_solution").Cols("ID").Where("SolutionName = ?", SolutionName).Get(&solutionID)
+		if err != nil {
+			return nil, err
+		}
+		if !has {
+			return nil, nil
+		}
+	}
+
+	var usernameResult []string
+	err := session.Table("t_rating_result").Cols("UserName").
+		Where("SolutionID = ? OR ? = 'All'", solutionID, SolutionName).
+		Distinct("UserName").
+		Find(&usernameResult)
+	if err != nil {
+		return nil, err
+	}
+
+	// 提交事务
+	if err2 := session.Commit(); err2 != nil {
+		log.WithFields(log.Fields{
+			"event": "Get rating user name",
+			"err":   err2,
+		}).Infof("Failed")
+	}
+
+	return usernameResult, nil
+}
+
+func UpdateRatingSolution(updatedData []UpdateRatingSolutionInfo) error {
+	// 创建一个新的 Session 对象
+	session := utils.DB.NewSession()
+	defer func(session *xorm.Session) {
+		err := session.Close()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event": "Update rating solution",
+				"err":   err,
+			}).Infof("Failed")
+		}
+	}(session)
+	// 开始事务
+	if err := session.Begin(); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Update rating solution",
+			"err":   err,
+		}).Infof("Failed")
+	}
+	// 循环逐个更新
+	for _, data := range updatedData {
+		updates := make(map[string]interface{})
+		if data.NewSolutionName != "" {
+			updates["NewSolutionName"] = data.NewSolutionName
+		}
+		if data.SolutionDetail != "" {
+			updates["SolutionDetail"] = data.SolutionDetail
+		}
+
+		// 只更新有实际值的字段
+		if len(updates) > 0 {
+			_, err := session.Table("t_rating_solution").Where("SolutionName = ?", data.OldSolutionName).Update(updates)
+			if err != nil {
+				err2 := session.Rollback()
+				if err2 != nil {
+					log.WithFields(log.Fields{
+						"event": "Update rating solution",
+						"err":   err2,
+					}).Infof("Failed")
+				}
+				return err
+			}
+		}
+	}
+
+	// 提交事务
+	if err := session.Commit(); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Update rating solution",
+			"err":   err,
+		}).Infof("Failed")
+	}
+
+	return nil
+}
+
+func GetRatingSolution() ([]TRatingSolution, error) {
+	var results []TRatingSolution
+	session := utils.DB.Table("t_rating_solution").Where("IsDeleted = ?", 0)
 	err := session.Find(&results)
 	if err != nil {
 		return nil, err
 	}
 
 	return results, nil
+}
+
+func DeleteRatingSolution(deletedData []string) error {
+	// 创建一个新的 Session 对象
+	session := utils.DB.NewSession()
+	defer func(session *xorm.Session) {
+		err := session.Close()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event": "Delete rating solution",
+				"err":   err,
+			}).Infof("Failed")
+		}
+	}(session)
+	// 开始事务
+	if err := session.Begin(); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Delete rating solution",
+			"err":   err,
+		}).Infof("Failed")
+	}
+	// 循环逐个更新
+	for _, data := range deletedData {
+		if data == "" {
+			continue
+		}
+
+		// 只更新有实际值的字段
+		_, err := session.Table("t_rating_solution").Where("SolutionName = ?", data).Update(map[string]interface{}{
+			"IsDeleted": 1,
+		})
+		if err != nil {
+			err2 := session.Rollback()
+			if err2 != nil {
+				log.WithFields(log.Fields{
+					"event": "Delete rating solution",
+					"err":   err2,
+				}).Infof("Failed")
+			}
+			return err
+		}
+	}
+
+	// 提交事务
+	if err := session.Commit(); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Delete rating solution",
+			"err":   err,
+		}).Infof("Failed")
+	}
+
+	return nil
+}
+
+func AddRatingSolution(addedData []AddRatingSolutionInfo) error {
+	// 创建一个新的 Session 对象
+	session := utils.DB.NewSession()
+	defer func(session *xorm.Session) {
+		err := session.Close()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"event": "Add rating solution",
+				"err":   err,
+			}).Infof("Failed")
+		}
+	}(session)
+	// 开始事务
+	if err := session.Begin(); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Add rating solution",
+			"err":   err,
+		}).Infof("Failed")
+	}
+	// 循环逐个添加
+	for _, data := range addedData {
+		if data.SolutionName == "" || data.SolutionDetail == "" {
+			continue
+		}
+
+		// 只添加有实际值的方案
+		_, err := session.Table("t_rating_solution").Insert(
+			TRatingSolution{
+				SolutionName:   data.SolutionName,
+				SolutionDetail: data.SolutionDetail,
+				IsDeleted:      false,
+			},
+		)
+		if err != nil {
+			err2 := session.Rollback()
+			if err2 != nil {
+				log.WithFields(log.Fields{
+					"event": "Add rating solution",
+					"err":   err2,
+				}).Infof("Failed")
+			}
+			return err
+		}
+	}
+
+	// 提交事务
+	if err := session.Commit(); err != nil {
+		log.WithFields(log.Fields{
+			"event": "Add rating solution",
+			"err":   err,
+		}).Infof("Failed")
+	}
+
+	return nil
 }

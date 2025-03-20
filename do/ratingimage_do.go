@@ -160,11 +160,11 @@ func GetRatingImageList(userName string, imageCount int32) ([]string, error) {
 SELECT t_rating_image.ImageName
 FROM t_rating_image
          LEFT JOIN (SELECT ImageName, COUNT(ImageName) AS RatedNum
-                    FROM t_rating_result
+                    FROM t_rating_result WHERE SolutionID='2'
                     GROUP BY ImageName) as NewTable ON t_rating_image.ImageName = NewTable.ImageName
          LEFT JOIN (SELECT DISTINCT ImageName
-                    FROM t_rating_result
-                    WHERE UserName = '%s') as UserImages ON t_rating_image.ImageName = UserImages.ImageName
+                    FROM t_rating_result WHERE SolutionID='2'
+                    AND UserName = '%s') as UserImages ON t_rating_image.ImageName = UserImages.ImageName
 WHERE (NewTable.RatedNum IS NULL OR NewTable.RatedNum < 2)
   AND UserImages.ImageName IS NULL
 GROUP BY t_rating_image.ImageName;
